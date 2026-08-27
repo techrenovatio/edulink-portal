@@ -13,16 +13,13 @@ static_dir = os.path.join(base_dir, 'frontend', 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-# --- KONFIGURASI KEAMANAN TINGGI (SECURITY HARDENING) ---
 app.secret_key = 'edulink_super_secret_key_2026_change_this_to_random_bytes'
 
-# Proteksi Cookie Sesi
-app.config['SESSION_COOKIE_HTTPONLY'] = True    # Mencegah pencurian cookie via JavaScript XSS
-app.config['SESSION_COOKIE_SECURE'] = True      # Cookie hanya dikirim via koneksi HTTPS
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'   # Mencegah serangan CSRF
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2) # Auto logout dalam 2 jam
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
-# Inisialisasi Database
 init_db()
 
 # --- ROUTES ---
@@ -66,8 +63,6 @@ def dashboard_overview():
         
     return render_template('dashboard/index.html', nama_user=session['nama'])
 
-# --- FITUR KELOLA PENGGUNA (USER MANAGEMENT) ---
-
 @app.route('/users')
 def manage_users():
     if 'user_id' not in session or session.get('role') != 'admin':
@@ -90,8 +85,7 @@ def add_user():
     role = request.form.get('role', '').strip()
     
     if nama and username and password and role:
-        # Hash password sebelum dimasukkan ke DB
-        hashed_password = generate_password_hash(password, method='scrypt')
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         
         conn = get_db_connection()
         try:

@@ -24,17 +24,16 @@ def init_db():
         )
     ''')
     
-    # Cek admin
     admin = conn.execute("SELECT * FROM users WHERE username = 'admin123'").fetchone()
     if not admin:
-        # Enkripsi Password default 'rahasia2026' dengan hashing PBKDF2/SHA256
-        hashed_password = generate_password_hash('rahasia2026', method='scrypt')
+        # Gunakan pbkdf2:sha256 (Standar paling stabil & aman)
+        hashed_password = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
         
         conn.execute(
             "INSERT INTO users (username, password, role, nama) VALUES (?, ?, ?, ?)",
             ('admin123', hashed_password, 'admin', 'Administrator Utama')
         )
         conn.commit()
-        print("✅ Database diinisialisasi & Akun Admin diamankan dengan Hash!")
+        print("✅ Database diinisialisasi & Akun Admin diamankan!")
         
     conn.close()
