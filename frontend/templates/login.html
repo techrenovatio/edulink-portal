@@ -35,16 +35,18 @@
 </head>
 <body class="bg-eduPaper text-gray-800 font-sans min-h-screen flex selection:bg-eduCrimson-600 selection:text-white overflow-x-hidden">
 
-    <!-- Sisi Kiri: Logo Resmi (Hanya tampil di Desktop/Tablet) -->
+    <!-- Sisi Kiri: Emblem Vektor (Hanya Desktop) -->
     <div class="hidden lg:flex lg:w-1/2 bg-eduPaper items-center justify-center p-12 relative z-0">
         <div class="max-w-md w-full flex flex-col items-center justify-center text-center">
-            <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" 
-                 alt="EduLink Logo Resmi" 
-                 class="w-full max-w-[380px] h-auto object-contain mix-blend-multiply drop-shadow-xl transition duration-500">
+            <div class="w-48 h-48 rounded-full bg-eduDark-900 flex items-center justify-center shadow-2xl border-4 border-amber-500/40 mb-6">
+                <i class="fa-solid fa-shield-halved text-7xl text-amber-500"></i>
+            </div>
+            <h2 class="text-3xl font-serif font-bold text-eduDark-900 tracking-tight">EduLink.</h2>
+            <p class="text-xs text-gray-400 font-mono uppercase tracking-widest mt-2">Platform Administrasi Sekolah</p>
         </div>
     </div>
 
-    <!-- Sisi Kanan: Panel Form Login (Sangat Responsif untuk HP) -->
+    <!-- Sisi Kanan: Panel Form Login -->
     <div class="w-full lg:w-1/2 bg-white min-h-screen flex flex-col justify-between px-6 sm:px-16 lg:px-20 xl:px-28 py-10 relative shadow-2xl z-10">
         
         <!-- Tombol Kembali -->
@@ -55,10 +57,10 @@
         </div>
         
         <div class="my-auto py-8">
-            <!-- Mobile Header Logo (Muncul hanya di HP) -->
+            <!-- Mobile Header Logo -->
             <div class="flex lg:hidden items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shadow-md border border-gray-100">
-                    <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" alt="Logo" class="w-full h-full object-contain mix-blend-multiply">
+                <div class="w-10 h-10 rounded-lg bg-eduDark-900 flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-shield-halved text-amber-500 text-lg"></i>
                 </div>
                 <span class="text-2xl font-serif font-bold text-eduDark-900">EduLink.</span>
             </div>
@@ -72,7 +74,6 @@
                 </p>
             </div>
 
-            <!-- Alert Error -->
             {% if error %}
             <div class="mb-6 p-4 bg-red-50 border-l-4 border-eduCrimson-600 text-eduCrimson-700 text-xs font-bold uppercase tracking-wider flex items-center gap-3">
                 <i class="fa-solid fa-circle-exclamation text-base"></i>
@@ -80,7 +81,6 @@
             </div>
             {% endif %}
             
-            <!-- Form Area -->
             <form action="/login" method="POST" class="flex flex-col gap-5">
                 
                 <div class="flex flex-col gap-1.5">

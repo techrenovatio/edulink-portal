@@ -50,7 +50,13 @@
 <body class="bg-eduPaper text-gray-800 font-sans min-h-screen selection:bg-eduCrimson-600 selection:text-white overflow-x-hidden">
 
     <!-- Navigasi Utama -->
-    <nav class="bg-eduPaper/90 backdrop-blur-md px-10 py-8 flex items-center justify-end sticky top-0 z-50">
+    <nav class="bg-eduPaper/90 backdrop-blur-md px-10 py-8 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-eduDark-900 flex items-center justify-center text-amber-500 shadow-lg">
+                <i class="fa-solid fa-shield-halved text-xl"></i>
+            </div>
+            <span class="text-2xl font-serif font-bold text-eduDark-900 tracking-tight">EduLink.</span>
+        </div>
         <button id="menu-btn" class="text-eduDark-900 hover:text-eduCrimson-600 focus:outline-none transition duration-300 flex items-center gap-4 group">
             <span class="text-sm font-bold uppercase tracking-[0.2em] hidden sm:block group-hover:text-eduCrimson-600 transition">Menu</span>
             <i class="fa-solid fa-bars text-2xl"></i>
@@ -88,11 +94,11 @@
     <header class="relative flex items-center min-h-[80vh] pt-4 pb-20 overflow-hidden">
         <div class="max-w-[1400px] mx-auto px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative">
             
-            <!-- Sisi Kiri: Logo Utama -->
-            <div class="relative w-full h-[400px] lg:h-[600px] flex items-center justify-start pointer-events-none z-0">
-                <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" alt="EduLink Logo Utama" 
-                     class="absolute left-[-10%] lg:left-[-150px] xl:left-[-250px] top-1/2 transform -translate-y-1/2 w-[600px] lg:w-[950px] xl:w-[1100px] max-w-none object-contain mix-blend-multiply"
-                     style="filter: contrast(1.05) brightness(1.05); -webkit-mask-image: radial-gradient(circle at center, black 45%, transparent 72%); mask-image: radial-gradient(circle at center, black 45%, transparent 72%);">
+            <!-- Sisi Kiri: Emblem Logo Vektor -->
+            <div class="relative w-full h-[350px] lg:h-[500px] flex items-center justify-center pointer-events-none z-0">
+                <div class="w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-gradient-to-tr from-eduDark-900 to-gray-800 flex items-center justify-center shadow-2xl border-4 border-amber-500/30">
+                    <i class="fa-solid fa-shield-halved text-[120px] lg:text-[160px] text-amber-500"></i>
+                </div>
             </div>
 
             <!-- Sisi Kanan: Tipografi Elegan -->
