@@ -14,13 +14,13 @@ static_dir = os.path.join(base_dir, 'frontend', 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-# --- APP CONFIGURATION ---
+# --- APP CONFIGURATION (RAMAH MOBILE & LAPTOP) ---
 app.secret_key = 'edulink_super_secret_key_2026_change_this_to_random_bytes'
 
-# Konfigurasi Session Cookie (Ramah Perangkat Mobile/HP/Tablet)
+app.config['SESSION_COOKIE_NAME'] = 'edulink_session'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False  # Set False agar cookie tersimpan di browser HP (HTTP/HTTPS IP)
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False  # Mengizinkan login melalui HTTP/HTTPS sslip.io
+app.config['SESSION_COOKIE_SAMESITE'] = None  # Bebas blokir cookie SameSite di browser HP
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 # Inisialisasi Database SQLite
@@ -85,7 +85,7 @@ def add_user():
         return redirect(url_for('login'))
         
     nama = request.form.get('nama', '').strip()
-    username = request.form.get('username', '').strip().lower() # Simpan selalu dalam huruf kecil
+    username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '')
     role = request.form.get('role', '').strip()
     
