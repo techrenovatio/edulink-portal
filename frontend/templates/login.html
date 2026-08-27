@@ -74,7 +74,7 @@
             </div>
             {% endif %}
             
-            <form action="/login" method="POST" class="flex flex-col gap-5">
+            <form action="{{ url_for('login') }}" method="POST" class="flex flex-col gap-5">
                 
                 <!-- Pilihan Role dengan Tombol Radio (Anti-Bug Mobile Browser) -->
                 <div class="flex flex-col gap-2">
@@ -91,12 +91,12 @@
                     </div>
                 </div>
                 
-                <!-- Input Username -->
+                <!-- Input Username (Optimasi HP) -->
                 <div class="flex flex-col gap-1.5">
                     <label class="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">NIP / NISN / Username</label>
                     <div class="relative">
                         <i class="fa-solid fa-id-card absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" name="username" required placeholder="Masukkan ID Anda" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" class="w-full bg-gray-50/50 border border-gray-200 text-eduDark-900 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-eduCrimson-600 focus:bg-white transition duration-300 rounded-none">
+                        <input type="text" name="username" required placeholder="Masukkan ID Anda" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text" class="w-full bg-gray-50/50 border border-gray-200 text-eduDark-900 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-eduCrimson-600 focus:bg-white transition duration-300 rounded-none">
                     </div>
                 </div>
                 
