@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Pengguna - EduLink Platform</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                        serif: ['"Merriweather"', 'serif'],
+                    },
+                    colors: {
+                        eduCrimson: { 600: '#A51C30', 700: '#8A1525' },
+                        eduDark: { 900: '#141414', 800: '#1A1A1A', 700: '#262626' },
+                        eduPaper: '#F7F7F7',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-eduPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-eduCrimson-600 selection:text-white">
+
+    <!-- Sidebar Gelap -->
+    <aside class="w-64 bg-eduDark-900 text-gray-400 flex flex-col h-full shadow-2xl z-20 shrink-0">
+        <div class="h-24 flex items-center gap-3 px-6 border-b border-gray-800/80">
+            <div class="w-10 h-10 flex items-center justify-center overflow-hidden">
+                <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" 
+                     alt="EduLink Logo" 
+                     class="w-16 h-16 max-w-none object-contain"
+                     style="filter: invert(1) grayscale(1) brightness(2) contrast(1.2); mix-blend-mode: screen;">
+            </div>
+            <span class="text-xl font-serif font-bold text-white tracking-tight">EduLink.</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2">
+            <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Menu Utama</p>
+            
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+                <i class="fa-solid fa-chart-line text-sm w-5 text-center"></i>
+                <span class="text-sm font-medium tracking-wide">Overview</span>
+            </a>
+            
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition duration-300 group">
+                <i class="fa-solid fa-user-gear text-sm w-5 text-center"></i>
+                <span class="text-sm font-semibold tracking-wide">Kelola Pengguna</span>
+            </a>
+
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+                <i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i>
+                <span class="text-sm font-medium tracking-wide">Poin Pelanggaran</span>
+            </a>
+
+            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+                <i class="fa-solid fa-file-signature text-sm w-5 text-center"></i>
+                <span class="text-sm font-medium tracking-wide">E-Rapor & Ujian</span>
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-gray-800/80">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-sm">
+                    AD
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-sm font-bold text-white truncate">{{ nama_user }}</p>
+                    <p class="text-[10px] font-mono text-gray-500 uppercase tracking-wider">Super Admin</p>
+                </div>
+            </div>
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-gray-800 text-[11px] font-bold text-gray-400 hover:text-white hover:border-eduCrimson-600 hover:bg-eduCrimson-600 transition duration-300 uppercase tracking-widest">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
+        
+        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-10 shrink-0">
+            <div>
+                <h1 class="text-2xl font-serif font-bold text-eduDark-900">User Management</h1>
+                <p class="text-xs text-gray-400 font-medium uppercase tracking-[0.1em] mt-1">Pengaturan Akun & Hak Akses Peran System</p>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-10 space-y-8">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                
+                <!-- Form Tambah User Baru -->
+                <div class="bg-white p-8 border border-gray-100 shadow-sm">
+                    <h3 class="font-serif font-bold text-xl text-eduDark-900 mb-2">Tambah Akun</h3>
+                    <p class="text-xs text-gray-400 mb-6">Buat kredensial login baru untuk Guru atau Administrator.</p>
+                    
+                    <form action="/users/add" method="POST" class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Nama Lengkap</label>
+                            <input type="text" name="nama" required placeholder="Contoh: Drs. H. Ahmad" class="w-full bg-eduPaper border border-gray-200 text-sm py-3 px-4 focus:outline-none focus:border-eduCrimson-600">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Username / NIP</label>
+                            <input type="text" name="username" required placeholder="Username unik" class="w-full bg-eduPaper border border-gray-200 text-sm py-3 px-4 focus:outline-none focus:border-eduCrimson-600">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Password</label>
+                            <input type="password" name="password" required placeholder="••••••••" class="w-full bg-eduPaper border border-gray-200 text-sm py-3 px-4 focus:outline-none focus:border-eduCrimson-600">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Peran (Role)</label>
+                            <select name="role" required class="w-full bg-eduPaper border border-gray-200 text-sm py-3 px-4 focus:outline-none focus:border-eduCrimson-600 cursor-pointer">
+                                <option value="guru">Guru / Staff</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-eduDark-900 hover:bg-eduCrimson-600 text-white font-bold py-3.5 transition duration-300 text-[11px] uppercase tracking-widest mt-2">
+                            Simpan User Baru
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tabel Daftar User (Disertai Form Delete Multiple & Icon Trash) -->
+                <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
+                    
+                    <form id="bulkDeleteForm" action="/users/delete-multiple" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user tercentang?')">
+                        
+                        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <h3 class="font-serif font-bold text-lg text-eduDark-900">Daftar Pengguna Sistem</h3>
+                                <!-- Tombol Hapus Banyak (Akan aktif ketika ada centang) -->
+                                <button type="submit" id="btnDeleteSelected" class="hidden text-xs font-bold text-white bg-eduCrimson-600 hover:bg-eduCrimson-700 px-3 py-1.5 transition uppercase tracking-wider items-center gap-1.5">
+                                    <i class="fa-solid fa-trash-can text-xs"></i> Hapus Terpilih (<span id="selectedCount">0</span>)
+                                </button>
+                            </div>
+                            <span class="text-xs font-mono bg-gray-100 text-gray-600 px-3 py-1 font-bold">{{ users|length }} Total User</span>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-eduPaper text-[11px] uppercase font-bold text-gray-400 tracking-wider">
+                                    <tr>
+                                        <!-- Checkbox Select All -->
+                                        <th class="pl-6 py-4 w-10">
+                                            <input type="checkbox" id="selectAll" class="w-4 h-4 accent-eduCrimson-600 cursor-pointer rounded-none">
+                                        </th>
+                                        <th class="px-4 py-4">Nama Lengkap</th>
+                                        <th class="px-4 py-4">Username</th>
+                                        <th class="px-4 py-4 text-center">Peran (Role)</th>
+                                        <th class="px-6 py-4 text-right">Status & Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    {% for u in users %}
+                                    <tr class="hover:bg-gray-50/80 transition group">
+                                        <!-- Checkbox Per Baris -->
+                                        <td class="pl-6 py-4">
+                                            <input type="checkbox" name="user_ids" value="{{ u.id }}" class="user-checkbox w-4 h-4 accent-eduCrimson-600 cursor-pointer rounded-none">
+                                        </td>
+                                        <td class="px-4 py-4 font-bold text-eduDark-900">{{ u.nama }}</td>
+                                        <td class="px-4 py-4 font-mono text-xs">{{ u.username }}</td>
+                                        <td class="px-4 py-4 text-center">
+                                            {% if u.role == 'admin' %}
+                                            <span class="bg-red-100 text-eduCrimson-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider">Administrator</span>
+                                            {% else %}
+                                            <span class="bg-gray-100 text-gray-800 px-3 py-1 text-[10px] font-bold uppercase tracking-wider">Guru / Staff</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-3">
+                                                <span class="text-emerald-600 text-xs font-bold flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle text-[8px]"></i> Aktif
+                                                </span>
+                                                <!-- Tombol Hapus Tunggal (Icon Sampah) -->
+                                                <button type="button" 
+                                                        onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" 
+                                                        class="p-1.5 text-gray-400 hover:text-eduCrimson-600 transition" 
+                                                        title="Hapus Pengguna">
+                                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </form>
+
+                    <!-- Form Tersembunyi untuk Hapus Tunggal -->
+                    <form id="singleDeleteForm" method="POST" class="hidden"></form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Script JavaScript untuk Manajemen Checkbox & Hapus -->
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const userCheckboxes = document.querySelectorAll('.user-checkbox');
+        const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+        const selectedCount = document.getElementById('selectedCount');
+
+        function updateDeleteButton() {
+            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+            const count = checkedBoxes.length;
+            
+            selectedCount.textContent = count;
+            if (count > 0) {
+                btnDeleteSelected.classList.remove('hidden');
+                btnDeleteSelected.classList.add('flex');
+            } else {
+                btnDeleteSelected.classList.add('hidden');
+                btnDeleteSelected.classList.remove('flex');
+            }
+        }
+
+        selectAll.addEventListener('change', function() {
+            userCheckboxes.forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateDeleteButton();
+        });
+
+        userCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (!this.checked) {
+                    selectAll.checked = false;
+                }
+                updateDeleteButton();
+            });
+        });
+
+        function deleteSingleUser(userId, userName) {
+            if (confirm(`Apakah Anda yakin ingin menghapus akun '${userName}'?`)) {
+                const singleForm = document.getElementById('singleDeleteForm');
+                singleForm.action = `/users/delete/${userId}`;
+                singleForm.submit();
+            }
+        }
+    </script>
+</body>
+</html>
