@@ -4,18 +4,28 @@ from modules.database import get_db_connection
 def verify_login(username, password, role):
     if not username or not password or not role:
         return None
-        
+
+    # Bersihkan spasi dan ubah ke huruf kecil untuk pencocokan presisi
     username_clean = username.strip().lower()
     role_clean = role.strip().lower()
-    
+
     conn = get_db_connection()
-    # Pencocokan fleksibel tanpa membedakan huruf besar/kecil di database
+    
+    # Ambil data user berdasarkan username (case-insensitive)
     user = conn.execute(
-        "SELECT * FROM users WHERE LOWER(TRIM(username)) = ? AND LOWER(TRIM(role)) = ?", 
-        (username_clean, role_clean)
+        "SELECT * FROM users WHERE LOWER(TRIM(username)) = ?", 
+        (username_clean,)
     ).fetchone()
+    
     conn.close()
 
-    if user and check_password_hash(user['password'], password):
-        return dict(user)
+    # Jika user ditemukan
+    if user:
+        db_user = dict(user)
+        db_role = str(db_user.get('role', '')).strip().lower()
+
+        # Validasi role dan password hash
+        if db_role == role_clean and check_password_hash(db_user['password'], password):
+            return db_user
+
     return None
