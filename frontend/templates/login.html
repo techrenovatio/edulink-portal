@@ -36,12 +36,12 @@
 </head>
 <body class="bg-eduPaper text-gray-800 font-sans min-h-screen flex selection:bg-eduCrimson-600 selection:text-white overflow-hidden">
 
-    <!-- Sisi Kiri: Branding & Logo EduLink (Perbaikan Tampilan Logo) -->
+    <!-- Sisi Kiri: Branding & Logo Resmi EduLink -->
     <div class="hidden lg:flex lg:w-1/2 bg-eduPaper items-center justify-center p-12 relative z-0">
-        <div class="max-w-lg w-full flex flex-col items-center justify-center">
+        <div class="max-w-md w-full flex flex-col items-center justify-center text-center">
             <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" 
-                 alt="EduLink Logo Utama" 
-                 class="w-full max-w-[450px] h-auto object-contain mix-blend-multiply drop-shadow-md transition duration-500">
+                 alt="EduLink Logo Resmi" 
+                 class="w-full max-w-[380px] h-auto object-contain mix-blend-multiply drop-shadow-xl transition duration-500">
         </div>
     </div>
 
@@ -72,7 +72,7 @@
         </div>
         {% endif %}
         
-        <!-- Form Area (Action diarahkan ke /login) -->
+        <!-- Form Area -->
         <form action="/login" method="POST" class="flex flex-col gap-6">
             
             <!-- Input: Pilih Peran -->
