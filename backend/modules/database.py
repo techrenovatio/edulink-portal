@@ -2,7 +2,6 @@ import sqlite3
 import os
 from werkzeug.security import generate_password_hash
 
-# Memastikan jalur database SQLite SELALU konsisten di folder backend/edulink.db
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, 'edulink.db')
 
@@ -26,7 +25,7 @@ def init_db():
         )
     ''')
     
-    # Tabel Pelanggaran / Poin
+    # Tabel Pelanggaran
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS pelanggaran (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,15 +38,13 @@ def init_db():
         )
     ''')
     
-    # AUTO-SEED AKUN ADMIN: Jika database kosong/belum ada admin, buat otomatis
-    admin_exists = cursor.execute("SELECT id FROM users WHERE username = 'admin123'").fetchone()
-    if not admin_exists:
-        hashed_password = generate_password_hash('rahasia2026')
-        cursor.execute(
-            "INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)",
-            ('Administrator Utama', 'admin123', hashed_password, 'admin')
-        )
-        print("Akun Admin Default Berhasil Dibuat!")
+    # Pastikan user admin123 selalu ada dengan hash pbkdf2:sha256 yang 100% kompatibel
+    cursor.execute("DELETE FROM users WHERE username = 'admin123'")
+    hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
+    cursor.execute(
+        "INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)",
+        ('Administrator Utama', 'admin123', hashed_pwd, 'admin')
+    )
 
     conn.commit()
     conn.close()

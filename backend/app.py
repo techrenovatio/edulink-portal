@@ -6,7 +6,6 @@ from werkzeug.security import generate_password_hash
 from modules.database import init_db, get_db_connection
 from modules.auth import verify_login
 
-# --- PATH CONFIGURATION ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 base_dir = os.path.dirname(current_dir)
 template_dir = os.path.join(base_dir, 'frontend', 'templates')
@@ -14,16 +13,14 @@ static_dir = os.path.join(base_dir, 'frontend', 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-# --- APP CONFIGURATION (RAMAH MOBILE & LAPTOP) ---
 app.secret_key = 'edulink_super_secret_key_2026_change_this_to_random_bytes'
 
 app.config['SESSION_COOKIE_NAME'] = 'edulink_session'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False  # Mengizinkan login melalui HTTP/HTTPS sslip.io
-app.config['SESSION_COOKIE_SAMESITE'] = None  # Bebas blokir cookie SameSite di browser HP
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
-# Inisialisasi Database SQLite
 init_db()
 
 # --- ROUTES ---
@@ -39,8 +36,7 @@ def login():
 
     if request.method == 'POST':
         role = request.form.get('role', '').strip()
-        # Mengubah username ke huruf kecil untuk mencegah kesalahan auto-capitalized keyboard HP
-        username = request.form.get('username', '').strip().lower()
+        username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
 
         user = verify_login(username, password, role)
@@ -90,7 +86,7 @@ def add_user():
     role = request.form.get('role', '').strip()
     
     if nama and username and password and role:
-        hashed_password = generate_password_hash(password)
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         
         conn = get_db_connection()
         try:
