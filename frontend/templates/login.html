@@ -36,11 +36,13 @@
 </head>
 <body class="bg-eduPaper text-gray-800 font-sans min-h-screen flex selection:bg-eduCrimson-600 selection:text-white overflow-hidden">
 
-    <!-- Sisi Kiri: Branding & Logo -->
-    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden pointer-events-none z-0">
-        <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" alt="EduLink Logo Utama" 
-             class="w-[700px] xl:w-[900px] max-w-none object-contain mix-blend-multiply"
-             style="filter: contrast(1.05) brightness(1.05); -webkit-mask-image: radial-gradient(circle at center, black 45%, transparent 72%); mask-image: radial-gradient(circle at center, black 45%, transparent 72%);">
+    <!-- Sisi Kiri: Branding & Logo EduLink (Perbaikan Tampilan Logo) -->
+    <div class="hidden lg:flex lg:w-1/2 bg-eduPaper items-center justify-center p-12 relative z-0">
+        <div class="max-w-lg w-full flex flex-col items-center justify-center">
+            <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" 
+                 alt="EduLink Logo Utama" 
+                 class="w-full max-w-[450px] h-auto object-contain mix-blend-multiply drop-shadow-md transition duration-500">
+        </div>
     </div>
 
     <!-- Sisi Kanan: Panel Form Login Bersih -->

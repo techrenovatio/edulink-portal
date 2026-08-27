@@ -31,14 +31,15 @@
 
     <!-- Sidebar Gelap -->
     <aside class="w-64 bg-eduDark-900 text-gray-400 flex flex-col h-full shadow-2xl z-20 shrink-0">
+        <!-- Logo Area Presisi -->
         <div class="h-24 flex items-center gap-3 px-6 border-b border-gray-800/80">
-            <div class="w-10 h-10 flex items-center justify-center overflow-hidden">
-                <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" 
-                     alt="EduLink Logo" 
-                     class="w-16 h-16 max-w-none object-contain"
-                     style="filter: invert(1) grayscale(1) brightness(2) contrast(1.2); mix-blend-mode: screen;">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-eduDark-900 font-bold text-xl shadow-lg shrink-0">
+                <i class="fa-solid fa-shield-halved text-white text-lg"></i>
             </div>
-            <span class="text-xl font-serif font-bold text-white tracking-tight">EduLink.</span>
+            <div class="flex flex-col justify-center">
+                <span class="text-xl font-serif font-bold text-white tracking-tight leading-none">EduLink.</span>
+                <span class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mt-1">Enterprise Edition</span>
+            </div>
         </div>
 
         <nav class="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2">
@@ -126,7 +127,7 @@
                     </form>
                 </div>
 
-                <!-- Tabel Daftar User (Disertai Form Delete Multiple & Icon Trash) -->
+                <!-- Tabel Daftar User -->
                 <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
                     
                     <form id="bulkDeleteForm" action="/users/delete-multiple" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user tercentang?')">
@@ -134,7 +135,6 @@
                         <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                             <div class="flex items-center gap-4">
                                 <h3 class="font-serif font-bold text-lg text-eduDark-900">Daftar Pengguna Sistem</h3>
-                                <!-- Tombol Hapus Banyak (Akan aktif ketika ada centang) -->
                                 <button type="submit" id="btnDeleteSelected" class="hidden text-xs font-bold text-white bg-eduCrimson-600 hover:bg-eduCrimson-700 px-3 py-1.5 transition uppercase tracking-wider items-center gap-1.5">
                                     <i class="fa-solid fa-trash-can text-xs"></i> Hapus Terpilih (<span id="selectedCount">0</span>)
                                 </button>
@@ -146,7 +146,6 @@
                             <table class="w-full text-left text-sm text-gray-600">
                                 <thead class="bg-eduPaper text-[11px] uppercase font-bold text-gray-400 tracking-wider">
                                     <tr>
-                                        <!-- Checkbox Select All -->
                                         <th class="pl-6 py-4 w-10">
                                             <input type="checkbox" id="selectAll" class="w-4 h-4 accent-eduCrimson-600 cursor-pointer rounded-none">
                                         </th>
@@ -159,7 +158,6 @@
                                 <tbody class="divide-y divide-gray-100">
                                     {% for u in users %}
                                     <tr class="hover:bg-gray-50/80 transition group">
-                                        <!-- Checkbox Per Baris -->
                                         <td class="pl-6 py-4">
                                             <input type="checkbox" name="user_ids" value="{{ u.id }}" class="user-checkbox w-4 h-4 accent-eduCrimson-600 cursor-pointer rounded-none">
                                         </td>
@@ -177,7 +175,6 @@
                                                 <span class="text-emerald-600 text-xs font-bold flex items-center gap-1">
                                                     <i class="fa-solid fa-circle text-[8px]"></i> Aktif
                                                 </span>
-                                                <!-- Tombol Hapus Tunggal (Icon Sampah) -->
                                                 <button type="button" 
                                                         onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" 
                                                         class="p-1.5 text-gray-400 hover:text-eduCrimson-600 transition" 
@@ -194,7 +191,6 @@
                         
                     </form>
 
-                    <!-- Form Tersembunyi untuk Hapus Tunggal -->
                     <form id="singleDeleteForm" method="POST" class="hidden"></form>
 
                 </div>
@@ -204,7 +200,6 @@
         </div>
     </main>
 
-    <!-- Script JavaScript untuk Manajemen Checkbox & Hapus -->
     <script>
         const selectAll = document.getElementById('selectAll');
         const userCheckboxes = document.querySelectorAll('.user-checkbox');
