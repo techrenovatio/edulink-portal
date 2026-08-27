@@ -31,17 +31,12 @@
 
     <!-- Sidebar Gelap -->
     <aside class="w-64 bg-eduDark-900 text-gray-400 flex flex-col h-full shadow-2xl z-20 shrink-0">
-        <!-- Logo Resmi EduLink di Sidebar -->
+        <!-- Logo Area - Hanya "EduLink." tanpa tulisan Enterprise Edition & Anti-Gambar Rusak -->
         <div class="h-24 flex items-center gap-3.5 px-6 border-b border-gray-800/80">
-            <div class="w-11 h-11 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0 overflow-hidden">
-                <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" 
-                     alt="EduLink Logo" 
-                     class="w-full h-full object-contain mix-blend-multiply scale-110">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center text-eduDark-900 font-bold shadow-md shrink-0 border border-amber-300/40">
+                <i class="fa-solid fa-fire-flame-curved text-eduDark-900 text-lg"></i>
             </div>
-            <div class="flex flex-col justify-center">
-                <span class="text-xl font-serif font-bold text-white tracking-tight leading-none">EduLink.</span>
-                <span class="text-[9px] font-mono text-gray-500 uppercase tracking-widest mt-1">Enterprise Edition</span>
-            </div>
+            <span class="text-2xl font-serif font-bold text-white tracking-tight">EduLink.</span>
         </div>
 
         <nav class="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2">
