@@ -18,14 +18,8 @@
                         serif: ['"Merriweather"', 'serif'],
                     },
                     colors: {
-                        eduCrimson: {
-                            600: '#A51C30',
-                            700: '#8A1525',
-                        },
-                        eduDark: {
-                            900: '#141414',
-                            800: '#1A1A1A',
-                        },
+                        eduCrimson: { 600: '#A51C30', 700: '#8A1525' },
+                        eduDark: { 900: '#141414', 800: '#1A1A1A' },
                         eduPaper: '#F7F7F7',
                     }
                 }
@@ -35,21 +29,16 @@
 </head>
 <body class="bg-eduPaper text-gray-800 font-sans min-h-screen flex selection:bg-eduCrimson-600 selection:text-white overflow-x-hidden">
 
-    <!-- Sisi Kiri: Emblem Vektor (Hanya Desktop) -->
     <div class="hidden lg:flex lg:w-1/2 bg-eduPaper items-center justify-center p-12 relative z-0">
         <div class="max-w-md w-full flex flex-col items-center justify-center text-center">
-            <div class="w-48 h-48 rounded-full bg-eduDark-900 flex items-center justify-center shadow-2xl border-4 border-amber-500/40 mb-6">
-                <i class="fa-solid fa-shield-halved text-7xl text-amber-500"></i>
-            </div>
-            <h2 class="text-3xl font-serif font-bold text-eduDark-900 tracking-tight">EduLink.</h2>
-            <p class="text-xs text-gray-400 font-mono uppercase tracking-widest mt-2">Platform Administrasi Sekolah</p>
+            <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" 
+                 alt="EduLink Logo Resmi" 
+                 class="w-full max-w-[340px] h-auto object-contain drop-shadow-xl transition duration-500">
         </div>
     </div>
 
-    <!-- Sisi Kanan: Panel Form Login -->
     <div class="w-full lg:w-1/2 bg-white min-h-screen flex flex-col justify-between px-6 sm:px-16 lg:px-20 xl:px-28 py-10 relative shadow-2xl z-10">
         
-        <!-- Tombol Kembali -->
         <div>
             <a href="/" class="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-eduCrimson-600 transition duration-300">
                 <i class="fa-solid fa-arrow-left"></i> Kembali
@@ -57,11 +46,8 @@
         </div>
         
         <div class="my-auto py-8">
-            <!-- Mobile Header Logo -->
             <div class="flex lg:hidden items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-lg bg-eduDark-900 flex items-center justify-center shadow-md">
-                    <i class="fa-solid fa-shield-halved text-amber-500 text-lg"></i>
-                </div>
+                <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" alt="Logo" class="w-8 h-8 object-contain">
                 <span class="text-2xl font-serif font-bold text-eduDark-900">EduLink.</span>
             </div>
 
