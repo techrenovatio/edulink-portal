@@ -4,32 +4,194 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poin Pelanggaran - EduLink Platform</title>
+    
+    <!-- Favicon / Logo Tab Browser -->
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                        serif: ['"Merriweather"', 'serif'],
+                    },
+                    colors: {
+                        eduCrimson: { 600: '#A51C30', 700: '#8A1525' },
+                        eduDark: { 900: '#141414', 800: '#1A1A1A', 700: '#262626' },
+                        eduPaper: '#F7F7F7',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-[#F7F7F7] text-gray-800 font-sans min-h-screen">
-    <div class="p-8 max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-serif font-bold text-[#141414]">Kelola Poin Pelanggaran</h1>
-            <a href="/dashboard" class="text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700">
-                <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
-            </a>
+<body class="bg-eduPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-eduCrimson-600 selection:text-white">
+
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-eduDark-900 text-gray-400 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+        <div class="h-20 lg:h-24 flex items-center justify-between px-6 border-b border-gray-800/80">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 border-none shadow-none">
+                    <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" alt="EduLink Logo" class="w-full h-full object-contain mix-blend-multiply scale-110">
+                </div>
+                <span class="text-2xl font-serif font-bold text-white tracking-tight">EduLink.</span>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
-        
-        <div class="bg-white p-6 shadow-sm border border-gray-100 mb-8">
-            <h2 class="text-lg font-bold mb-4">Catat Pelanggaran Siswa</h2>
-            <form action="/poin/add" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" name="nisn" placeholder="NISN" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
-                <input type="text" name="nama_siswa" placeholder="Nama Siswa" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
-                <input type="text" name="kelas" placeholder="Kelas (mis: XI IPA 1)" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
-                <input type="text" name="jenis_pelanggaran" placeholder="Jenis Pelanggaran" required class="md:col-span-2 bg-gray-50 border p-3 text-sm focus:outline-none">
-                <input type="number" name="poin" placeholder="Bobot Poin" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
-                <button type="submit" class="md:col-span-3 bg-[#141414] hover:bg-[#A51C30] text-white font-bold py-3 text-xs uppercase tracking-widest transition">
-                    Simpan Catatan Poin
-                </button>
-            </form>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
+            <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Menu Utama</p>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-sm font-medium">Overview</span></a>
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-sm font-medium">Kelola Pengguna</span></a>
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-sm font-semibold">Poin Pelanggaran</span></a>
+            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-sm font-medium">Absensi Harian</span></a>
+            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-file-signature text-sm w-5 text-center"></i><span class="text-sm font-medium">E-Rapor & Ujian</span></a>
+        </nav>
+
+        <div class="p-5 border-t border-gray-800/80">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-9 h-9 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-xs">AD</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
+                    <p class="text-[9px] font-mono text-gray-500 uppercase">Super Admin</p>
+                </div>
+            </div>
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2 border border-gray-800 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-eduCrimson-600 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
         </div>
-    </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
+        <header class="h-20 lg:h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-eduDark-900 text-xl"><i class="fa-solid fa-bars"></i></button>
+                <div>
+                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-eduDark-900 leading-tight">Manajemen Poin Kedisiplinan</h1>
+                    <p class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider hidden sm:block">Pencatatan Violasi & Terbitan Surat Peringatan (SP)</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+                
+                <!-- Form Input Catat Pelanggaran -->
+                <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
+                    <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900 mb-1">Catat Pelanggaran Siswa</h3>
+                    <p class="text-xs text-gray-400 mb-5">Input pelanggaran untuk mengakumulasi poin SP.</p>
+                    
+                    <form action="/poin/add" method="POST" autocomplete="off" class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">NISN Siswa</label>
+                            <input type="text" name="nisn" required placeholder="Contoh: 0051234910" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Nama Siswa</label>
+                            <input type="text" name="nama_siswa" required placeholder="Masukkan Nama Lengkap" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Kelas</label>
+                            <select name="kelas" required class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                                <option value="X IPA 1">X IPA 1</option>
+                                <option value="XI IPA 2">XI IPA 2</option>
+                                <option value="XII IPS 1">XII IPS 1</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Jenis Pelanggaran</label>
+                            <select id="selectPelanggaran" name="jenis_pelanggaran" onchange="autoFillPoin(this)" required class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                                <option value="" data-poin="0" disabled selected>-- Pilih Jenis Violasi --</option>
+                                <option value="Terlambat Masuk Sekolah (>15 Menit)" data-poin="10">Terlambat Masuk Sekolah (+10 Poin)</option>
+                                <option value="Tidak Mengikuti Upacara Bendera" data-poin="25">Tidak Mengikuti Upacara (+25 Poin)</option>
+                                <option value="Meninggalkan Jam Pelajaran (Bolos)" data-poin="50">Bolos Jam Pelajaran (+50 Poin)</option>
+                                <option value="Rokok / VAPE di Lingkungan Sekolah" data-poin="75">Merokok / VAPE (+75 Poin - SP 2)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Bobot Poin</label>
+                            <input type="number" id="inputPoin" name="poin" required readonly placeholder="0" class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-bold text-eduCrimson-600 focus:outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-eduDark-900 hover:bg-eduCrimson-600 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2">
+                            Simpan Catatan Poin
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tabel Riwayat Pelanggaran -->
+                <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
+                    <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Riwayat Pelanggaran Terakhir</h3>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                            <input type="text" placeholder="Cari NISN / Nama..." class="bg-eduPaper border border-gray-200 text-xs py-1.5 pl-8 pr-3 focus:outline-none">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[550px]">
+                            <thead class="bg-eduPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 tracking-wider">
+                                <tr>
+                                    <th class="pl-6 py-3.5">NISN / Nama</th>
+                                    <th class="px-3 py-3.5">Kelas</th>
+                                    <th class="px-3 py-3.5">Pelanggaran</th>
+                                    <th class="px-3 py-3.5 text-center">Poin</th>
+                                    <th class="pr-6 py-3.5 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="pl-6 py-3.5">
+                                        <p class="font-bold text-eduDark-900">M. Farhan Pratama</p>
+                                        <p class="text-[10px] font-mono text-gray-400">0051234910</p>
+                                    </td>
+                                    <td class="px-3 py-3.5 font-mono text-xs">XI IPA 2</td>
+                                    <td class="px-3 py-3.5">Terlambat Masuk Sekolah (>15 Menit)</td>
+                                    <td class="px-3 py-3.5 text-center font-bold text-amber-600">+10</td>
+                                    <td class="pr-6 py-3.5 text-right">
+                                        <button class="text-[10px] font-bold bg-gray-100 text-gray-700 hover:bg-eduCrimson-600 hover:text-white px-2.5 py-1 uppercase tracking-wider transition">Cetak SP</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="pl-6 py-3.5">
+                                        <p class="font-bold text-eduDark-900">Siti Nurhaliza</p>
+                                        <p class="text-[10px] font-mono text-gray-400">0051234911</p>
+                                    </td>
+                                    <td class="px-3 py-3.5 font-mono text-xs">X IPS 1</td>
+                                    <td class="px-3 py-3.5">Tidak Mengikuti Upacara Bendera</td>
+                                    <td class="px-3 py-3.5 text-center font-bold text-eduCrimson-600">+25</td>
+                                    <td class="pr-6 py-3.5 text-right">
+                                        <button class="text-[10px] font-bold bg-red-100 text-eduCrimson-600 hover:bg-eduCrimson-600 hover:text-white px-2.5 py-1 uppercase tracking-wider transition">Cetak SP 1</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        function autoFillPoin(selectEl) {
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const poin = selectedOption.getAttribute('data-poin');
+            document.getElementById('inputPoin').value = poin;
+        }
+    </script>
 </body>
 </html>
