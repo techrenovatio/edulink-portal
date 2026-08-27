@@ -190,10 +190,19 @@
                             <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Tren Kedisiplinan</h3>
                             <p class="text-xs text-gray-400">Grafik kasus per bulan</p>
                         </div>
-                        <select class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none w-full sm:w-auto">
-                            <option>TA 2025/2026</option>
-                            <option>TA 2024/2025</option>
-                        </select>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Dropdown Pilihan Mode Tampilan Grafik -->
+                            <select id="chartStyleSelector" class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none cursor-pointer">
+                                <option value="crimsonGradient">Mode: Crimson Curve</option>
+                                <option value="darkMinimal">Mode: Dark Area</option>
+                                <option value="stepped">Mode: Stepped Line</option>
+                                <option value="comparative">Mode: Dual Comparison</option>
+                            </select>
+                            <select class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none">
+                                <option>TA 2025/2026</option>
+                                <option>TA 2024/2025</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="h-[250px] sm:h-[320px]">
                         <canvas id="disciplineTrendChart"></canvas>
@@ -237,21 +246,112 @@
         }
 
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
-        new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                datasets: [{
-                    label: 'Pelanggaran',
-                    data: [65, 59, 80, 51, 56, 40],
+        let lineChart;
+
+        // Fungsi Memuat Grafik Sesuai Pilihan Mode
+        function renderLineChart(style) {
+            if (lineChart) lineChart.destroy();
+
+            const labels = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const dataPelanggaran = [65, 59, 80, 51, 56, 40];
+            const dataPrestasi = [20, 35, 45, 60, 75, 85];
+
+            let datasets = [];
+
+            if (style === 'crimsonGradient') {
+                const gradient = ctxLine.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(165, 28, 48, 0.35)');
+                gradient.addColorStop(1, 'rgba(165, 28, 48, 0.0)');
+
+                datasets = [{
+                    label: 'Kasus Pelanggaran',
+                    data: dataPelanggaran,
+                    borderColor: '#A51C30',
+                    borderWidth: 3,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4,
+                    pointBackgroundColor: '#A51C30',
+                    pointBorderColor: '#FFFFFF',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }];
+            } else if (style === 'darkMinimal') {
+                const gradientDark = ctxLine.createLinearGradient(0, 0, 0, 300);
+                gradientDark.addColorStop(0, 'rgba(20, 20, 20, 0.2)');
+                gradientDark.addColorStop(1, 'rgba(20, 20, 20, 0.0)');
+
+                datasets = [{
+                    label: 'Kasus Pelanggaran',
+                    data: dataPelanggaran,
                     borderColor: '#141414',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
+                    borderWidth: 3,
+                    fill: true,
+                    backgroundColor: gradientDark,
+                    tension: 0.4,
+                    pointBackgroundColor: '#141414',
+                    pointRadius: 4
+                }];
+            } else if (style === 'stepped') {
+                datasets = [{
+                    label: 'Kasus Pelanggaran',
+                    data: dataPelanggaran,
+                    borderColor: '#A51C30',
+                    borderWidth: 3,
+                    stepped: true,
+                    fill: false,
+                    pointBackgroundColor: '#A51C30',
+                    pointRadius: 5
+                }];
+            } else if (style === 'comparative') {
+                datasets = [
+                    {
+                        label: 'Pelanggaran',
+                        data: dataPelanggaran,
+                        borderColor: '#A51C30',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Poin Prestasi',
+                        data: dataPrestasi,
+                        borderColor: '#10B981',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4
+                    }
+                ];
+            }
+
+            lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: style === 'comparative', position: 'top' }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#F0F0F0' }, min: 0 }
+                    }
+                }
+            });
+        }
+
+        // Inisialisasi Mode Awal (Crimson Curve)
+        renderLineChart('crimsonGradient');
+
+        // Event Listener Perubahan Style
+        document.getElementById('chartStyleSelector').addEventListener('change', function() {
+            renderLineChart(this.value);
         });
 
+        // Donut Chart Kategori
         const ctxDoughnut = document.getElementById('violationCategoryChart').getContext('2d');
         new Chart(ctxDoughnut, {
             type: 'doughnut',
