@@ -42,7 +42,7 @@
 
     <nav class="bg-eduPaper/90 backdrop-blur-md px-6 sm:px-10 py-6 flex items-center justify-between sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" alt="EduLink Logo" class="w-9 h-9 object-contain">
+            <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" alt="EduLink Logo" class="w-12 h-12 object-contain mix-blend-multiply">
             <span class="text-2xl font-serif font-bold text-eduDark-900 tracking-tight">EduLink.</span>
         </div>
         <button id="menu-btn" class="text-eduDark-900 hover:text-eduCrimson-600 focus:outline-none transition duration-300 flex items-center gap-4 group">
@@ -76,12 +76,13 @@
         </div>
     </div>
 
-    <header class="relative flex items-center min-h-[75vh] pt-4 pb-16 overflow-hidden">
-        <div class="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center relative">
+    <!-- Hero Section: Logo Diperbesar Tanpa Kotak Putih -->
+    <header class="relative flex items-center min-h-[80vh] pt-4 pb-16 overflow-hidden">
+        <div class="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center relative">
             
-            <div class="relative w-full h-[280px] sm:h-[400px] lg:h-[500px] flex items-center justify-center pointer-events-none z-0">
+            <div class="relative w-full h-[350px] sm:h-[480px] lg:h-[600px] flex items-center justify-center pointer-events-none z-0">
                 <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" alt="EduLink Logo Utama" 
-                     class="w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[480px] h-auto object-contain drop-shadow-2xl">
+                     class="w-full max-w-[350px] sm:max-w-[480px] lg:max-w-[580px] h-auto object-contain mix-blend-multiply border-none shadow-none outline-none">
             </div>
 
             <div class="text-left relative z-10 max-w-xl mx-auto lg:mx-0 w-full">
