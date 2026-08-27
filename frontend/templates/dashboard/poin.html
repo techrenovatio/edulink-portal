@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poin Pelanggaran - EduLink Platform</title>
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-[#F7F7F7] text-gray-800 font-sans min-h-screen">
+    <div class="p-8 max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-serif font-bold text-[#141414]">Kelola Poin Pelanggaran</h1>
+            <a href="/dashboard" class="text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700">
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+        </div>
+        
+        <div class="bg-white p-6 shadow-sm border border-gray-100 mb-8">
+            <h2 class="text-lg font-bold mb-4">Catat Pelanggaran Siswa</h2>
+            <form action="/poin/add" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" name="nisn" placeholder="NISN" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
+                <input type="text" name="nama_siswa" placeholder="Nama Siswa" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
+                <input type="text" name="kelas" placeholder="Kelas (mis: XI IPA 1)" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
+                <input type="text" name="jenis_pelanggaran" placeholder="Jenis Pelanggaran" required class="md:col-span-2 bg-gray-50 border p-3 text-sm focus:outline-none">
+                <input type="number" name="poin" placeholder="Bobot Poin" required class="bg-gray-50 border p-3 text-sm focus:outline-none">
+                <button type="submit" class="md:col-span-3 bg-[#141414] hover:bg-[#A51C30] text-white font-bold py-3 text-xs uppercase tracking-widest transition">
+                    Simpan Catatan Poin
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

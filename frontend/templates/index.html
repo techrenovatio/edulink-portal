@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to EduLink - Platform Administrasi Sekolah</title>
     
+    <!-- Favicon / Logo Tab Browser -->
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
+    
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://edulink-portal.34.60.243.196.sslip.io/">
     <meta property="og:title" content="EduLink - Platform Administrasi & Kedisiplinan Sekolah">
@@ -35,7 +38,6 @@
 </head>
 <body class="bg-eduPaper text-gray-800 font-sans min-h-screen selection:bg-eduCrimson-600 selection:text-white overflow-x-hidden">
 
-    <!-- Navigasi Utama -->
     <nav class="bg-eduPaper/90 backdrop-blur-md px-6 sm:px-10 py-6 flex items-center justify-between sticky top-0 z-50">
         <div class="flex items-center gap-3">
             <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" 
@@ -49,10 +51,8 @@
         </button>
     </nav>
 
-    <!-- Overlay Backdrop -->
     <div id="menu-backdrop" class="fixed inset-0 bg-eduDark-900/40 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300 cursor-pointer"></div>
 
-    <!-- Panel Sidebar Menu -->
     <div id="side-menu" class="fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col border-l border-gray-200">
         <div class="p-8 flex justify-end">
             <button id="close-btn" class="text-gray-400 hover:text-eduCrimson-600 text-3xl transition duration-300 focus:outline-none">
@@ -76,7 +76,6 @@
         </div>
     </div>
 
-    <!-- Hero Section -->
     <header class="relative flex items-center min-h-[80vh] pt-4 pb-16 overflow-hidden">
         <div class="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center relative">
             
