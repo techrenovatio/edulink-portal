@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash
 from modules.database import init_db, get_db_connection
 from modules.auth import verify_login
 
+# --- PATH CONFIGURATION ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 base_dir = os.path.dirname(current_dir)
 template_dir = os.path.join(base_dir, 'frontend', 'templates')
@@ -13,13 +14,16 @@ static_dir = os.path.join(base_dir, 'frontend', 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
+# --- APP CONFIGURATION ---
 app.secret_key = 'edulink_super_secret_key_2026_change_this_to_random_bytes'
 
+# Konfigurasi Session Cookie (Ramah Perangkat Mobile/HP/Tablet)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = False  # Set False agar cookie tersimpan di browser HP (HTTP/HTTPS IP)
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
+# Inisialisasi Database SQLite
 init_db()
 
 # --- ROUTES ---
@@ -35,7 +39,8 @@ def login():
 
     if request.method == 'POST':
         role = request.form.get('role', '').strip()
-        username = request.form.get('username', '').strip()
+        # Mengubah username ke huruf kecil untuk mencegah kesalahan auto-capitalized keyboard HP
+        username = request.form.get('username', '').strip().lower()
         password = request.form.get('password', '')
 
         user = verify_login(username, password, role)
@@ -80,7 +85,7 @@ def add_user():
         return redirect(url_for('login'))
         
     nama = request.form.get('nama', '').strip()
-    username = request.form.get('username', '').strip()
+    username = request.form.get('username', '').strip().lower() # Simpan selalu dalam huruf kecil
     password = request.form.get('password', '')
     role = request.form.get('role', '').strip()
     
@@ -135,17 +140,20 @@ def delete_multiple_users():
 
 @app.route('/poin')
 def poin():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session: 
+        return redirect(url_for('login'))
     return render_template('dashboard/poin.html', nama_user=session['nama'])
 
 @app.route('/absensi')
 def absensi():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session: 
+        return redirect(url_for('login'))
     return render_template('dashboard/absensi.html', nama_user=session['nama'])
 
 @app.route('/rapor')
 def rapor():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    if 'user_id' not in session: 
+        return redirect(url_for('login'))
     return render_template('dashboard/rapor.html', nama_user=session['nama'])
 
 if __name__ == '__main__':
