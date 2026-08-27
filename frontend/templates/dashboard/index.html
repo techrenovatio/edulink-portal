@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Panel - EduLink Platform</title>
     
-    <!-- Import Font Klasik & Modern -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Chart.js Library untuk Visualisasi Enterprise -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
@@ -40,65 +38,69 @@
 </head>
 <body class="bg-eduPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-eduCrimson-600 selection:text-white">
 
-    <!-- Sidebar (Bilah Samping Gelap) -->
-    <aside class="w-64 bg-eduDark-900 text-gray-400 flex flex-col h-full shadow-2xl z-20 shrink-0">
-        <!-- Logo Area - Menggunakan edulink-logo.webp tanpa tulisan Enterprise Edition -->
-        <div class="h-24 flex items-center gap-3.5 px-6 border-b border-gray-800/80">
-            <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shadow-md shrink-0 overflow-hidden">
-                <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" 
-                     alt="EduLink Logo" 
-                     class="w-full h-full object-contain mix-blend-multiply scale-110">
+    <!-- Overlay Backdrop Mobile -->
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden transition-opacity"></div>
+
+    <!-- Sidebar Responsive (Slide-over di HP) -->
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-eduDark-900 text-gray-400 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="h-20 lg:h-24 flex items-center justify-between px-6 border-b border-gray-800/80">
+            <div class="flex items-center gap-3.5">
+                <div class="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shadow-md shrink-0 overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/edulink-logo.jpg') }}" alt="EduLink Logo" class="w-full h-full object-contain mix-blend-multiply scale-110">
+                </div>
+                <span class="text-xl font-serif font-bold text-white tracking-tight">EduLink.</span>
             </div>
-            <span class="text-2xl font-serif font-bold text-white tracking-tight">EduLink.</span>
+            <!-- Close Button Mobile -->
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
 
-        <!-- Menu Navigasi -->
-        <nav class="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2">
+        <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
             <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Menu Utama</p>
             
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition duration-300 group">
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition duration-300">
                 <i class="fa-solid fa-chart-line text-sm w-5 text-center"></i>
                 <span class="text-sm font-semibold tracking-wide">Overview</span>
             </a>
             
-            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
                 <i class="fa-solid fa-user-gear text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium tracking-wide">Kelola Pengguna</span>
             </a>
 
-            <a href="#" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+            <a href="#" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
                 <i class="fa-solid fa-users text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium tracking-wide">Data Siswa</span>
             </a>
 
-            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
                 <i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium tracking-wide">Poin Pelanggaran</span>
             </a>
 
-            <a href="#" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+            <a href="#" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
                 <i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium tracking-wide">Absensi Harian</span>
             </a>
 
-            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300 group">
+            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
                 <i class="fa-solid fa-file-signature text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium tracking-wide">E-Rapor & Ujian</span>
             </a>
         </nav>
 
-        <!-- User Profile -->
-        <div class="p-6 border-t border-gray-800/80">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-sm">
+        <div class="p-5 border-t border-gray-800/80">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-9 h-9 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-xs">
                     AD
                 </div>
                 <div class="overflow-hidden">
-                    <p class="text-sm font-bold text-white truncate">{{ nama_user if nama_user else 'Administrator' }}</p>
-                    <p class="text-[10px] font-mono text-gray-500 uppercase tracking-wider">Super Admin</p>
+                    <p class="text-xs font-bold text-white truncate">{{ nama_user if nama_user else 'Administrator' }}</p>
+                    <p class="text-[9px] font-mono text-gray-500 uppercase tracking-wider">Super Admin</p>
                 </div>
             </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-gray-800 text-[11px] font-bold text-gray-400 hover:text-white hover:border-eduCrimson-600 hover:bg-eduCrimson-600 transition duration-300 uppercase tracking-widest">
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2 border border-gray-800 text-[10px] font-bold text-gray-400 hover:text-white hover:border-eduCrimson-600 hover:bg-eduCrimson-600 transition uppercase tracking-widest">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
             </a>
         </div>
@@ -107,99 +109,105 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
         
-        <!-- Header Atas (Top Bar) -->
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-10 shrink-0">
-            <div>
-                <h1 class="text-2xl font-serif font-bold text-eduDark-900">Dashboard Panel</h1>
-                <p class="text-xs text-gray-400 font-medium uppercase tracking-[0.1em] mt-1">Sistem Pemantauan Analytics & Kedisiplinan</p>
+        <!-- Header Atas (Top Bar Responsive) -->
+        <header class="h-20 lg:h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
+            <div class="flex items-center gap-3">
+                <!-- Hamburger Toggle (HP Only) -->
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-eduDark-900 text-xl focus:outline-none">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-eduDark-900 leading-tight">Dashboard Panel</h1>
+                    <p class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider hidden sm:block">Sistem Analytics Kedisiplinan</p>
+                </div>
             </div>
             
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3 sm:gap-6">
                 <div class="relative hidden md:block">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                    <input type="text" placeholder="Cari data siswa, NISN..." class="w-64 bg-eduPaper border border-gray-200 text-sm py-2.5 pl-10 pr-4 focus:outline-none focus:border-eduCrimson-600 transition">
+                    <input type="text" placeholder="Cari data..." class="w-48 lg:w-64 bg-eduPaper border border-gray-200 text-sm py-2 pl-10 pr-4 focus:outline-none focus:border-eduCrimson-600">
                 </div>
-                <button class="relative p-2 text-gray-400 hover:text-eduCrimson-600 transition">
-                    <i class="fa-solid fa-bell text-xl"></i>
-                    <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-eduCrimson-600 rounded-full border-2 border-white"></span>
+                <button class="relative p-2 text-gray-400 hover:text-eduCrimson-600">
+                    <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-eduCrimson-600 rounded-full border border-white"></span>
                 </button>
             </div>
         </header>
 
         <!-- Area Scroll Content -->
-        <div class="flex-1 overflow-y-auto p-10 space-y-8">
+        <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             
             <!-- Banner Ucapan Selamat Datang -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-200/60">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200/60">
                 <div>
-                    <h2 class="text-3xl font-serif font-bold text-eduDark-900 mb-1">Selamat datang, {{ nama_user if nama_user else 'Administrator' }}.</h2>
-                    <p class="text-gray-500 text-sm font-serif italic">Ringkasan statistik metrik akademik dan kedisiplinan sekolah periode aktif.</p>
+                    <h2 class="text-xl sm:text-3xl font-serif font-bold text-eduDark-900 mb-1">Selamat datang, {{ nama_user if nama_user else 'Administrator' }}.</h2>
+                    <p class="text-gray-500 text-xs sm:text-sm font-serif italic">Ringkasan statistik metrik akademik & kedisiplinan sekolah.</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button class="px-5 py-2.5 bg-white border border-gray-300 text-eduDark-900 text-xs font-bold uppercase tracking-widest hover:border-eduDark-900 transition">
+                <div>
+                    <button class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 text-eduDark-900 text-[11px] font-bold uppercase tracking-widest hover:border-eduDark-900 transition">
                         <i class="fa-solid fa-download mr-2"></i> Ekspor Laporan
                     </button>
                 </div>
             </div>
 
-            <!-- Grid Metrik Utama (4 Stat Cards) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <!-- Grid Metrik Utama (1 Kolom di HP, 2 di Tablet, 4 di Desktop) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
                 
-                <div class="bg-white p-6 border border-gray-100 shadow-sm flex flex-col justify-between group hover:border-eduCrimson-600 transition duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Siswa Aktif</span>
-                        <div class="p-2 bg-gray-50 group-hover:bg-red-50 transition">
-                            <i class="fa-solid fa-user-graduate text-gray-400 group-hover:text-eduCrimson-600 text-lg transition"></i>
+                <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Total Siswa Aktif</span>
+                        <div class="p-2 bg-gray-50 text-gray-400">
+                            <i class="fa-solid fa-user-graduate text-base sm:text-lg"></i>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-4xl font-serif font-bold text-eduDark-900">1,245</h3>
-                        <p class="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1">
-                            <i class="fa-solid fa-arrow-up"></i> +3.2% dari semester lalu
+                        <h3 class="text-3xl sm:text-4xl font-serif font-bold text-eduDark-900">1,245</h3>
+                        <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up"></i> +3.2% vs semester lalu
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 border border-gray-100 shadow-sm flex flex-col justify-between group hover:border-eduCrimson-600 transition duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Pelanggaran Bulan Ini</span>
-                        <div class="p-2 bg-gray-50 group-hover:bg-red-50 transition">
-                            <i class="fa-solid fa-triangle-exclamation text-gray-400 group-hover:text-eduCrimson-600 text-lg transition"></i>
+                <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Pelanggaran Bulan Ini</span>
+                        <div class="p-2 bg-gray-50 text-gray-400">
+                            <i class="fa-solid fa-triangle-exclamation text-base sm:text-lg"></i>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-4xl font-serif font-bold text-eduDark-900">42</h3>
-                        <p class="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1">
+                        <h3 class="text-3xl sm:text-4xl font-serif font-bold text-eduDark-900">42</h3>
+                        <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
                             <i class="fa-solid fa-arrow-down"></i> -14% vs bulan lalu
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 border border-gray-100 shadow-sm flex flex-col justify-between group hover:border-eduCrimson-600 transition duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Persentase Kehadiran</span>
-                        <div class="p-2 bg-gray-50 group-hover:bg-red-50 transition">
-                            <i class="fa-solid fa-clipboard-check text-gray-400 group-hover:text-eduCrimson-600 text-lg transition"></i>
+                <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Persentase Kehadiran</span>
+                        <div class="p-2 bg-gray-50 text-gray-400">
+                            <i class="fa-solid fa-clipboard-check text-base sm:text-lg"></i>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-4xl font-serif font-bold text-eduDark-900">97.8%</h3>
-                        <p class="text-xs text-gray-400 font-semibold mt-2 flex items-center gap-1">
+                        <h3 class="text-3xl sm:text-4xl font-serif font-bold text-eduDark-900">97.8%</h3>
+                        <p class="text-[11px] text-gray-400 font-semibold mt-1 flex items-center gap-1">
                             <i class="fa-solid fa-minus"></i> Stabil (Target >95%)
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 border border-gray-100 shadow-sm flex flex-col justify-between group hover:border-eduCrimson-600 transition duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">SP Diterbitkan</span>
-                        <div class="p-2 bg-gray-50 group-hover:bg-red-50 transition">
-                            <i class="fa-solid fa-file-contract text-gray-400 group-hover:text-eduCrimson-600 text-lg transition"></i>
+                <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">SP Diterbitkan</span>
+                        <div class="p-2 bg-gray-50 text-gray-400">
+                            <i class="fa-solid fa-file-contract text-base sm:text-lg"></i>
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-4xl font-serif font-bold text-eduDark-900">7</h3>
-                        <p class="text-xs text-amber-600 font-semibold mt-2 flex items-center gap-1">
+                        <h3 class="text-3xl sm:text-4xl font-serif font-bold text-eduDark-900">7</h3>
+                        <p class="text-[11px] text-amber-600 font-semibold mt-1 flex items-center gap-1">
                             <i class="fa-solid fa-clock"></i> 3 Perlu Panggilan Ortu
                         </p>
                     </div>
@@ -207,143 +215,109 @@
 
             </div>
 
-            <!-- Panel Grafik Enterprise (Line Chart & Pie Chart) -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Panel Grafik Enterprise -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                 
-                <!-- Line Chart -->
-                <div class="lg:col-span-2 bg-white p-8 border border-gray-100 shadow-sm">
-                    <div class="flex items-center justify-between mb-6">
+                <div class="lg:col-span-2 bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
                         <div>
-                            <h3 class="font-serif font-bold text-xl text-eduDark-900">Tren Kedisiplinan & Poin</h3>
-                            <p class="text-xs text-gray-400 mt-1">Grafik akumulasi kasus per bulan selama tahun ajaran aktif</p>
+                            <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Tren Kedisiplinan</h3>
+                            <p class="text-xs text-gray-400">Grafik kasus per bulan</p>
                         </div>
-                        <select class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-2 focus:outline-none">
-                            <option>Tahun Ajaran 2025/2026</option>
-                            <option>Tahun Ajaran 2024/2025</option>
+                        <select class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none w-full sm:w-auto">
+                            <option>TA 2025/2026</option>
+                            <option>TA 2024/2025</option>
                         </select>
                     </div>
-                    <div class="h-[320px]">
+                    <div class="h-[250px] sm:h-[320px]">
                         <canvas id="disciplineTrendChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Pie/Doughnut Chart -->
-                <div class="bg-white p-8 border border-gray-100 shadow-sm flex flex-col justify-between">
+                <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h3 class="font-serif font-bold text-xl text-eduDark-900">Kategori Pelanggaran</h3>
-                        <p class="text-xs text-gray-400 mt-1">Distribusi kasus berdasarkan bobot jenis pelanggaran</p>
+                        <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Kategori Pelanggaran</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Distribusi jenis kasus</p>
                     </div>
-                    <div class="h-[250px] relative my-4 flex items-center justify-center">
+                    <div class="h-[200px] sm:h-[250px] relative my-4 flex items-center justify-center">
                         <canvas id="violationCategoryChart"></canvas>
                     </div>
                     <div class="pt-4 border-t border-gray-100 flex justify-around text-center">
                         <div>
-                            <span class="text-[10px] uppercase text-gray-400 font-bold block">Ringan</span>
-                            <span class="text-sm font-bold text-eduDark-900">58%</span>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Ringan</span>
+                            <span class="text-xs sm:text-sm font-bold text-eduDark-900">58%</span>
                         </div>
                         <div>
-                            <span class="text-[10px] uppercase text-gray-400 font-bold block">Sedang</span>
-                            <span class="text-sm font-bold text-eduDark-900">30%</span>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Sedang</span>
+                            <span class="text-xs sm:text-sm font-bold text-eduDark-900">30%</span>
                         </div>
                         <div>
-                            <span class="text-[10px] uppercase text-gray-400 font-bold block">Berat</span>
-                            <span class="text-sm font-bold text-eduCrimson-600">12%</span>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Berat</span>
+                            <span class="text-xs sm:text-sm font-bold text-eduCrimson-600">12%</span>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- Tabel Data Real-time & Log Aktivitas -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Tabel Data (Scroll Horisontal Mulus di HP) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                 
-                <!-- Tabel Log Pelanggaran Terakhir -->
                 <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <div class="p-5 sm:p-6 border-b border-gray-100 flex justify-between items-center">
                         <div>
-                            <h3 class="font-serif font-bold text-lg text-eduDark-900">Input Poin Terbaru</h3>
-                            <p class="text-xs text-gray-400">Catatan pencatatan sanksi terkini dari guru piket & BK</p>
+                            <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Input Poin Terbaru</h3>
+                            <p class="text-xs text-gray-400">Catatan sanksi terkini</p>
                         </div>
-                        <a href="/poin" class="text-xs font-bold text-eduCrimson-600 uppercase tracking-widest hover:text-eduDark-900 transition flex items-center gap-2">
-                            Kelola Poin <i class="fa-solid fa-arrow-right"></i>
+                        <a href="/poin" class="text-xs font-bold text-eduCrimson-600 uppercase tracking-wider hover:text-eduDark-900 flex items-center gap-1">
+                            Poin <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-600">
-                            <thead class="bg-eduPaper text-[11px] uppercase font-bold text-gray-400 tracking-wider">
+                        <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[500px]">
+                            <thead class="bg-eduPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 tracking-wider">
                                 <tr>
-                                    <th class="px-6 py-4">Waktu</th>
-                                    <th class="px-6 py-4">Siswa</th>
-                                    <th class="px-6 py-4">Kelas</th>
-                                    <th class="px-6 py-4">Pelanggaran</th>
-                                    <th class="px-6 py-4 text-center">Poin</th>
+                                    <th class="px-4 sm:px-6 py-3.5">Waktu</th>
+                                    <th class="px-4 sm:px-6 py-3.5">Siswa</th>
+                                    <th class="px-4 sm:px-6 py-3.5">Kelas</th>
+                                    <th class="px-4 sm:px-6 py-3.5">Pelanggaran</th>
+                                    <th class="px-4 sm:px-6 py-3.5 text-center">Poin</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <tr class="hover:bg-gray-50/80 transition">
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-400">08:15 WIB</td>
-                                    <td class="px-6 py-4 font-bold text-eduDark-900">Budi Santoso</td>
-                                    <td class="px-6 py-4 text-xs font-semibold">XI IPA 2</td>
-                                    <td class="px-6 py-4">Terlambat masuk sekolah (>15 menit)</td>
-                                    <td class="px-6 py-4 text-center"><span class="bg-amber-100 text-amber-800 px-2.5 py-1 text-xs font-bold rounded-none">+10</span></td>
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="px-4 sm:px-6 py-3.5 font-mono text-[11px] text-gray-400">08:15 WIB</td>
+                                    <td class="px-4 sm:px-6 py-3.5 font-bold text-eduDark-900">Budi Santoso</td>
+                                    <td class="px-4 sm:px-6 py-3.5 text-xs">XI IPA 2</td>
+                                    <td class="px-4 sm:px-6 py-3.5">Terlambat masuk sekolah (>15m)</td>
+                                    <td class="px-4 sm:px-6 py-3.5 text-center"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 text-xs font-bold">+10</span></td>
                                 </tr>
-                                <tr class="hover:bg-gray-50/80 transition">
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-400">07:45 WIB</td>
-                                    <td class="px-6 py-4 font-bold text-eduDark-900">Siti Aminah</td>
-                                    <td class="px-6 py-4 text-xs font-semibold">X IPS 1</td>
-                                    <td class="px-6 py-4">Atribut seragam tidak lengkap</td>
-                                    <td class="px-6 py-4 text-center"><span class="bg-amber-100 text-amber-800 px-2.5 py-1 text-xs font-bold rounded-none">+5</span></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50/80 transition">
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-400">Kemarin</td>
-                                    <td class="px-6 py-4 font-bold text-eduDark-900">Ahmad Rifqi</td>
-                                    <td class="px-6 py-4 text-xs font-semibold">XII IPA 1</td>
-                                    <td class="px-6 py-4">Membolos jam pelajaran (Alfa)</td>
-                                    <td class="px-6 py-4 text-center"><span class="bg-red-100 text-eduCrimson-600 px-2.5 py-1 text-xs font-bold rounded-none">+25</span></td>
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="px-4 sm:px-6 py-3.5 font-mono text-[11px] text-gray-400">07:45 WIB</td>
+                                    <td class="px-4 sm:px-6 py-3.5 font-bold text-eduDark-900">Siti Aminah</td>
+                                    <td class="px-4 sm:px-6 py-3.5 text-xs">X IPS 1</td>
+                                    <td class="px-4 sm:px-6 py-3.5">Atribut seragam tidak lengkap</td>
+                                    <td class="px-4 sm:px-6 py-3.5 text-center"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 text-xs font-bold">+5</span></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Timeline Aktivitas Sistem -->
-                <div class="bg-white p-6 border border-gray-100 shadow-sm flex flex-col">
-                    <h3 class="font-serif font-bold text-lg text-eduDark-900 mb-4">Log Sistem & Audit</h3>
-                    <div class="flex-1 space-y-6 relative before:absolute before:inset-0 before:left-3 before:w-0.5 before:bg-gray-100">
-                        
-                        <div class="flex items-start gap-4 relative">
+                <!-- Timeline Audit -->
+                <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col">
+                    <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900 mb-4">Log Sistem</h3>
+                    <div class="flex-1 space-y-5 relative before:absolute before:inset-0 before:left-3 before:w-0.5 before:bg-gray-100">
+                        <div class="flex items-start gap-3.5 relative">
                             <div class="w-6 h-6 rounded-full bg-eduCrimson-600 text-white flex items-center justify-center text-[10px] shrink-0 z-10">
                                 <i class="fa-solid fa-envelope"></i>
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-eduDark-900">Surat Peringatan 1 Terbit</p>
-                                <p class="text-[11px] text-gray-500 mt-0.5">Siswa: Ahmad Rifqi (Akumulasi 50 Poin)</p>
-                                <span class="text-[10px] font-mono text-gray-400">10 Menit lalu</span>
+                                <p class="text-[11px] text-gray-500">Siswa: Ahmad Rifqi (50 Poin)</p>
+                                <span class="text-[9px] font-mono text-gray-400">10 Menit lalu</span>
                             </div>
                         </div>
-
-                        <div class="flex items-start gap-4 relative">
-                            <div class="w-6 h-6 rounded-full bg-eduDark-900 text-white flex items-center justify-center text-[10px] shrink-0 z-10">
-                                <i class="fa-solid fa-lock"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-eduDark-900">Sesi Login Baru</p>
-                                <p class="text-[11px] text-gray-500 mt-0.5">Admin (Guru BK) via Desktop Portal</p>
-                                <span class="text-[10px] font-mono text-gray-400">1 Jam lalu</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-4 relative">
-                            <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] shrink-0 z-10">
-                                <i class="fa-solid fa-file-excel"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-eduDark-900">Sinkronisasi Absensi JP</p>
-                                <p class="text-[11px] text-gray-500 mt-0.5">Rekapitulasi harian kelas X-XII otomatis</p>
-                                <span class="text-[10px] font-mono text-gray-400">07:00 WIB</span>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
@@ -352,71 +326,39 @@
         </div>
     </main>
 
-    <!-- Script Inisialisasi Chart.js -->
     <script>
-        // 1. Line Chart
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        // Charts
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
         new Chart(ctxLine, {
             type: 'line',
             data: {
-                labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des', 'Jan', 'Feb'],
-                datasets: [
-                    {
-                        label: 'Pelanggaran Ringan',
-                        data: [65, 59, 80, 51, 56, 40, 45, 30],
-                        borderColor: '#141414',
-                        backgroundColor: 'rgba(20, 20, 20, 0.03)',
-                        fill: true,
-                        tension: 0.3,
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Pelanggaran Berat (Sanksi)',
-                        data: [28, 15, 20, 19, 12, 8, 10, 5],
-                        borderColor: '#A51C30',
-                        backgroundColor: 'rgba(165, 28, 48, 0.05)',
-                        fill: true,
-                        tension: 0.3,
-                        borderWidth: 2
-                    }
-                ]
+                labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                datasets: [{
+                    label: 'Pelanggaran',
+                    data: [65, 59, 80, 51, 56, 40],
+                    borderColor: '#141414',
+                    borderWidth: 2,
+                    fill: false
+                }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: { font: { family: 'Inter', size: 11 }, usePointStyle: true }
-                    }
-                },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { border: { dash: [4, 4] } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // 2. Doughnut Chart
         const ctxDoughnut = document.getElementById('violationCategoryChart').getContext('2d');
         new Chart(ctxDoughnut, {
             type: 'doughnut',
             data: {
-                labels: ['Keterlambatan', 'Kerapihan/Seragam', 'Kedisiplinan/Absensi', 'Lainnya'],
-                datasets: [{
-                    data: [45, 25, 20, 10],
-                    backgroundColor: ['#141414', '#A51C30', '#D97706', '#9CA3AF'],
-                    borderWidth: 0
-                }]
+                labels: ['Ringan', 'Sedang', 'Berat'],
+                datasets: [{ data: [58, 30, 12], backgroundColor: ['#141414', '#A51C30', '#D97706'] }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                cutout: '75%'
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
     </script>
 </body>
