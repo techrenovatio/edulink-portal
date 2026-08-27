@@ -94,7 +94,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-20 lg:h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header class="h-20 lg:h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0 relative">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="lg:hidden p-2 text-eduDark-900 text-xl focus:outline-none">
                     <i class="fa-solid fa-bars"></i>
@@ -110,10 +110,52 @@
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
                     <input type="text" placeholder="Cari data..." class="w-48 lg:w-64 bg-eduPaper border border-gray-200 text-sm py-2 pl-10 pr-4 focus:outline-none focus:border-eduCrimson-600">
                 </div>
-                <button class="relative p-2 text-gray-400 hover:text-eduCrimson-600">
-                    <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
-                    <span class="absolute top-1 right-1 w-2 h-2 bg-eduCrimson-600 rounded-full border border-white"></span>
-                </button>
+
+                <!-- Tombol Lonceng & Dropdown Notifikasi -->
+                <div class="relative">
+                    <button id="notifBtn" onclick="toggleNotifDropdown()" class="relative p-2 text-gray-400 hover:text-eduCrimson-600 focus:outline-none transition">
+                        <i class="fa-solid fa-bell text-lg sm:text-xl"></i>
+                        <span id="notifDot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-eduCrimson-600 rounded-full border-2 border-white"></span>
+                    </button>
+
+                    <!-- Dropdown Panel Notifikasi -->
+                    <div id="notifDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 bg-white border border-gray-200 shadow-2xl z-50 rounded-none overflow-hidden">
+                        <div class="p-4 bg-eduDark-900 text-white flex justify-between items-center">
+                            <span class="text-xs font-bold uppercase tracking-wider"><i class="fa-solid fa-bell mr-2 text-eduCrimson-600"></i> Notifikasi Sistem</span>
+                            <span class="text-[10px] bg-eduCrimson-600 text-white font-bold px-2 py-0.5 rounded-none">3 Baru</span>
+                        </div>
+                        <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto text-xs">
+                            <div class="p-3.5 hover:bg-gray-50 transition cursor-pointer flex gap-3">
+                                <div class="text-eduCrimson-600 text-base mt-0.5"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                <div>
+                                    <p class="font-bold text-eduDark-900">SP 2 Diterbitkan</p>
+                                    <p class="text-gray-500 text-[11px] leading-tight">Siswa Rian Hidayat (XII IPA 4) mencapai batas 75 poin.</p>
+                                    <span class="text-[9px] text-gray-400 mt-1 block">10 menit lalu</span>
+                                </div>
+                            </div>
+                            <div class="p-3.5 hover:bg-gray-50 transition cursor-pointer flex gap-3">
+                                <div class="text-amber-500 text-base mt-0.5"><i class="fa-solid fa-calendar-day"></i></div>
+                                <div>
+                                    <p class="font-bold text-eduDark-900">Agenda Panggilan Ortu Hari Ini</p>
+                                    <p class="text-gray-500 text-[11px] leading-tight">Konseling wali murid Andi Saputra pukul 10:30 WIB.</p>
+                                    <span class="text-[9px] text-gray-400 mt-1 block">1 jam lalu</span>
+                                </div>
+                            </div>
+                            <div class="p-3.5 hover:bg-gray-50 transition cursor-pointer flex gap-3">
+                                <div class="text-emerald-600 text-base mt-0.5"><i class="fa-solid fa-clipboard-check"></i></div>
+                                <div>
+                                    <p class="font-bold text-eduDark-900">Absensi Kelas X Terisi</p>
+                                    <p class="text-gray-500 text-[11px] leading-tight">Guru Wali Kelas X IPA 1 telah mengonfirmasi presensi harian.</p>
+                                    <span class="text-[9px] text-gray-400 mt-1 block">3 jam lalu</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-eduPaper border-t border-gray-100 text-center">
+                            <a href="#" class="text-[10px] font-bold text-eduDark-900 uppercase tracking-widest hover:text-eduCrimson-600 transition">Tandai Semua Dibaca</a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </header>
 
@@ -202,7 +244,6 @@
 
             <!-- Baris Grafik 2: Bar Chart Tabung & Pie/Donut Chart Kategori -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-                <!-- Grafik Batang Tabung per Tingkat Kelas -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div>
                         <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Pelanggaran per Tingkat Kelas</h3>
@@ -227,7 +268,6 @@
                     </div>
                 </div>
 
-                <!-- Grafik Pie / Donut Kategori Pelanggaran -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div>
                         <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Distribusi Kategori Kasus</h3>
@@ -339,6 +379,25 @@
             sidebar.classList.toggle('-translate-x-full');
             backdrop.classList.toggle('hidden');
         }
+
+        // Fungsi Buka-Tutup Dropdown Notifikasi Lonceng
+        function toggleNotifDropdown() {
+            const dropdown = document.getElementById('notifDropdown');
+            const dot = document.getElementById('notifDot');
+            dropdown.classList.toggle('hidden');
+            if (!dropdown.classList.contains('hidden')) {
+                dot.classList.add('hidden'); // Sembunyikan titik merah saat notifikasi dibuka
+            }
+        }
+
+        // Tutup dropdown notifikasi jika klik di luar
+        window.addEventListener('click', function(e) {
+            const btn = document.getElementById('notifBtn');
+            const dropdown = document.getElementById('notifDropdown');
+            if (btn && dropdown && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
         // 1. Dual Line Chart
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');

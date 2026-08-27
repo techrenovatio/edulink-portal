@@ -78,20 +78,33 @@
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
+            <!-- Filter & Input Tanggal Kalender Aktif -->
             <div class="bg-white p-6 border border-gray-100 shadow-sm flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <select class="bg-eduPaper border border-gray-200 text-xs font-bold py-2.5 px-3 focus:outline-none">
-                        <option>Semua Kelas</option>
-                        <option>Kelas X IPA 1</option>
-                        <option>Kelas XI IPS 2</option>
-                    </select>
-                    <input type="date" class="bg-eduPaper border border-gray-200 text-xs font-bold py-2 px-3 focus:outline-none">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-gray-400 uppercase">Kelas:</label>
+                        <select class="bg-eduPaper border border-gray-200 text-xs font-bold py-2.5 px-3 focus:outline-none cursor-pointer">
+                            <option>Semua Kelas</option>
+                            <option>Kelas X IPA 1</option>
+                            <option>Kelas XI IPA 1</option>
+                            <option>Kelas XII IPS 2</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-gray-400 uppercase">Tanggal:</label>
+                        <div class="relative cursor-pointer" onclick="document.getElementById('tanggalAbsen').showPicker()">
+                            <input type="date" id="tanggalAbsen" class="bg-eduPaper border border-gray-200 text-xs font-bold py-2 px-3 focus:outline-none cursor-pointer">
+                        </div>
+                    </div>
                 </div>
-                <button class="bg-eduDark-900 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 hover:bg-eduCrimson-600 transition">
-                    <i class="fa-solid fa-floppy-disk mr-2"></i> Simpan Presensi
+
+                <button onclick="simpanAbsensi()" class="bg-eduDark-900 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 hover:bg-eduCrimson-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan Presensi
                 </button>
             </div>
 
+            <!-- Tabel Data Siswa -->
             <div class="bg-white border border-gray-100 shadow-sm overflow-x-auto">
                 <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[600px]">
                     <thead class="bg-eduPaper text-[10px] uppercase font-bold text-gray-400 tracking-wider">
@@ -99,7 +112,7 @@
                             <th class="px-6 py-4">NISN</th>
                             <th class="px-6 py-4">Nama Siswa</th>
                             <th class="px-6 py-4">Kelas</th>
-                            <th class="px-6 py-4 text-center">Status Kehadiran</th>
+                            <th class="px-6 py-4 text-center">Status Kehadiran (Klik untuk Ubah)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -108,7 +121,7 @@
                             <td class="px-6 py-4 font-bold text-eduDark-900">Ahmad Rizky Pratama</td>
                             <td class="px-6 py-4">XI IPA 1</td>
                             <td class="px-6 py-4 text-center">
-                                <span class="bg-emerald-100 text-emerald-700 px-3 py-1 text-[10px] font-bold uppercase">Hadir</span>
+                                <button onclick="toggleStatus(this)" class="status-btn bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition">HADIR</button>
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
@@ -116,7 +129,7 @@
                             <td class="px-6 py-4 font-bold text-eduDark-900">Budi Santoso</td>
                             <td class="px-6 py-4">XI IPA 1</td>
                             <td class="px-6 py-4 text-center">
-                                <span class="bg-amber-100 text-amber-700 px-3 py-1 text-[10px] font-bold uppercase">Izin</span>
+                                <button onclick="toggleStatus(this)" class="status-btn bg-amber-100 text-amber-700 hover:bg-amber-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition">IZIN</button>
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
@@ -124,7 +137,7 @@
                             <td class="px-6 py-4 font-bold text-eduDark-900">Citra Kirana</td>
                             <td class="px-6 py-4">XI IPA 1</td>
                             <td class="px-6 py-4 text-center">
-                                <span class="bg-red-100 text-eduCrimson-600 px-3 py-1 text-[10px] font-bold uppercase">Alfa</span>
+                                <button onclick="toggleStatus(this)" class="status-btn bg-red-100 text-eduCrimson-600 hover:bg-red-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition">ALFA</button>
                             </td>
                         </tr>
                     </tbody>
@@ -139,6 +152,35 @@
             const backdrop = document.getElementById('sidebarBackdrop');
             sidebar.classList.toggle('-translate-x-full');
             backdrop.classList.toggle('hidden');
+        }
+
+        // Otomatis set tanggal kalender ke hari ini
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('tanggalAbsen');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        });
+
+        // Toggle status kehadiran saat tombol diklik
+        const statusList = [
+            { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-700', hover: 'hover:bg-emerald-200' },
+            { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-700', hover: 'hover:bg-amber-200' },
+            { label: 'SAKIT', bg: 'bg-blue-100', text: 'text-blue-700', hover: 'hover:bg-blue-200' },
+            { label: 'ALFA', bg: 'bg-red-100', text: 'text-eduCrimson-600', hover: 'hover:bg-red-200' }
+        ];
+
+        function toggleStatus(btn) {
+            const currentLabel = btn.textContent.trim();
+            let currentIndex = statusList.findIndex(s => s.label === currentLabel);
+            let nextIndex = (currentIndex + 1) % statusList.length;
+            let nextStatus = statusList[nextIndex];
+
+            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} ${nextStatus.hover} px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition`;
+            btn.textContent = nextStatus.label;
+        }
+
+        function simpanAbsensi() {
+            alert('Presensi harian berhasil disimpan!');
         }
     </script>
 </body>
