@@ -39,12 +39,15 @@
 
     <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden transition-opacity"></div>
 
-    <!-- Sidebar dengan Logo Vektor Anti-Rusak -->
+    <!-- Sidebar dengan Logo Asli edulink-logo.webp -->
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-eduDark-900 text-gray-400 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="h-20 lg:h-24 flex items-center justify-between px-6 border-b border-gray-800/80">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
-                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                <!-- Pembungkus Logo Asli EduLink -->
+                <div class="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0 overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" 
+                         alt="Logo EduLink Asli" 
+                         class="w-full h-full object-contain mix-blend-multiply scale-110">
                 </div>
                 <span class="text-2xl font-serif font-bold text-white tracking-tight">EduLink.</span>
             </div>
@@ -104,7 +107,6 @@
     </aside>
 
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        
         <header class="h-20 lg:h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="lg:hidden p-2 text-eduDark-900 text-xl focus:outline-none">
@@ -129,7 +131,6 @@
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
-            
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200/60">
                 <div>
                     <h2 class="text-xl sm:text-3xl font-serif font-bold text-eduDark-900 mb-1">Selamat datang, {{ nama_user if nama_user else 'Administrator' }}.</h2>
@@ -225,65 +226,6 @@
                         <div>
                             <span class="text-[9px] uppercase text-gray-400 font-bold block">Berat</span>
                             <span class="text-xs sm:text-sm font-bold text-eduCrimson-600">12%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
-                    <div class="p-5 sm:p-6 border-b border-gray-100 flex justify-between items-center">
-                        <div>
-                            <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Input Poin Terbaru</h3>
-                            <p class="text-xs text-gray-400">Catatan sanksi terkini</p>
-                        </div>
-                        <a href="/poin" class="text-xs font-bold text-eduCrimson-600 uppercase tracking-wider hover:text-eduDark-900 flex items-center gap-1">
-                            Poin <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[500px]">
-                            <thead class="bg-eduPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 tracking-wider">
-                                <tr>
-                                    <th class="px-4 sm:px-6 py-3.5">Waktu</th>
-                                    <th class="px-4 sm:px-6 py-3.5">Siswa</th>
-                                    <th class="px-4 sm:px-6 py-3.5">Kelas</th>
-                                    <th class="px-4 sm:px-6 py-3.5">Pelanggaran</th>
-                                    <th class="px-4 sm:px-6 py-3.5 text-center">Poin</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                <tr class="hover:bg-gray-50/80">
-                                    <td class="px-4 sm:px-6 py-3.5 font-mono text-[11px] text-gray-400">08:15 WIB</td>
-                                    <td class="px-4 sm:px-6 py-3.5 font-bold text-eduDark-900">Budi Santoso</td>
-                                    <td class="px-4 sm:px-6 py-3.5 text-xs">XI IPA 2</td>
-                                    <td class="px-4 sm:px-6 py-3.5">Terlambat masuk sekolah (>15m)</td>
-                                    <td class="px-4 sm:px-6 py-3.5 text-center"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 text-xs font-bold">+10</span></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50/80">
-                                    <td class="px-4 sm:px-6 py-3.5 font-mono text-[11px] text-gray-400">07:45 WIB</td>
-                                    <td class="px-4 sm:px-6 py-3.5 font-bold text-eduDark-900">Siti Aminah</td>
-                                    <td class="px-4 sm:px-6 py-3.5 text-xs">X IPS 1</td>
-                                    <td class="px-4 sm:px-6 py-3.5">Atribut seragam tidak lengkap</td>
-                                    <td class="px-4 sm:px-6 py-3.5 text-center"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 text-xs font-bold">+5</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col">
-                    <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900 mb-4">Log Sistem</h3>
-                    <div class="flex-1 space-y-5 relative before:absolute before:inset-0 before:left-3 before:w-0.5 before:bg-gray-100">
-                        <div class="flex items-start gap-3.5 relative">
-                            <div class="w-6 h-6 rounded-full bg-eduCrimson-600 text-white flex items-center justify-center text-[10px] shrink-0 z-10">
-                                <i class="fa-solid fa-envelope"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-eduDark-900">Surat Peringatan 1 Terbit</p>
-                                <p class="text-[11px] text-gray-500">Siswa: Ahmad Rifqi (50 Poin)</p>
-                                <span class="text-[9px] font-mono text-gray-400">10 Menit lalu</span>
-                            </div>
                         </div>
                     </div>
                 </div>
