@@ -1,7 +1,10 @@
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'edulink.db')
+# Memastikan jalur database SQLite SELALU konsisten di folder backend/edulink.db
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(BASE_DIR, 'edulink.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -35,6 +38,16 @@ def init_db():
             tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # AUTO-SEED AKUN ADMIN: Jika database kosong/belum ada admin, buat otomatis
+    admin_exists = cursor.execute("SELECT id FROM users WHERE username = 'admin123'").fetchone()
+    if not admin_exists:
+        hashed_password = generate_password_hash('rahasia2026')
+        cursor.execute(
+            "INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)",
+            ('Administrator Utama', 'admin123', hashed_password, 'admin')
+        )
+        print("Akun Admin Default Berhasil Dibuat!")
 
     conn.commit()
     conn.close()
