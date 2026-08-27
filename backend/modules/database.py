@@ -1,20 +1,19 @@
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash
 
 def get_db_connection():
-    # Menentukan lokasi database di dalam folder backend
     current_dir = os.path.dirname(os.path.abspath(__file__))
     backend_dir = os.path.dirname(current_dir)
     db_path = os.path.join(backend_dir, 'edulink.db')
     
     conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row # Agar hasil query bisa dipanggil seperti dictionary
+    conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
     conn = get_db_connection()
     
-    # Membuat tabel pengguna jika belum ada
     conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,14 +24,17 @@ def init_db():
         )
     ''')
     
-    # Menyuntikkan akun Admin Dummy jika tabel masih kosong
+    # Cek admin
     admin = conn.execute("SELECT * FROM users WHERE username = 'admin123'").fetchone()
     if not admin:
+        # Enkripsi Password default 'rahasia2026' dengan hashing PBKDF2/SHA256
+        hashed_password = generate_password_hash('rahasia2026', method='scrypt')
+        
         conn.execute(
             "INSERT INTO users (username, password, role, nama) VALUES (?, ?, ?, ?)",
-            ('admin123', 'rahasia2026', 'admin', 'Administrator Utama')
+            ('admin123', hashed_password, 'admin', 'Administrator Utama')
         )
         conn.commit()
-        print("✅ Database diinisialisasi & Akun Admin dibuat!")
+        print("✅ Database diinisialisasi & Akun Admin diamankan dengan Hash!")
         
     conn.close()
