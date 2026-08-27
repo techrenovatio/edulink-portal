@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Panel - EduLink Platform</title>
     
+    <!-- Favicon / Logo Tab Browser -->
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -116,19 +118,29 @@
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
+            <!-- Filter Global Tahun Ajaran & Semester -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 sm:pb-6 border-b border-gray-200/60">
                 <div>
                     <h2 class="text-xl sm:text-3xl font-serif font-bold text-eduDark-900 mb-1">Selamat datang, {{ nama_user if nama_user else 'Administrator' }}.</h2>
                     <p class="text-gray-500 text-xs sm:text-sm font-serif italic">Ringkasan statistik metrik akademik & kedisiplinan sekolah.</p>
                 </div>
-                <div>
-                    <button class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 text-eduDark-900 text-[11px] font-bold uppercase tracking-widest hover:border-eduDark-900 transition">
-                        <i class="fa-solid fa-download mr-2"></i> Ekspor Laporan
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center bg-white border border-gray-300 p-1">
+                        <span class="px-2 text-[10px] font-bold text-gray-400 uppercase">Periode:</span>
+                        <select class="bg-transparent text-xs font-bold text-eduDark-900 focus:outline-none cursor-pointer pr-2">
+                            <option>TA 2025/2026 - Ganjil</option>
+                            <option>TA 2025/2026 - Genap</option>
+                            <option>TA 2024/2025 - Ganjil</option>
+                            <option>TA 2024/2025 - Genap</option>
+                        </select>
+                    </div>
+                    <button class="px-4 py-2 bg-eduDark-900 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-eduCrimson-600 transition">
+                        <i class="fa-solid fa-download mr-1"></i> Ekspor Laporan
                     </button>
                 </div>
             </div>
 
-            <!-- Metric Cards -->
+            <!-- Kartu Metrik Ringkasan -->
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
                 <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div class="flex justify-between items-start mb-3">
@@ -143,29 +155,29 @@
 
                 <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div class="flex justify-between items-start mb-3">
-                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Pelanggaran Bulan Ini</span>
+                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Pelanggaran Semester Ini</span>
                         <div class="p-2 bg-gray-50 text-gray-400"><i class="fa-solid fa-triangle-exclamation text-base sm:text-lg"></i></div>
                     </div>
                     <div>
                         <h3 class="text-3xl sm:text-4xl font-serif font-bold text-eduDark-900">42</h3>
-                        <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1"><i class="fa-solid fa-arrow-down"></i> -14% vs bulan lalu</p>
+                        <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1"><i class="fa-solid fa-arrow-down"></i> -14% vs semester lalu</p>
                     </div>
                 </div>
 
                 <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div class="flex justify-between items-start mb-3">
-                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Persentase Kehadiran</span>
+                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Kehadiran Rata-Rata</span>
                         <div class="p-2 bg-gray-50 text-gray-400"><i class="fa-solid fa-clipboard-check text-base sm:text-lg"></i></div>
                     </div>
                     <div>
                         <h3 class="text-3xl sm:text-4xl font-serif font-bold text-eduDark-900">97.8%</h3>
-                        <p class="text-[11px] text-gray-400 font-semibold mt-1 flex items-center gap-1"><i class="fa-solid fa-minus"></i> Stabil (Target >95%)</p>
+                        <p class="text-[11px] text-gray-400 font-semibold mt-1 flex items-center gap-1"><i class="fa-solid fa-minus"></i> Target Akademik >95%</p>
                     </div>
                 </div>
 
                 <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div class="flex justify-between items-start mb-3">
-                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">SP Diterbitkan</span>
+                        <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">SP Aktif Semester Ini</span>
                         <div class="p-2 bg-gray-50 text-gray-400"><i class="fa-solid fa-file-contract text-base sm:text-lg"></i></div>
                     </div>
                     <div>
@@ -175,29 +187,25 @@
                 </div>
             </div>
 
-            <!-- Area Grafik Profesional -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                <!-- Dual Comparison Line Chart (Pelanggaran vs Prestasi) -->
-                <div class="lg:col-span-2 bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
-                        <div>
-                            <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Tren Kedisiplinan vs Prestasi</h3>
-                            <p class="text-xs text-gray-400">Komparasi jumlah kasus pelanggaran & capaian prestasi siswa</p>
-                        </div>
-                        <select class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none w-full sm:w-auto">
-                            <option>TA 2025/2026</option>
-                            <option>TA 2024/2025</option>
-                        </select>
-                    </div>
-                    <div class="h-[280px] sm:h-[340px]">
-                        <canvas id="disciplineTrendChart"></canvas>
+            <!-- Baris Grafik 1: Line Chart Komparatif 2 Garis -->
+            <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                    <div>
+                        <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Tren Kedisiplinan vs Prestasi (Per Bulan)</h3>
+                        <p class="text-xs text-gray-400">Progres bulanan semester ganjil berjalan</p>
                     </div>
                 </div>
+                <div class="h-[280px] sm:h-[340px]">
+                    <canvas id="disciplineTrendChart"></canvas>
+                </div>
+            </div>
 
-                <!-- Grafik Batang Tabung / Cylinder Bar Chart per Tingkat Kelas -->
+            <!-- Baris Grafik 2: Bar Chart Tabung & Pie/Donut Chart Kategori -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                <!-- Grafik Batang Tabung per Tingkat Kelas -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Pelanggaran per Tingkat</h3>
+                        <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Pelanggaran per Tingkat Kelas</h3>
                         <p class="text-xs text-gray-400 mt-0.5">Statistik per kelas X, XI, XII</p>
                     </div>
                     <div class="h-[220px] sm:h-[260px] relative my-4">
@@ -218,6 +226,107 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Grafik Pie / Donut Kategori Pelanggaran -->
+                <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Distribusi Kategori Kasus</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Persentase bobot pelanggaran ringan, sedang, & berat</p>
+                    </div>
+                    <div class="h-[220px] sm:h-[260px] relative my-4 flex items-center justify-center">
+                        <canvas id="violationPieChart"></canvas>
+                    </div>
+                    <div class="pt-4 border-t border-gray-100 flex justify-around text-center">
+                        <div>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Ringan</span>
+                            <span class="text-xs sm:text-sm font-bold text-eduDark-900">58%</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Sedang</span>
+                            <span class="text-xs sm:text-sm font-bold text-eduCrimson-600">30%</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Berat</span>
+                            <span class="text-xs sm:text-sm font-bold text-amber-600">12%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Pelanggaran Terbaru & Log Aktivitas Panggilan Ortu -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 pb-10">
+                <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
+                    <div class="p-5 sm:p-6 border-b border-gray-100 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Catatan Pelanggaran Terakhir</h3>
+                            <p class="text-xs text-gray-400">Log masukan kasus siswa semester ganjil</p>
+                        </div>
+                        <a href="/poin" class="text-xs font-bold text-eduCrimson-600 uppercase tracking-wider hover:underline">Lihat Semua <i class="fa-solid fa-arrow-right ml-1"></i></a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[500px]">
+                            <thead class="bg-eduPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 tracking-wider">
+                                <tr>
+                                    <th class="pl-6 py-3.5">Siswa</th>
+                                    <th class="px-3 py-3.5">Kelas</th>
+                                    <th class="px-3 py-3.5">Pelanggaran</th>
+                                    <th class="px-3 py-3.5 text-center">Poin</th>
+                                    <th class="pr-6 py-3.5 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="pl-6 py-3.5 font-bold text-eduDark-900">M. Farhan Pratama</td>
+                                    <td class="px-3 py-3.5 font-mono text-xs">XI IPA 2</td>
+                                    <td class="px-3 py-3.5">Terlambat Masuk Sekolah (>15 Menit)</td>
+                                    <td class="px-3 py-3.5 text-center font-bold text-amber-600">+10</td>
+                                    <td class="pr-6 py-3.5 text-right"><span class="bg-amber-100 text-amber-800 px-2.5 py-0.5 text-[9px] font-bold uppercase">Tercatat</span></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="pl-6 py-3.5 font-bold text-eduDark-900">Siti Nurhaliza</td>
+                                    <td class="px-3 py-3.5 font-mono text-xs">X IPS 1</td>
+                                    <td class="px-3 py-3.5">Tidak Mengikuti Upacara Bendera</td>
+                                    <td class="px-3 py-3.5 text-center font-bold text-eduCrimson-600">+25</td>
+                                    <td class="pr-6 py-3.5 text-right"><span class="bg-red-100 text-eduCrimson-600 px-2.5 py-0.5 text-[9px] font-bold uppercase">SP 1</span></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="pl-6 py-3.5 font-bold text-eduDark-900">Rian Hidayat</td>
+                                    <td class="px-3 py-3.5 font-mono text-xs">XII IPA 4</td>
+                                    <td class="px-3 py-3.5">Meninggalkan Jam Pelajaran (Bolos)</td>
+                                    <td class="px-3 py-3.5 text-center font-bold text-eduCrimson-600">+50</td>
+                                    <td class="pr-6 py-3.5 text-right"><span class="bg-red-100 text-eduCrimson-600 px-2.5 py-0.5 text-[9px] font-bold uppercase">Panggilan Ortu</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900 mb-1">Panggilan Orang Tua</h3>
+                        <p class="text-xs text-gray-400 mb-4">Agenda konseling BP/BK semester berjalan</p>
+                        
+                        <div class="space-y-3">
+                            <div class="p-3 bg-eduPaper border-l-4 border-eduCrimson-600 flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-bold text-eduDark-900">Rian Hidayat (XII IPA 4)</p>
+                                    <p class="text-[10px] text-gray-400">Kamis, 27 Agu • 09:00 WIB</p>
+                                </div>
+                                <span class="bg-red-100 text-eduCrimson-600 text-[9px] font-bold px-2 py-0.5 uppercase">SP 2</span>
+                            </div>
+                            <div class="p-3 bg-eduPaper border-l-4 border-amber-500 flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-bold text-eduDark-900">Andi Saputra (X IPS 3)</p>
+                                    <p class="text-[10px] text-gray-400">Jumat, 28 Agu • 10:30 WIB</p>
+                                </div>
+                                <span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-2 py-0.5 uppercase">SP 1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 py-2.5 border border-gray-200 text-eduDark-900 text-[10px] font-bold uppercase tracking-widest hover:bg-eduDark-900 hover:text-white transition">
+                        Kelola Agenda BP/BK
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -231,7 +340,7 @@
             backdrop.classList.toggle('hidden');
         }
 
-        // 1. Dual Comparison Line Chart (Pelanggaran vs Prestasi)
+        // 1. Dual Line Chart
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
         new Chart(ctxLine, {
             type: 'line',
@@ -269,9 +378,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: true, position: 'top' }
-                },
+                plugins: { legend: { display: true, position: 'top' } },
                 scales: {
                     x: { grid: { display: false } },
                     y: { grid: { color: '#F0F0F0' }, min: 0 }
@@ -279,7 +386,7 @@
             }
         });
 
-        // 2. Bar Chart Tabung / Cylinder Style per Kelas
+        // 2. Bar Chart Tabung per Tingkat Kelas
         const ctxBar = document.getElementById('classBarChart').getContext('2d');
         new Chart(ctxBar, {
             type: 'bar',
@@ -289,7 +396,7 @@
                     label: 'Jumlah Kasus',
                     data: [45, 62, 28],
                     backgroundColor: ['#141414', '#A51C30', '#10B981'],
-                    borderRadius: 12, // Efek tabung/melengkung di sudut
+                    borderRadius: 12,
                     borderSkipped: false,
                     barThickness: 32
                 }]
@@ -297,13 +404,32 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: { display: false } },
                     y: { grid: { color: '#F0F0F0' }, min: 0 }
                 }
+            }
+        });
+
+        // 3. Pie/Donut Chart Kategori Pelanggaran
+        const ctxPie = document.getElementById('violationPieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pelanggaran Ringan', 'Pelanggaran Sedang', 'Pelanggaran Berat'],
+                datasets: [{
+                    data: [58, 30, 12],
+                    backgroundColor: ['#141414', '#A51C30', '#D97706'],
+                    borderWidth: 2,
+                    borderColor: '#FFFFFF'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                cutout: '70%'
             }
         });
     </script>
