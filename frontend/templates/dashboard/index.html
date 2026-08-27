@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Panel - EduLink Platform</title>
     
-    <!-- Favicon / Logo Tab Browser -->
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -63,17 +61,12 @@
                 <span class="text-sm font-medium tracking-wide">Kelola Pengguna</span>
             </a>
 
-            <a href="#" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
-                <i class="fa-solid fa-users text-sm w-5 text-center"></i>
-                <span class="text-sm font-medium tracking-wide">Data Siswa</span>
-            </a>
-
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
                 <i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium tracking-wide">Poin Pelanggaran</span>
             </a>
 
-            <a href="#" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
+            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition duration-300">
                 <i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium tracking-wide">Absensi Harian</span>
             </a>
@@ -86,9 +79,7 @@
 
         <div class="p-5 border-t border-gray-800/80">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-9 h-9 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-xs">
-                    AD
-                </div>
+                <div class="w-9 h-9 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-xs">AD</div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">{{ nama_user if nama_user else 'Administrator' }}</p>
                     <p class="text-[9px] font-mono text-gray-500 uppercase tracking-wider">Super Admin</p>
@@ -108,7 +99,7 @@
                 </button>
                 <div>
                     <h1 class="text-lg sm:text-2xl font-serif font-bold text-eduDark-900 leading-tight">Dashboard Panel</h1>
-                    <p class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider hidden sm:block">Sistem Analytics Kedisiplinan</p>
+                    <p class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider hidden sm:block">Sistem Analytics Kedisiplinan & Akademik</p>
                 </div>
             </div>
             
@@ -137,6 +128,7 @@
                 </div>
             </div>
 
+            <!-- Metric Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
                 <div class="bg-white p-5 sm:p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div class="flex justify-between items-start mb-3">
@@ -183,52 +175,46 @@
                 </div>
             </div>
 
+            <!-- Area Grafik Profesional -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Dual Comparison Line Chart (Pelanggaran vs Prestasi) -->
                 <div class="lg:col-span-2 bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
                         <div>
-                            <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Tren Kedisiplinan</h3>
-                            <p class="text-xs text-gray-400">Grafik kasus per bulan</p>
+                            <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Tren Kedisiplinan vs Prestasi</h3>
+                            <p class="text-xs text-gray-400">Komparasi jumlah kasus pelanggaran & capaian prestasi siswa</p>
                         </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <!-- Dropdown Pilihan Mode Tampilan Grafik -->
-                            <select id="chartStyleSelector" class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none cursor-pointer">
-                                <option value="crimsonGradient">Mode: Crimson Curve</option>
-                                <option value="darkMinimal">Mode: Dark Area</option>
-                                <option value="stepped">Mode: Stepped Line</option>
-                                <option value="comparative">Mode: Dual Comparison</option>
-                            </select>
-                            <select class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none">
-                                <option>TA 2025/2026</option>
-                                <option>TA 2024/2025</option>
-                            </select>
-                        </div>
+                        <select class="bg-eduPaper border border-gray-200 text-xs font-bold uppercase tracking-wider px-3 py-1.5 focus:outline-none w-full sm:w-auto">
+                            <option>TA 2025/2026</option>
+                            <option>TA 2024/2025</option>
+                        </select>
                     </div>
-                    <div class="h-[250px] sm:h-[320px]">
+                    <div class="h-[280px] sm:h-[340px]">
                         <canvas id="disciplineTrendChart"></canvas>
                     </div>
                 </div>
 
+                <!-- Grafik Batang Tabung / Cylinder Bar Chart per Tingkat Kelas -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Kategori Pelanggaran</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Distribusi jenis kasus</p>
+                        <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900">Pelanggaran per Tingkat</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Statistik per kelas X, XI, XII</p>
                     </div>
-                    <div class="h-[200px] sm:h-[250px] relative my-4 flex items-center justify-center">
-                        <canvas id="violationCategoryChart"></canvas>
+                    <div class="h-[220px] sm:h-[260px] relative my-4">
+                        <canvas id="classBarChart"></canvas>
                     </div>
                     <div class="pt-4 border-t border-gray-100 flex justify-around text-center">
                         <div>
-                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Ringan</span>
-                            <span class="text-xs sm:text-sm font-bold text-eduDark-900">58%</span>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Kelas X</span>
+                            <span class="text-xs sm:text-sm font-bold text-eduDark-900">45 Kasus</span>
                         </div>
                         <div>
-                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Sedang</span>
-                            <span class="text-xs sm:text-sm font-bold text-eduDark-900">30%</span>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Kelas XI</span>
+                            <span class="text-xs sm:text-sm font-bold text-eduCrimson-600">62 Kasus</span>
                         </div>
                         <div>
-                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Berat</span>
-                            <span class="text-xs sm:text-sm font-bold text-eduCrimson-600">12%</span>
+                            <span class="text-[9px] uppercase text-gray-400 font-bold block">Kelas XII</span>
+                            <span class="text-xs sm:text-sm font-bold text-emerald-600">28 Kasus</span>
                         </div>
                     </div>
                 </div>
@@ -245,121 +231,80 @@
             backdrop.classList.toggle('hidden');
         }
 
+        // 1. Dual Comparison Line Chart (Pelanggaran vs Prestasi)
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
-        let lineChart;
-
-        // Fungsi Memuat Grafik Sesuai Pilihan Mode
-        function renderLineChart(style) {
-            if (lineChart) lineChart.destroy();
-
-            const labels = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            const dataPelanggaran = [65, 59, 80, 51, 56, 40];
-            const dataPrestasi = [20, 35, 45, 60, 75, 85];
-
-            let datasets = [];
-
-            if (style === 'crimsonGradient') {
-                const gradient = ctxLine.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, 'rgba(165, 28, 48, 0.35)');
-                gradient.addColorStop(1, 'rgba(165, 28, 48, 0.0)');
-
-                datasets = [{
-                    label: 'Kasus Pelanggaran',
-                    data: dataPelanggaran,
-                    borderColor: '#A51C30',
-                    borderWidth: 3,
-                    fill: true,
-                    backgroundColor: gradient,
-                    tension: 0.4,
-                    pointBackgroundColor: '#A51C30',
-                    pointBorderColor: '#FFFFFF',
-                    pointBorderWidth: 2,
-                    pointRadius: 5
-                }];
-            } else if (style === 'darkMinimal') {
-                const gradientDark = ctxLine.createLinearGradient(0, 0, 0, 300);
-                gradientDark.addColorStop(0, 'rgba(20, 20, 20, 0.2)');
-                gradientDark.addColorStop(1, 'rgba(20, 20, 20, 0.0)');
-
-                datasets = [{
-                    label: 'Kasus Pelanggaran',
-                    data: dataPelanggaran,
-                    borderColor: '#141414',
-                    borderWidth: 3,
-                    fill: true,
-                    backgroundColor: gradientDark,
-                    tension: 0.4,
-                    pointBackgroundColor: '#141414',
-                    pointRadius: 4
-                }];
-            } else if (style === 'stepped') {
-                datasets = [{
-                    label: 'Kasus Pelanggaran',
-                    data: dataPelanggaran,
-                    borderColor: '#A51C30',
-                    borderWidth: 3,
-                    stepped: true,
-                    fill: false,
-                    pointBackgroundColor: '#A51C30',
-                    pointRadius: 5
-                }];
-            } else if (style === 'comparative') {
-                datasets = [
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                datasets: [
                     {
-                        label: 'Pelanggaran',
-                        data: dataPelanggaran,
+                        label: 'Kasus Pelanggaran',
+                        data: [65, 59, 80, 51, 56, 40],
                         borderColor: '#A51C30',
+                        backgroundColor: 'rgba(165, 28, 48, 0.05)',
                         borderWidth: 3,
                         tension: 0.4,
-                        fill: false,
-                        pointRadius: 4
+                        fill: true,
+                        pointBackgroundColor: '#A51C30',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
                     },
                     {
                         label: 'Poin Prestasi',
-                        data: dataPrestasi,
+                        data: [20, 35, 45, 60, 75, 85],
                         borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
                         borderWidth: 3,
                         tension: 0.4,
-                        fill: false,
-                        pointRadius: 4
+                        fill: true,
+                        pointBackgroundColor: '#10B981',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
                     }
-                ];
-            }
-
-            lineChart = new Chart(ctxLine, {
-                type: 'line',
-                data: { labels: labels, datasets: datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: style === 'comparative', position: 'top' }
-                    },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: { grid: { color: '#F0F0F0' }, min: 0 }
-                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: '#F0F0F0' }, min: 0 }
                 }
-            });
-        }
-
-        // Inisialisasi Mode Awal (Crimson Curve)
-        renderLineChart('crimsonGradient');
-
-        // Event Listener Perubahan Style
-        document.getElementById('chartStyleSelector').addEventListener('change', function() {
-            renderLineChart(this.value);
+            }
         });
 
-        // Donut Chart Kategori
-        const ctxDoughnut = document.getElementById('violationCategoryChart').getContext('2d');
-        new Chart(ctxDoughnut, {
-            type: 'doughnut',
+        // 2. Bar Chart Tabung / Cylinder Style per Kelas
+        const ctxBar = document.getElementById('classBarChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
             data: {
-                labels: ['Ringan', 'Sedang', 'Berat'],
-                datasets: [{ data: [58, 30, 12], backgroundColor: ['#141414', '#A51C30', '#D97706'] }]
+                labels: ['Kelas X', 'Kelas XI', 'Kelas XII'],
+                datasets: [{
+                    label: 'Jumlah Kasus',
+                    data: [45, 62, 28],
+                    backgroundColor: ['#141414', '#A51C30', '#10B981'],
+                    borderRadius: 12, // Efek tabung/melengkung di sudut
+                    borderSkipped: false,
+                    barThickness: 32
+                }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: '#F0F0F0' }, min: 0 }
+                }
+            }
         });
     </script>
 </body>

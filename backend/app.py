@@ -85,7 +85,6 @@ def add_user():
     role = request.form.get('role', '').strip()
     
     if nama and username and password and role:
-        # Menggunakan hash standar Werkzeug agar 100% kompatibel dengan check_password_hash
         hashed_password = generate_password_hash(password)
         
         conn = get_db_connection()
@@ -136,15 +135,18 @@ def delete_multiple_users():
 
 @app.route('/poin')
 def poin():
-    if 'user_id' not in session: 
-        return redirect(url_for('login'))
-    return render_template('dashboard/poin.html')
+    if 'user_id' not in session: return redirect(url_for('login'))
+    return render_template('dashboard/poin.html', nama_user=session['nama'])
+
+@app.route('/absensi')
+def absensi():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    return render_template('dashboard/absensi.html', nama_user=session['nama'])
 
 @app.route('/rapor')
 def rapor():
-    if 'user_id' not in session: 
-        return redirect(url_for('login'))
-    return render_template('dashboard/rapor.html')
+    if 'user_id' not in session: return redirect(url_for('login'))
+    return render_template('dashboard/rapor.html', nama_user=session['nama'])
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
