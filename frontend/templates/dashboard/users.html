@@ -67,6 +67,11 @@
                 <span class="text-sm font-medium">Poin Pelanggaran</span>
             </a>
 
+            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition">
+                <i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i>
+                <span class="text-sm font-medium">Absensi Harian</span>
+            </a>
+
             <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition">
                 <i class="fa-solid fa-file-signature text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium">E-Rapor & Ujian</span>
@@ -103,27 +108,28 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
+                <!-- Form Tambah Akun (Dilengkapi Auto-Reset & Anti Autofill) -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900 mb-1">Tambah Akun</h3>
                     <p class="text-xs text-gray-400 mb-5">Kredensial login Guru / Admin.</p>
                     
-                    <form action="/users/add" method="POST" class="space-y-4">
+                    <form id="addUserForm" action="/users/add" method="POST" autocomplete="off" class="space-y-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Nama Lengkap</label>
-                            <input type="text" name="nama" required placeholder="Contoh: Drs. H. Ahmad" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                            <input type="text" id="inputNama" name="nama" required placeholder="Contoh: Drs. H. Ahmad" autocomplete="off" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Username / NIP</label>
-                            <input type="text" name="username" required placeholder="Username unik" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                            <input type="text" id="inputUsername" name="username" required placeholder="Username unik" autocomplete="new-password" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Password</label>
-                            <input type="password" name="password" required placeholder="••••••••" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                            <input type="password" id="inputPassword" name="password" required placeholder="••••••••" autocomplete="new-password" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Peran (Role)</label>
                             <select name="role" required class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
-                                <option value="guru">Guru / Staff</option>
+                                <option value="guru" selected>Guru / Staff</option>
                                 <option value="admin">Administrator</option>
                             </select>
                         </div>
@@ -199,6 +205,15 @@
             sidebar.classList.toggle('-translate-x-full');
             backdrop.classList.toggle('hidden');
         }
+
+        // Otomatis bersihkan nilai form setiap kali halaman selesai di-load (mencegah auto-fill browser)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.getElementById('inputNama').value = '';
+                document.getElementById('inputUsername').value = '';
+                document.getElementById('inputPassword').value = '';
+            }, 100);
+        });
 
         const selectAll = document.getElementById('selectAll');
         const userCheckboxes = document.querySelectorAll('.user-checkbox');
