@@ -62,6 +62,11 @@
                 <span class="text-sm font-semibold">Kelola Pengguna</span>
             </a>
 
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition">
+                <i class="fa-solid fa-users text-sm w-5 text-center"></i>
+                <span class="text-sm font-medium">Data Siswa</span>
+            </a>
+
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition">
                 <i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium">Poin Pelanggaran</span>
@@ -70,11 +75,6 @@
             <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition">
                 <i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i>
                 <span class="text-sm font-medium">Absensi Harian</span>
-            </a>
-
-            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition">
-                <i class="fa-solid fa-file-signature text-sm w-5 text-center"></i>
-                <span class="text-sm font-medium">E-Rapor & Ujian</span>
             </a>
         </nav>
 
@@ -206,7 +206,6 @@
             backdrop.classList.toggle('hidden');
         }
 
-        // Otomatis bersihkan nilai form setiap kali halaman selesai di-load (mencegah auto-fill browser)
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 document.getElementById('inputNama').value = '';

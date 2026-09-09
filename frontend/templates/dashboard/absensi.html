@@ -49,9 +49,9 @@
             <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Menu Utama</p>
             <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-sm font-medium">Overview</span></a>
             <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-sm font-medium">Kelola Pengguna</span></a>
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-sm font-medium">Data Siswa</span></a>
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-sm font-medium">Poin Pelanggaran</span></a>
             <a href="/absensi" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-sm font-semibold">Absensi Harian</span></a>
-            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-file-signature text-sm w-5 text-center"></i><span class="text-sm font-medium">E-Rapor & Ujian</span></a>
         </nav>
 
         <div class="p-5 border-t border-gray-800/80">
@@ -154,14 +154,12 @@
             backdrop.classList.toggle('hidden');
         }
 
-        // Otomatis set tanggal kalender ke hari ini
         document.addEventListener('DOMContentLoaded', () => {
             const dateInput = document.getElementById('tanggalAbsen');
             const today = new Date().toISOString().split('T')[0];
             dateInput.value = today;
         });
 
-        // Toggle status kehadiran saat tombol diklik
         const statusList = [
             { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-700', hover: 'hover:bg-emerald-200' },
             { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-700', hover: 'hover:bg-amber-200' },
