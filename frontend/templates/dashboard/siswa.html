@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Siswa - EduLink Platform</title>
     
+    <!-- Favicon / Logo Tab Browser -->
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -81,6 +83,7 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
+                <!-- Form Input Manual Siswa -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900 mb-1">Input Data Siswa</h3>
                     <p class="text-xs text-gray-400 mb-5">Tambahkan identitas siswa baru secara manual.</p>
@@ -88,7 +91,7 @@
                     <form action="#" method="POST" autocomplete="off" class="space-y-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">NISN (Nomor Induk)</label>
-                            <input type="text" name="nisn" required placeholder="Contoh: 0051234910" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                            <input type="text" name="nisn" required placeholder="Contoh: 0051231001" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Nama Lengkap Siswa</label>
@@ -104,11 +107,17 @@
                         <div>
                             <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Tingkat & Rombel Kelas</label>
                             <select name="kelas" required class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                                <!-- Angkatan 10 (2 Kelas) -->
                                 <option value="X IPA 1">X IPA 1</option>
                                 <option value="X IPS 1">X IPS 1</option>
+                                <!-- Angkatan 11 (3 Kelas) -->
                                 <option value="XI IPA 1">XI IPA 1</option>
-                                <option value="XI IPS 2">XI IPS 2</option>
-                                <option value="XII IPA 4">XII IPA 4</option>
+                                <option value="XI IPA 2">XI IPA 2</option>
+                                <option value="XI IPS 1">XI IPS 1</option>
+                                <!-- Angkatan 12 (3 Kelas) -->
+                                <option value="XII IPA 1">XII IPA 1</option>
+                                <option value="XII IPA 2">XII IPA 2</option>
+                                <option value="XII IPS 1">XII IPS 1</option>
                             </select>
                         </div>
                         <div>
@@ -125,6 +134,7 @@
                     </form>
                 </div>
 
+                <!-- Tabel Direktori Siswa -->
                 <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
                     <div class="p-4 sm:p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
                         <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Direktori Siswa Aktif</h3>
@@ -133,7 +143,13 @@
                             <select class="bg-eduPaper border border-gray-200 text-xs py-1.5 px-2 focus:outline-none">
                                 <option>Semua Kelas</option>
                                 <option>X IPA 1</option>
+                                <option>X IPS 1</option>
+                                <option>XI IPA 1</option>
                                 <option>XI IPA 2</option>
+                                <option>XI IPS 1</option>
+                                <option>XII IPA 1</option>
+                                <option>XII IPA 2</option>
+                                <option>XII IPS 1</option>
                             </select>
                         </div>
                     </div>
@@ -150,38 +166,28 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
+                                {% for s in siswa_list %}
                                 <tr class="hover:bg-gray-50/80">
                                     <td class="pl-6 py-3.5">
-                                        <p class="font-bold text-eduDark-900">Ahmad Rizky Pratama</p>
-                                        <p class="text-[10px] font-mono text-gray-400">0051234910</p>
+                                        <p class="font-bold text-eduDark-900">{{ s.nama_siswa }}</p>
+                                        <p class="text-[10px] font-mono text-gray-400">{{ s.nisn }}</p>
                                     </td>
-                                    <td class="px-3 py-3.5 font-bold">L</td>
-                                    <td class="px-3 py-3.5 font-mono text-xs">XI IPA 1</td>
+                                    <td class="px-3 py-3.5 font-bold">{{ s.jenis_kelamin }}</td>
+                                    <td class="px-3 py-3.5 font-mono text-xs">{{ s.kelas }}</td>
                                     <td class="px-3 py-3.5">
-                                        <p class="text-xs">Bpk. Pratama</p>
-                                        <p class="text-[10px] text-gray-400 font-mono">081234567890</p>
+                                        <p class="text-xs">{{ s.nama_wali }}</p>
+                                        <p class="text-[10px] text-gray-400 font-mono">{{ s.no_hp_wali }}</p>
                                     </td>
                                     <td class="pr-6 py-3.5 text-right">
                                         <button class="p-1 text-gray-400 hover:text-eduCrimson-600"><i class="fa-solid fa-pen-to-square"></i></button>
                                         <button class="p-1 text-gray-400 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
                                     </td>
                                 </tr>
-                                <tr class="hover:bg-gray-50/80">
-                                    <td class="pl-6 py-3.5">
-                                        <p class="font-bold text-eduDark-900">Citra Kirana</p>
-                                        <p class="text-[10px] font-mono text-gray-400">0051234912</p>
-                                    </td>
-                                    <td class="px-3 py-3.5 font-bold">P</td>
-                                    <td class="px-3 py-3.5 font-mono text-xs">XI IPA 1</td>
-                                    <td class="px-3 py-3.5">
-                                        <p class="text-xs">Ibu Kirana</p>
-                                        <p class="text-[10px] text-gray-400 font-mono">081987654321</p>
-                                    </td>
-                                    <td class="pr-6 py-3.5 text-right">
-                                        <button class="p-1 text-gray-400 hover:text-eduCrimson-600"><i class="fa-solid fa-pen-to-square"></i></button>
-                                        <button class="p-1 text-gray-400 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
-                                    </td>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-6 text-gray-400 italic">Belum ada data siswa tersimpan. Silakan jalankan seed_data.py.</td>
                                 </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
