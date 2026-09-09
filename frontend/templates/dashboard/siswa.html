@@ -81,6 +81,7 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
+                <!-- Form Input Manual -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900 mb-1">Input Data Siswa</h3>
                     <p class="text-xs text-gray-400 mb-5">Tambahkan identitas siswa baru secara manual.</p>
@@ -128,28 +129,29 @@
                     </form>
                 </div>
 
+                <!-- Tabel Direktori Siswa Dinamis -->
                 <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
                     <div class="p-4 sm:p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
                         <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Direktori Siswa Aktif</h3>
                         <div class="flex items-center gap-2">
-                            <input type="text" placeholder="Cari NISN / Nama..." class="bg-eduPaper border border-gray-200 text-xs py-1.5 px-3 focus:outline-none">
-                            <select class="bg-eduPaper border border-gray-200 text-xs py-1.5 px-2 focus:outline-none">
-                                <option>Semua Kelas</option>
-                                <option>X IPA 1</option>
-                                <option>X IPS 1</option>
-                                <option>XI IPA 1</option>
-                                <option>XI IPA 2</option>
-                                <option>XI IPS 1</option>
-                                <option>XII IPA 1</option>
-                                <option>XII IPA 2</option>
-                                <option>XII IPS 1</option>
+                            <input type="text" id="searchSiswa" onkeyup="filterSiswa()" placeholder="Cari NISN / Nama..." class="bg-eduPaper border border-gray-200 text-xs py-1.5 px-3 focus:outline-none">
+                            <select id="filterKelas" onchange="filterSiswa()" class="bg-eduPaper border border-gray-200 text-xs py-1.5 px-2 focus:outline-none">
+                                <option value="">Semua Kelas</option>
+                                <option value="X IPA 1">X IPA 1</option>
+                                <option value="X IPS 1">X IPS 1</option>
+                                <option value="XI IPA 1">XI IPA 1</option>
+                                <option value="XI IPA 2">XI IPA 2</option>
+                                <option value="XI IPS 1">XI IPS 1</option>
+                                <option value="XII IPA 1">XII IPA 1</option>
+                                <option value="XII IPA 2">XII IPA 2</option>
+                                <option value="XII IPS 1">XII IPS 1</option>
                             </select>
                         </div>
                     </div>
                     
                     <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
                         <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[550px]">
-                            <thead class="bg-eduPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 tracking-wider sticky top-0 z-10">
+                            <thead class="bg-eduPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 tracking-wider sticky top-0 bg-eduPaper z-10">
                                 <tr>
                                     <th class="pl-6 py-3.5">NISN / Nama</th>
                                     <th class="px-3 py-3.5">JK</th>
@@ -160,13 +162,13 @@
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 {% for s in siswa_list %}
-                                <tr class="hover:bg-gray-50/80">
+                                <tr class="hover:bg-gray-50/80 row-siswa">
                                     <td class="pl-6 py-3.5">
-                                        <p class="font-bold text-eduDark-900">{{ s.nama_siswa }}</p>
-                                        <p class="text-[10px] font-mono text-gray-400">{{ s.nisn }}</p>
+                                        <p class="font-bold text-eduDark-900 col-nama">{{ s.nama_siswa }}</p>
+                                        <p class="text-[10px] font-mono text-gray-400 col-nisn">{{ s.nisn }}</p>
                                     </td>
                                     <td class="px-3 py-3.5 font-bold">{{ s.jenis_kelamin }}</td>
-                                    <td class="px-3 py-3.5 font-mono text-xs">{{ s.kelas }}</td>
+                                    <td class="px-3 py-3.5 font-mono text-xs col-kelas">{{ s.kelas }}</td>
                                     <td class="px-3 py-3.5">
                                         <p class="text-xs">{{ s.nama_wali }}</p>
                                         <p class="text-[10px] text-gray-400 font-mono">{{ s.no_hp_wali }}</p>
@@ -178,7 +180,7 @@
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-6 text-gray-400 italic">Belum ada data siswa tersimpan. Silakan jalankan seed_data.py.</td>
+                                    <td colspan="5" class="text-center py-6 text-gray-400 italic">Belum ada data siswa tersimpan.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -196,6 +198,23 @@
             const backdrop = document.getElementById('sidebarBackdrop');
             sidebar.classList.toggle('-translate-x-full');
             backdrop.classList.toggle('hidden');
+        }
+
+        function filterSiswa() {
+            const searchInput = document.getElementById('searchSiswa').value.toLowerCase();
+            const selectedKelas = document.getElementById('filterKelas').value;
+            const rows = document.querySelectorAll('.row-siswa');
+
+            rows.forEach(row => {
+                const nama = row.querySelector('.col-nama').textContent.toLowerCase();
+                const nisn = row.querySelector('.col-nisn').textContent.toLowerCase();
+                const kelas = row.querySelector('.col-kelas').textContent;
+
+                const matchSearch = nama.includes(searchInput) || nisn.includes(searchInput);
+                const matchKelas = selectedKelas === '' || kelas === selectedKelas;
+
+                row.style.display = (matchSearch && matchKelas) ? '' : 'none';
+            });
         }
     </script>
 </body>
