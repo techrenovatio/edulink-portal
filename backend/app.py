@@ -148,6 +148,12 @@ def poin():
         return redirect(url_for('login'))
     return render_template('dashboard/poin.html', nama_user=session['nama'])
 
+@app.route('/laporan')
+def laporan():
+    if 'user_id' not in session: 
+        return redirect(url_for('login'))
+    return render_template('dashboard/laporan.html', nama_user=session['nama'])
+
 @app.route('/absensi')
 def absensi():
     if 'user_id' not in session: 

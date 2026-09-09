@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poin Pelanggaran - EduLink Platform</title>
     
-    <!-- Favicon / Logo Tab Browser -->
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -53,6 +51,7 @@
             <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-sm font-medium">Kelola Pengguna</span></a>
             <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-sm font-medium">Data Siswa</span></a>
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-sm font-semibold">Poin Pelanggaran</span></a>
+            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-sm font-medium">Laporan & Rekap</span></a>
             <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-sm font-medium">Absensi Harian</span></a>
         </nav>
 
@@ -82,7 +81,6 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <!-- Form Input Catat Pelanggaran -->
                 <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900 mb-1">Catat Pelanggaran Siswa</h3>
                     <p class="text-xs text-gray-400 mb-5">Input pelanggaran untuk mengakumulasi poin SP.</p>
@@ -124,7 +122,6 @@
                     </form>
                 </div>
 
-                <!-- Tabel Riwayat Pelanggaran -->
                 <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
                     <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center">
                         <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Riwayat Pelanggaran Terakhir</h3>
