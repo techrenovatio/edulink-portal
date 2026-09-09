@@ -20,7 +20,7 @@ def generate_siswa_data():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # 1. Buat Tabel Siswa Jika Belum Ada
+    # 1. Tabel Siswa
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS siswa (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,17 +33,29 @@ def generate_siswa_data():
         )
     ''')
 
-    # Bersihkan data lama agar disinkronkan bersih
+    # 2. Tabel Pelanggaran
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS pelanggaran (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nisn TEXT NOT NULL,
+            nama_siswa TEXT NOT NULL,
+            kelas TEXT NOT NULL,
+            jenis_pelanggaran TEXT NOT NULL,
+            poin INTEGER NOT NULL,
+            tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Bersihkan data lama
     cursor.execute("DELETE FROM siswa")
     cursor.execute("DELETE FROM pelanggaran")
 
     print("Mengisi data siswa ke database...")
 
-    # Konfigurasi Angkatan & Kelas
     alokasi_kelas = {
-        "10": [("X IPA 1", 30), ("X IPS 1", 30)],                  # Total 60 Siswa
-        "11": [("XI IPA 1", 30), ("XI IPA 2", 30), ("XI IPS 1", 30)], # Total 90 Siswa
-        "12": [("XII IPA 1", 30), ("XII IPA 2", 30), ("XII IPS 1", 30)]# Total 90 Siswa
+        "10": [("X IPA 1", 30), ("X IPS 1", 30)],                  
+        "11": [("XI IPA 1", 30), ("XI IPA 2", 30), ("XI IPS 1", 30)], 
+        "12": [("XII IPA 1", 30), ("XII IPA 2", 30), ("XII IPS 1", 30)]
     }
 
     nisn_counter = 1000
@@ -54,13 +66,12 @@ def generate_siswa_data():
                 nisn_counter += 1
                 nisn = f"005123{nisn_counter}"
                 
-                # Selang-seling Pria dan Wanita
                 jk = "L" if i % 2 == 0 else "P"
                 if jk == "L":
                     nama = f"{random.choice(nama_depan_pria)} {random.choice(nama_belakang)}"
                     wali = f"Bpk. {random.choice(nama_belakang)}"
                 else:
-                    nama = f"{random.choice(nama_wanita_depan if 'nama_wanita_depan' in locals() else nama_depan_wanita)} {random.choice(nama_belakang)}"
+                    nama = f"{random.choice(nama_depan_wanita)} {random.choice(nama_belakang)}"
                     wali = f"Ibu {random.choice(nama_belakang)}"
 
                 no_hp = f"0812{random.randint(10000000, 99999999)}"
@@ -70,7 +81,6 @@ def generate_siswa_data():
                     (nisn, nama, jk, kelas, wali, no_hp)
                 )
 
-                # Tambahkan beberapa data pelanggaran acak (sekitar 10% siswa)
                 if random.random() < 0.12:
                     pel, poin = random.choice(pelanggaran_master)
                     cursor.execute(
@@ -84,7 +94,7 @@ def generate_siswa_data():
     total_poin = cursor.execute("SELECT COUNT(*) FROM pelanggaran").fetchone()[0]
     
     conn.close()
-    print(f"BERHASIL: Disinkronkan {total_siswa} data siswa (Kelas 10: 60, Kelas 11: 90, Kelas 12: 90) & {total_poin} riwayat pelanggaran.")
+    print(f"BERHASIL: Disinkronkan {total_siswa} data siswa & {total_poin} riwayat pelanggaran.")
 
 if __name__ == '__main__':
     generate_siswa_data()
