@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduLink Platform - Portal Manajemen Kedisiplinan Sekolah</title>
-    
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script>
         tailwind.config = {
             theme: {
@@ -38,12 +36,6 @@
                 </div>
                 <span class="text-2xl font-serif font-bold text-eduDark-900 tracking-tight">EduLink.</span>
             </div>
-
-            <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-gray-600">
-                <a href="#fitur" class="hover:text-eduCrimson-600 transition">Fitur Utama</a>
-                <a href="#tentang" class="hover:text-eduCrimson-600 transition">Tentang Platform</a>
-            </nav>
-
             <a href="/login" class="bg-eduDark-900 hover:bg-eduCrimson-600 text-white text-xs font-bold uppercase tracking-widest px-6 py-3 transition flex items-center gap-2">
                 <i class="fa-solid fa-right-to-bracket"></i> Masuk Panel
             </a>
@@ -60,13 +52,10 @@
                 <p class="text-gray-600 text-sm sm:text-base leading-relaxed mb-8">
                     EduLink adalah platform manajemen sekolah modern yang memfasilitasi pencatatan pelanggaran, akumulasi poin, penerbitan Surat Peringatan (SP), serta pemantauan absensi harian secara real-time dan presisi.
                 </p>
-                <div class="flex flex-wrap items-center gap-4">
-                    <a href="/login" class="bg-eduCrimson-600 hover:bg-eduCrimson-700 text-white font-bold text-xs uppercase tracking-widest px-8 py-4 transition flex items-center gap-2 shadow-lg shadow-red-900/10">
-                        Akses Sistem <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                </div>
+                <a href="/login" class="inline-flex bg-eduCrimson-600 hover:bg-eduCrimson-700 text-white font-bold text-xs uppercase tracking-widest px-8 py-4 transition items-center gap-2 shadow-lg shadow-red-900/10">
+                    Akses Sistem <i class="fa-solid fa-arrow-right"></i>
+                </a>
             </div>
-
             <div class="relative">
                 <div class="bg-eduDark-900 p-8 text-white shadow-2xl relative z-10 border-l-4 border-eduCrimson-600">
                     <div class="flex justify-between items-center pb-6 border-b border-gray-800 mb-6">
@@ -76,7 +65,6 @@
                         </div>
                         <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 text-[10px] font-bold uppercase tracking-wider">Status: Online</span>
                     </div>
-
                     <div class="grid grid-cols-2 gap-6">
                         <div>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Siswa</p>
@@ -88,7 +76,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="absolute -bottom-4 -right-4 w-full h-full border-2 border-eduCrimson-600 z-0"></div>
             </div>
         </div>
     </section>
@@ -98,6 +85,5 @@
             <p>© 2026 EduLink School Portal. All rights reserved.</p>
         </div>
     </footer>
-
 </body>
 </html>
