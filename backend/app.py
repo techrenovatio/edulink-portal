@@ -15,10 +15,11 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 app.secret_key = 'syekhyusuf_tangerang_secret_key_2026_change_this'
 
+# --- PERBAIKAN PENTING COOKIE SESSION ---
 app.config['SESSION_COOKIE_NAME'] = 'syekhyusuf_session'
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_HTTPONLY'] = False  # Izinkan fleksibilitas cookie
+app.config['SESSION_COOKIE_SECURE'] = False    # Bebaskan dari paksaan HTTPS jika lewat IP/sslip.io
+app.config['SESSION_COOKIE_SAMESITE'] = None   # Izinkan browser menyimpan cookie dari proxy
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
