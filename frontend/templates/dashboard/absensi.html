@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absensi Harian - EduLink Platform</title>
+    <title>Absensi Harian - SMA Syekh Yusuf</title>
     
-    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -16,29 +16,33 @@
                 extend: {
                     fontFamily: {
                         sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Merriweather"', 'serif'],
+                        serif: ['"Playfair Display"', 'serif'],
                     },
                     colors: {
-                        eduCrimson: { 600: '#A51C30', 700: '#8A1525' },
-                        eduDark: { 900: '#141414', 800: '#1A1A1A', 700: '#262626' },
-                        eduPaper: '#F7F7F7',
+                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
+                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
+                        syekhDark: { 900: '#0F172A', 800: '#1E293B', 700: '#334155' },
+                        syekhPaper: '#F8FAFC',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-eduPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-eduCrimson-600 selection:text-white">
+<body class="bg-syekhPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
 
     <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
 
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-eduDark-900 text-gray-400 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
-        <div class="h-20 lg:h-24 flex items-center justify-between px-6 border-b border-gray-800/80">
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
+        <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 border-none shadow-none">
-                    <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" alt="EduLink Logo" class="w-full h-full object-contain mix-blend-multiply scale-110">
+                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
+                    <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-full h-full object-contain">
                 </div>
-                <span class="text-2xl font-serif font-bold text-white tracking-tight">EduLink.</span>
+                <div>
+                    <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
+                    <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
+                </div>
             </div>
             <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
                 <i class="fa-solid fa-xmark"></i>
@@ -46,111 +50,109 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
-            <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Menu Utama</p>
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-sm font-medium">Overview</span></a>
-            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-sm font-medium">Kelola Pengguna</span></a>
-            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-sm font-medium">Data Siswa</span></a>
-            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-sm font-medium">Poin Pelanggaran</span></a>
-            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-sm font-medium">Laporan & Rekap</span></a>
-            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-sm font-semibold">Absensi Harian</span></a>
+            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Overview</span></a>
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Kelola Pengguna</span></a>
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
+            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
+            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white rounded-lg transition border-l-4 border-syekhGold-500"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Absensi Harian</span></a>
         </nav>
 
-        <div class="p-5 border-t border-gray-800/80">
+        <div class="p-5 border-t border-syekhGreen-800">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-9 h-9 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-xs">AD</div>
+                <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-gray-500 uppercase">Super Admin</p>
+                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">Administrator</p>
                 </div>
             </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2 border border-gray-800 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-eduCrimson-600 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-20 lg:h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-eduDark-900 text-xl"><i class="fa-solid fa-bars"></i></button>
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
                 <div>
-                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-eduDark-900 leading-tight">Absensi Harian Siswa</h1>
-                    <p class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider hidden sm:block">Rekap Presensi Harian & Jam Pelajaran</p>
+                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-syekhGreen-900 leading-tight">Absensi Harian Siswa</h1>
+                    <p class="text-[10px] sm:text-xs text-syekhGold-600 font-bold uppercase tracking-wider hidden sm:block">Rekap Presensi Harian & Jam Pelajaran</p>
                 </div>
             </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
-            <div class="bg-white p-6 border border-gray-100 shadow-sm flex flex-wrap items-center justify-between gap-4">
+            <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div class="flex flex-wrap items-center gap-4">
                     <div class="flex items-center gap-2">
-                        <label class="text-xs font-bold text-gray-400 uppercase">Kelas:</label>
-                        <select class="bg-eduPaper border border-gray-200 text-xs font-bold py-2.5 px-3 focus:outline-none cursor-pointer">
+                        <label class="text-xs font-bold text-gray-500 uppercase">Kelas:</label>
+                        <select class="bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none cursor-pointer rounded">
                             <option>Semua Kelas</option>
                             <option>Kelas X IPA 1</option>
                             <option>Kelas XI IPA 1</option>
                             <option>Kelas XII IPS 2</option>
                         </select>
                     </div>
-
                     <div class="flex items-center gap-2">
-                        <label class="text-xs font-bold text-gray-400 uppercase">Tanggal:</label>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Tanggal:</label>
                         <div class="relative cursor-pointer" onclick="document.getElementById('tanggalAbsen').showPicker()">
-                            <input type="date" id="tanggalAbsen" class="bg-eduPaper border border-gray-200 text-xs font-bold py-2 px-3 focus:outline-none cursor-pointer">
+                            <input type="date" id="tanggalAbsen" class="bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none cursor-pointer rounded">
                         </div>
                     </div>
                 </div>
-
-                <button onclick="simpanAbsensi()" class="bg-eduDark-900 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 hover:bg-eduCrimson-600 transition flex items-center gap-2">
+                <button onclick="simpanAbsensi()" class="bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 transition flex items-center gap-2 rounded">
                     <i class="fa-solid fa-floppy-disk"></i> Simpan Presensi
                 </button>
             </div>
 
-            <div class="bg-white border border-gray-100 shadow-sm overflow-x-auto">
-                <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[600px]">
-                    <thead class="bg-eduPaper text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                        <tr>
-                            <th class="px-6 py-4">NISN</th>
-                            <th class="px-6 py-4">Nama Siswa</th>
-                            <th class="px-6 py-4">Kelas</th>
-                            <th class="px-6 py-4 text-center">Status Kehadiran (Klik untuk Ubah)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-mono">0051234910</td>
-                            <td class="px-6 py-4 font-bold text-eduDark-900">Ahmad Rizky Pratama</td>
-                            <td class="px-6 py-4">XI IPA 1</td>
-                            <td class="px-6 py-4 text-center">
-                                <button onclick="toggleStatus(this)" class="status-btn bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition">HADIR</button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-mono">0051234911</td>
-                            <td class="px-6 py-4 font-bold text-eduDark-900">Budi Santoso</td>
-                            <td class="px-6 py-4">XI IPA 1</td>
-                            <td class="px-6 py-4 text-center">
-                                <button onclick="toggleStatus(this)" class="status-btn bg-amber-100 text-amber-700 hover:bg-amber-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition">IZIN</button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-mono">0051234912</td>
-                            <td class="px-6 py-4 font-bold text-eduDark-900">Citra Kirana</td>
-                            <td class="px-6 py-4">XI IPA 1</td>
-                            <td class="px-6 py-4 text-center">
-                                <button onclick="toggleStatus(this)" class="status-btn bg-red-100 text-eduCrimson-600 hover:bg-red-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition">ALFA</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[600px]">
+                        <thead class="bg-syekhPaper border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4">NISN</th>
+                                <th class="px-6 py-4">Nama Siswa</th>
+                                <th class="px-6 py-4">Kelas</th>
+                                <th class="px-6 py-4 text-center">Status Kehadiran (Klik untuk Ubah)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-4 font-mono text-gray-500">0051234910</td>
+                                <td class="px-6 py-4 font-bold text-syekhGreen-900">Ahmad Rizky Pratama</td>
+                                <td class="px-6 py-4">XI IPA 1</td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="toggleStatus(this)" class="status-btn bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded">HADIR</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-4 font-mono text-gray-500">0051234911</td>
+                                <td class="px-6 py-4 font-bold text-syekhGreen-900">Budi Santoso</td>
+                                <td class="px-6 py-4">XI IPA 1</td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="toggleStatus(this)" class="status-btn bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded">IZIN</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 transition">
+                                <td class="px-6 py-4 font-mono text-gray-500">0051234912</td>
+                                <td class="px-6 py-4 font-bold text-syekhGreen-900">Citra Kirana</td>
+                                <td class="px-6 py-4">XI IPA 1</td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="toggleStatus(this)" class="status-btn bg-red-100 text-red-700 border border-red-200 hover:bg-red-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded">ALFA</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const backdrop = document.getElementById('sidebarBackdrop');
-            sidebar.classList.toggle('-translate-x-full');
-            backdrop.classList.toggle('hidden');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -160,10 +162,10 @@
         });
 
         const statusList = [
-            { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-700', hover: 'hover:bg-emerald-200' },
-            { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-700', hover: 'hover:bg-amber-200' },
-            { label: 'SAKIT', bg: 'bg-blue-100', text: 'text-blue-700', hover: 'hover:bg-blue-200' },
-            { label: 'ALFA', bg: 'bg-red-100', text: 'text-eduCrimson-600', hover: 'hover:bg-red-200' }
+            { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-800 border border-emerald-200', hover: 'hover:bg-emerald-200' },
+            { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-800 border border-amber-200', hover: 'hover:bg-amber-200' },
+            { label: 'SAKIT', bg: 'bg-blue-100', text: 'text-blue-800 border border-blue-200', hover: 'hover:bg-blue-200' },
+            { label: 'ALFA', bg: 'bg-red-100', text: 'text-red-700 border border-red-200', hover: 'hover:bg-red-200' }
         ];
 
         function toggleStatus(btn) {
@@ -171,8 +173,8 @@
             let currentIndex = statusList.findIndex(s => s.label === currentLabel);
             let nextIndex = (currentIndex + 1) % statusList.length;
             let nextStatus = statusList[nextIndex];
-
-            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} ${nextStatus.hover} px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition`;
+            
+            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} ${nextStatus.hover} px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded`;
             btn.textContent = nextStatus.label;
         }
 

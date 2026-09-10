@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poin Pelanggaran - EduLink Platform</title>
+    <title>Poin Pelanggaran - SMA Syekh Yusuf</title>
     
-    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -16,29 +16,33 @@
                 extend: {
                     fontFamily: {
                         sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Merriweather"', 'serif'],
+                        serif: ['"Playfair Display"', 'serif'],
                     },
                     colors: {
-                        eduCrimson: { 600: '#A51C30', 700: '#8A1525' },
-                        eduDark: { 900: '#141414', 800: '#1A1A1A', 700: '#262626' },
-                        eduPaper: '#F7F7F7',
+                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
+                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
+                        syekhDark: { 900: '#0F172A', 800: '#1E293B', 700: '#334155' },
+                        syekhPaper: '#F8FAFC',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-eduPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-eduCrimson-600 selection:text-white">
+<body class="bg-syekhPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
 
     <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
 
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-eduDark-900 text-gray-400 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
-        <div class="h-20 lg:h-24 flex items-center justify-between px-6 border-b border-gray-800/80">
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
+        <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 border-none shadow-none">
-                    <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" alt="EduLink Logo" class="w-full h-full object-contain mix-blend-multiply scale-110">
+                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
+                    <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-full h-full object-contain">
                 </div>
-                <span class="text-2xl font-serif font-bold text-white tracking-tight">EduLink.</span>
+                <div>
+                    <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
+                    <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
+                </div>
             </div>
             <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
                 <i class="fa-solid fa-xmark"></i>
@@ -46,34 +50,34 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
-            <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Menu Utama</p>
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-sm font-medium">Overview</span></a>
-            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-sm font-medium">Kelola Pengguna</span></a>
-            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-sm font-medium">Data Siswa</span></a>
-            <a href="/poin" class="flex items-center gap-4 px-4 py-3 bg-eduCrimson-600 text-white transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-sm font-semibold">Poin Pelanggaran</span></a>
-            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-sm font-medium">Laporan & Rekap</span></a>
-            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-eduDark-800 hover:text-white transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-sm font-medium">Absensi Harian</span></a>
+            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Overview</span></a>
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Kelola Pengguna</span></a>
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white rounded-lg transition border-l-4 border-syekhGold-500"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Poin Pelanggaran</span></a>
+            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
+            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Absensi Harian</span></a>
         </nav>
 
-        <div class="p-5 border-t border-gray-800/80">
+        <div class="p-5 border-t border-syekhGreen-800">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-9 h-9 rounded-full bg-eduDark-700 border border-gray-700 flex items-center justify-center text-white font-bold font-serif text-xs">AD</div>
+                <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-gray-500 uppercase">Super Admin</p>
+                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">Administrator</p>
                 </div>
             </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2 border border-gray-800 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-eduCrimson-600 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-20 lg:h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-eduDark-900 text-xl"><i class="fa-solid fa-bars"></i></button>
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
                 <div>
-                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-eduDark-900 leading-tight">Manajemen Poin Kedisiplinan</h1>
-                    <p class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider hidden sm:block">Pencatatan Violasi & Terbitan Surat Peringatan (SP)</p>
+                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-syekhGreen-900 leading-tight">Manajemen Poin Kedisiplinan</h1>
+                    <p class="text-[10px] sm:text-xs text-syekhGold-600 font-bold uppercase tracking-wider hidden sm:block">Pencatatan Violasi & Terbitan Surat Peringatan (SP)</p>
                 </div>
             </div>
         </header>
@@ -81,28 +85,27 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <!-- Form Catat Pelanggaran Siswa -->
-                <div class="bg-white p-5 sm:p-8 border border-gray-100 shadow-sm">
-                    <h3 class="font-serif font-bold text-lg sm:text-xl text-eduDark-900 mb-1">Catat Pelanggaran Siswa</h3>
-                    <p class="text-xs text-gray-400 mb-5">Ketik NISN untuk mendeteksi data siswa secara otomatis.</p>
+                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700">
+                    <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Catat Pelanggaran Siswa</h3>
+                    <p class="text-xs text-gray-500 mb-5">Ketik NISN untuk mendeteksi data siswa otomatis.</p>
                     
                     <form action="#" method="POST" autocomplete="off" class="space-y-4">
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">NISN Siswa</label>
-                            <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="Contoh: 0051231011" class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN Siswa</label>
+                            <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="Contoh: 0051231011" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
                             <span id="nisnStatus" class="text-[10px] font-bold mt-1 block"></span>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Nama Siswa</label>
-                            <input type="text" id="inputNamaSiswa" name="nama_siswa" required readonly placeholder="Otomatis terisi..." class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-eduDark-900 focus:outline-none">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Siswa</label>
+                            <input type="text" id="inputNamaSiswa" name="nama_siswa" required readonly placeholder="Otomatis terisi..." class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-syekhGreen-900 focus:outline-none rounded">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Kelas</label>
-                            <input type="text" id="inputKelas" name="kelas" required readonly placeholder="Otomatis terisi..." class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-eduDark-900 focus:outline-none">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Kelas</label>
+                            <input type="text" id="inputKelas" name="kelas" required readonly placeholder="Otomatis terisi..." class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-syekhGreen-900 focus:outline-none rounded">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Jenis Pelanggaran</label>
-                            <select id="selectPelanggaran" name="jenis_pelanggaran" onchange="autoFillPoin(this)" required class="w-full bg-eduPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-eduCrimson-600">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Jenis Pelanggaran</label>
+                            <select id="selectPelanggaran" name="jenis_pelanggaran" onchange="autoFillPoin(this)" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
                                 <option value="" data-poin="0" disabled selected>-- Pilih Jenis Violasi --</option>
                                 <option value="Terlambat Masuk Sekolah (>15 Menit)" data-poin="10">Terlambat Masuk Sekolah (+10 Poin)</option>
                                 <option value="Tidak Mengikuti Upacara Bendera" data-poin="25">Tidak Mengikuti Upacara (+25 Poin)</option>
@@ -111,60 +114,56 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Bobot Poin</label>
-                            <input type="number" id="inputPoin" name="poin" required readonly placeholder="0" class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-bold text-eduCrimson-600 focus:outline-none">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bobot Poin</label>
+                            <input type="number" id="inputPoin" name="poin" required readonly placeholder="0" class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-bold text-red-600 focus:outline-none rounded">
                         </div>
-                        <button type="submit" class="w-full bg-eduDark-900 hover:bg-eduCrimson-600 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2">
+                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded">
                             Simpan Catatan Poin
                         </button>
                     </form>
                 </div>
 
-                <!-- Tabel Riwayat Pelanggaran Terakhir -->
-                <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
+                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGold-500">
                     <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="font-serif font-bold text-base sm:text-lg text-eduDark-900">Riwayat Pelanggaran Terakhir</h3>
+                        <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Riwayat Pelanggaran Terakhir</h3>
                     </div>
                     
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[550px]">
-                            <thead class="bg-eduPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-400 tracking-wider">
+                            <thead class="bg-syekhPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-500 tracking-wider">
                                 <tr>
-                                    <th class="pl-6 py-3.5">NISN / Nama</th>
-                                    <th class="px-3 py-3.5">Kelas</th>
-                                    <th class="px-3 py-3.5">Pelanggaran</th>
-                                    <th class="px-3 py-3.5 text-center">Poin</th>
+                                    <th class="pl-6 py-3.5 border-b border-gray-200">NISN / Nama</th>
+                                    <th class="px-3 py-3.5 border-b border-gray-200">Kelas</th>
+                                    <th class="px-3 py-3.5 border-b border-gray-200">Pelanggaran</th>
+                                    <th class="px-3 py-3.5 text-center border-b border-gray-200">Poin</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 {% for p in pelanggaran_list %}
-                                <tr class="hover:bg-gray-50/80">
+                                <tr class="hover:bg-emerald-50/50 transition">
                                     <td class="pl-6 py-3.5">
-                                        <p class="font-bold text-eduDark-900">{{ p.nama_siswa }}</p>
-                                        <p class="text-[10px] font-mono text-gray-400">{{ p.nisn }}</p>
+                                        <p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p>
+                                        <p class="text-[10px] font-mono text-gray-500">{{ p.nisn }}</p>
                                     </td>
-                                    <td class="px-3 py-3.5 font-mono text-xs">{{ p.kelas }}</td>
+                                    <td class="px-3 py-3.5 font-mono text-xs text-gray-500">{{ p.kelas }}</td>
                                     <td class="px-3 py-3.5">{{ p.jenis_pelanggaran }}</td>
-                                    <td class="px-3 py-3.5 text-center font-bold text-eduCrimson-600">+{{ p.poin }}</td>
+                                    <td class="px-3 py-3.5 text-center font-bold text-red-600">+{{ p.poin }}</td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center py-6 text-gray-400 italic">Belum ada data riwayat pelanggaran.</td>
+                                    <td colspan="4" class="text-center py-8 text-gray-400 italic">Belum ada data riwayat pelanggaran.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-
             </div>
         </div>
     </main>
 
     <script>
-        // Peta Data Siswa dari Flask
         const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
-
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
@@ -185,8 +184,8 @@
                 namaEl.value = '';
                 kelasEl.value = '';
                 if (nisnInput.length >= 8) {
-                    statusEl.textContent = '✕ NISN tidak ditemukan';
-                    statusEl.className = 'text-[10px] font-bold mt-1 block text-eduCrimson-600';
+                    statusEl.textContent = '✗ NISN tidak ditemukan';
+                    statusEl.className = 'text-[10px] font-bold mt-1 block text-red-600';
                 } else {
                     statusEl.textContent = '';
                 }
