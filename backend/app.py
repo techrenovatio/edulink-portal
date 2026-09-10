@@ -23,8 +23,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
 
-# --- ROUTES ---
-
 @app.route('/')
 def home():
     return render_template('index.html')
