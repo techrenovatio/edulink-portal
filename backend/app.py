@@ -15,14 +15,13 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 app.secret_key = 'syekhyusuf_tangerang_secret_key_2026_change_this'
 
-# --- KONFIGURASI FLEKSIBEL COOKIE SESSION ---
+# --- KONFIGURASI COOKIE SESSION (KOMPATIBEL LOKAL & HTTP GCP) ---
 app.config['SESSION_COOKIE_NAME'] = 'syekhyusuf_session'
-app.config['SESSION_COOKIE_HTTPONLY'] = False  # Izinkan browser memproses cookie
-app.config['SESSION_COOKIE_SECURE'] = False    # Bebaskan dari paksaan HTTPS (penting untuk IP/sslip.io)
-app.config['SESSION_COOKIE_SAMESITE'] = None   # Izinkan cookie lintas-proxy
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
-# Inisialisasi Database
 init_db()
 
 # --- HELPER PERMISSION ---
@@ -45,7 +44,6 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
 
-        # Verifikasi ke auth.py
         user = verify_login(username, password, role)
 
         if user:
@@ -169,11 +167,41 @@ def poin():
                            siswa_map=siswa_dict, 
                            pelanggaran_list=daftar_pelanggaran)
 
+# --- PERBAIKAN LOGIKA LAPORAN DINAMIS ---
 @app.route('/laporan')
 def laporan():
     if 'user_id' not in session: 
         return redirect(url_for('login'))
-    return render_template('dashboard/laporan.html', nama_user=session['nama'])
+        
+    search_query = request.args.get('q', '').strip()
+    
+    conn = get_db_connection()
+    siswa_data = None
+    pelanggaran_data = []
+    total_poin = 0
+    
+    if search_query:
+        # Cari data asli di DB berdasarkan NISN atau Nama
+        siswa_data = conn.execute(
+            "SELECT * FROM siswa WHERE nisn = ? OR nama_siswa LIKE ?", 
+            (search_query, f"%{search_query}%")
+        ).fetchone()
+        
+        if siswa_data:
+            pelanggaran_data = conn.execute(
+                "SELECT * FROM pelanggaran WHERE nisn = ? ORDER BY tanggal DESC", 
+                (siswa_data['nisn'],)
+            ).fetchall()
+            total_poin = sum(p['poin'] for p in pelanggaran_data)
+            
+    conn.close()
+    
+    return render_template('dashboard/laporan.html', 
+                           nama_user=session['nama'],
+                           siswa=siswa_data,
+                           pelanggaran=pelanggaran_data,
+                           total_poin=total_poin,
+                           search_query=search_query)
 
 @app.route('/absensi')
 def absensi():
@@ -182,4 +210,4 @@ def absensi():
     return render_template('dashboard/absensi.html', nama_user=session['nama'])
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000, host='0.0.0.0')

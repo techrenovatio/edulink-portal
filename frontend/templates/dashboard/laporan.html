@@ -83,101 +83,124 @@
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
-            <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            
+            <!-- Form Pencarian Dinamis -->
+            <form action="/laporan" method="GET" class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex-1 flex flex-col sm:flex-row items-center gap-3">
-                    <div class="relative w-full sm:w-80">
+                    <div class="relative w-full sm:w-96">
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" placeholder="Masukkan NISN / Nama Siswa..." class="w-full bg-syekhPaper border border-gray-200 text-xs py-2.5 pl-10 pr-4 focus:outline-none focus:border-syekhGreen-600 rounded">
+                        <input type="text" name="q" value="{{ search_query }}" placeholder="Ketik NISN / Nama, lalu Enter..." class="w-full bg-syekhPaper border border-gray-200 text-xs py-3 pl-10 pr-4 focus:outline-none focus:border-syekhGreen-600 rounded" required>
                     </div>
-                    <!-- PERBAIKAN: Menghapus opsi kelas XII IPA 4 yang tidak valid -->
-                    <select class="w-full sm:w-auto bg-syekhPaper border border-gray-200 text-xs py-2.5 px-3 focus:outline-none rounded">
-                        <option>Semua Kelas</option>
-                        <option selected>Kelas XII IPA 2</option>
-                        <option>Kelas XII IPS 1</option>
-                        <option>Kelas XI IPA 2</option>
-                        <option>Kelas X IPS 1</option>
-                    </select>
+                    <button type="submit" class="bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white text-[11px] font-bold uppercase tracking-widest px-6 py-3 transition flex items-center justify-center gap-2 rounded">
+                        Cari Data
+                    </button>
                 </div>
-                <button class="bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 transition flex items-center justify-center gap-2 rounded">
+                
+                {% if siswa %}
+                <button type="button" onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[11px] font-bold uppercase tracking-widest px-5 py-3 transition flex items-center justify-center gap-2 rounded shadow-sm">
                     <i class="fa-solid fa-print"></i> Cetak Laporan
                 </button>
-            </div>
+                {% endif %}
+            </form>
 
-            <div class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 items-center border-l-4 border-l-syekhGold-500">
-                <div class="md:col-span-2 flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-syekhGreen-900 font-serif font-bold text-xl shrink-0">
-                        RH
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <h2 class="text-xl font-serif font-bold text-syekhGreen-900">Rian Hidayat</h2>
-                            <span class="bg-red-100 text-red-700 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border border-red-200">STATUS: SP 2</span>
+            {% if siswa %}
+            
+                <!-- LOGIKA WARNA STATUS SURAT PERINGATAN (SP) -->
+                {% set sp_status = 'Aman' %}
+                {% set badge_class = 'bg-emerald-100 text-emerald-700 border-emerald-200' %}
+                
+                {% if total_poin >= 100 %}
+                    {% set sp_status = 'SP 3 / Drop Out' %}
+                    {% set badge_class = 'bg-red-900 text-white border-red-900' %}
+                {% elif total_poin >= 75 %}
+                    {% set sp_status = 'SP 2' %}
+                    {% set badge_class = 'bg-red-100 text-red-700 border-red-200' %}
+                {% elif total_poin >= 50 %}
+                    {% set sp_status = 'SP 1' %}
+                    {% set badge_class = 'bg-amber-100 text-amber-800 border-amber-200' %}
+                {% elif total_poin >= 25 %}
+                    {% set sp_status = 'Teguran' %}
+                    {% set badge_class = 'bg-yellow-100 text-yellow-800 border-yellow-200' %}
+                {% endif %}
+
+                <!-- Kartu Profil Hasil Pencarian -->
+                <div class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 items-center border-l-4 border-l-syekhGold-500">
+                    <div class="md:col-span-2 flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-syekhGreen-900 font-serif font-bold text-xl shrink-0 uppercase">
+                            {{ siswa.nama_siswa[0:2] }}
                         </div>
-                        <!-- PERBAIKAN: Menyesuaikan tampilan agar sinkron dengan kelas yang benar -->
-                        <p class="text-xs text-gray-500 font-mono">NISN: 0051231197 • Kelas XII IPA 2</p>
-                        <p class="text-xs text-gray-600 mt-1"><i class="fa-solid fa-user-shield text-syekhGold-600 mr-1"></i> Wali: Bpk. Hidayat (0812-9988-7766)</p>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h2 class="text-xl font-serif font-bold text-syekhGreen-900">{{ siswa.nama_siswa }}</h2>
+                                <span class="{{ badge_class }} px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border">STATUS: {{ sp_status }}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 font-mono">NISN: {{ siswa.nisn }} • Kelas {{ siswa.kelas }}</p>
+                            <p class="text-xs text-gray-600 mt-1"><i class="fa-solid fa-user-shield text-syekhGold-600 mr-1"></i> Wali: {{ siswa.nama_wali }} ({{ siswa.no_hp_wali }})</p>
+                        </div>
+                    </div>
+                    <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Total Poin Violasi</span>
+                        <h3 class="text-3xl font-serif font-bold text-red-600">{{ total_poin }} <span class="text-xs text-gray-400 font-sans font-normal">Poin</span></h3>
+                        <p class="text-[10px] text-amber-600 font-bold mt-1">Batas SP 3: 100 Poin</p>
+                    </div>
+                    <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Tingkat Kehadiran</span>
+                        <h3 class="text-3xl font-serif font-bold text-syekhGreen-900">95.0%</h3>
+                        <p class="text-[10px] text-gray-500 font-semibold mt-1">Data Presensi Aktif</p>
                     </div>
                 </div>
-                <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Total Poin Violasi</span>
-                    <h3 class="text-3xl font-serif font-bold text-red-600">75 <span class="text-xs text-gray-400 font-sans font-normal">Poin</span></h3>
-                    <p class="text-[10px] text-amber-600 font-bold mt-1">Batas SP 3: 100 Poin</p>
-                </div>
-                <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Tingkat Kehadiran</span>
-                    <h3 class="text-3xl font-serif font-bold text-syekhGreen-900">88.5%</h3>
-                    <p class="text-[10px] text-gray-500 font-semibold mt-1">3 Sakit • 2 Izin • 4 Alfa</p>
-                </div>
-            </div>
 
-            <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
-                <div class="p-5 sm:p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                    <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Kronologi Pelanggaran Siswa</h3>
-                    <span class="text-xs text-gray-500 font-bold bg-white px-3 py-1 rounded border border-gray-200">3 Catatan Ditemukan</span>
+                <!-- Tabel Riwayat Tersinkronisasi -->
+                <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
+                    <div class="p-5 sm:p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                        <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Kronologi Pelanggaran Siswa</h3>
+                        <span class="text-xs text-gray-500 font-bold bg-white px-3 py-1 rounded border border-gray-200">{{ pelanggaran|length }} Catatan Ditemukan</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[600px]">
+                            <thead class="bg-white border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+                                <tr>
+                                    <th class="pl-6 py-3.5">Tanggal Sistem</th>
+                                    <th class="px-4 py-3.5">Jenis Pelanggaran</th>
+                                    <th class="px-4 py-3.5 text-center">Bobot Poin</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                {% for p in pelanggaran %}
+                                <tr class="hover:bg-emerald-50/50 transition">
+                                    <td class="pl-6 py-4 font-mono text-xs text-gray-500">{{ p.tanggal }}</td>
+                                    <td class="px-4 py-4 font-bold text-syekhGreen-900">{{ p.jenis_pelanggaran }}</td>
+                                    <td class="px-4 py-4 text-center font-bold text-red-600">+{{ p.poin }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-8 text-gray-400 italic">Siswa ini tidak memiliki riwayat pelanggaran (Bersih).</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[600px]">
-                        <thead class="bg-white border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider">
-                            <tr>
-                                <th class="pl-6 py-3.5">Tanggal</th>
-                                <th class="px-4 py-3.5">Jenis Pelanggaran</th>
-                                <th class="px-4 py-3.5 text-center">Bobot Poin</th>
-                                <th class="px-4 py-3.5">Pencatat / Guru BK</th>
-                                <th class="pr-6 py-3.5 text-right">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr class="hover:bg-emerald-50/50 transition">
-                                <td class="pl-6 py-4 font-mono text-xs text-gray-500">25 Agu 2026</td>
-                                <td class="px-4 py-4 font-bold text-syekhGreen-900">Rokok / VAPE di Lingkungan Sekolah</td>
-                                <td class="px-4 py-4 text-center font-bold text-red-600">+50</td>
-                                <td class="px-4 py-4">Drs. H. Ahmad (BK)</td>
-                                <td class="pr-6 py-4 text-right">
-                                    <span class="bg-red-100 text-red-700 border border-red-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded">Terbit SP 2</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-emerald-50/50 transition">
-                                <td class="pl-6 py-4 font-mono text-xs text-gray-500">12 Agu 2026</td>
-                                <td class="px-4 py-4 font-bold text-syekhGreen-900">Meninggalkan Jam Pelajaran (Bolos)</td>
-                                <td class="px-4 py-4 text-center font-bold text-amber-600">+15</td>
-                                <td class="px-4 py-4">Siti Rahma, S.Pd</td>
-                                <td class="pr-6 py-4 text-right">
-                                    <span class="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded">Terbit SP 1</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-emerald-50/50 transition">
-                                <td class="pl-6 py-4 font-mono text-xs text-gray-500">02 Agu 2026</td>
-                                <td class="px-4 py-4 font-bold text-syekhGreen-900">Terlambat Masuk Sekolah (>15 Menit)</td>
-                                <td class="px-4 py-4 text-center font-bold text-gray-700">+10</td>
-                                <td class="px-4 py-4">Budi Setiawan, M.Pd</td>
-                                <td class="pr-6 py-4 text-right">
-                                    <span class="bg-gray-100 text-gray-700 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded">Teguran</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+            {% elif search_query %}
+                
+                <!-- Jika Data Tidak Ditemukan -->
+                <div class="bg-white p-8 rounded-xl border border-red-200 shadow-sm text-center">
+                    <h3 class="text-red-600 font-bold">Data tidak ditemukan!</h3>
+                    <p class="text-sm text-gray-500 mt-2">Siswa dengan NISN atau Nama "<span class="font-bold text-gray-800">{{ search_query }}</span>" tidak terdaftar di sistem database.</p>
                 </div>
-            </div>
+
+            {% else %}
+                
+                <!-- Tampilan Awal Sebelum Pencarian -->
+                <div class="bg-white p-12 rounded-xl border border-gray-200/80 shadow-sm text-center flex flex-col items-center justify-center">
+                    <i class="fa-solid fa-file-invoice text-5xl text-gray-300 mb-4"></i>
+                    <h3 class="text-gray-500 font-bold text-lg">Pencarian Rekapitulasi</h3>
+                    <p class="text-sm text-gray-400 mt-2 max-w-md">Silakan masukkan <span class="font-bold">NISN</span> atau <span class="font-bold">Nama Lengkap</span> siswa pada kolom pencarian di atas untuk memuat identitas dan track record kedisiplinan secara otomatis.</p>
+                </div>
+
+            {% endif %}
+
         </div>
     </main>
 
