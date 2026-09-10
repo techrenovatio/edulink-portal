@@ -36,8 +36,10 @@
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <!-- LOGO TRANSPARAN & RESPONSIF DI SIDEBAR -->
+                
+                <!-- LOGO TRANSPARAN & RESPONSIF (TANPA KOTAK PUTIH) -->
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
+                
                 <div>
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
                     <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
@@ -86,7 +88,6 @@
                 <div class="flex flex-wrap items-center gap-4">
                     <div class="flex items-center gap-2">
                         <label class="text-xs font-bold text-gray-500 uppercase">Kelas:</label>
-                        <!-- FILTER KELAS TERHUBUNG KE DATABASE -->
                         <select id="selectKelasAbsensi" onchange="filterAbsensi()" class="bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none cursor-pointer rounded font-semibold text-syekhGreen-900">
                             <option value="">-- Semua Kelas --</option>
                             <option value="X IPA 1">Kelas X IPA 1</option>
@@ -123,7 +124,6 @@
                             </tr>
                         </thead>
                         <tbody id="absensiTableBody" class="divide-y divide-gray-100">
-                            <!-- LOOPING DATA SISWA ASLI DARI DATABASE -->
                             {% for s in siswa_list %}
                             <tr class="hover:bg-emerald-50/50 transition absensi-row" data-kelas="{{ s.kelas }}">
                                 <td class="px-6 py-4 font-mono text-gray-500">{{ s.nisn }}</td>
@@ -157,7 +157,6 @@
             dateInput.value = today;
         });
 
-        // FUNGSI FILTER KELAS
         function filterAbsensi() {
             const kelasVal = document.getElementById('selectKelasAbsensi').value;
             const rows = document.querySelectorAll('.absensi-row');
@@ -165,9 +164,9 @@
             rows.forEach(row => {
                 const rowKelas = row.getAttribute('data-kelas');
                 if (kelasVal === "" || rowKelas === kelasVal) {
-                    row.style.display = ""; // Tampilkan baris
+                    row.style.display = ""; 
                 } else {
-                    row.style.display = "none"; // Sembunyikan baris
+                    row.style.display = "none"; 
                 }
             });
         }
