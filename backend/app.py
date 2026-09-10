@@ -144,7 +144,7 @@ def siswa():
     
     return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa)
 
-# --- PERBAIKAN LOGIKA SIMPAN POIN (POST METHOD ALLOWED) ---
+# --- PERBAIKAN: MENAMBAHKAN TANGGAL PADA PENYIMPANAN POIN ---
 @app.route('/poin', methods=['GET', 'POST'])
 def poin():
     if 'user_id' not in session: 
@@ -152,30 +152,28 @@ def poin():
     
     conn = get_db_connection()
 
-    # Jika Formulir dikirimkan (Submit)
     if request.method == 'POST':
         nisn = request.form.get('nisn', '').strip()
         nama_siswa = request.form.get('nama_siswa', '').strip()
         kelas = request.form.get('kelas', '').strip()
         jenis_pelanggaran = request.form.get('jenis_pelanggaran', '').strip()
         poin_val = request.form.get('poin', 0)
+        tanggal = request.form.get('tanggal', '').strip() # Menangkap input tanggal dari form
 
-        # Simpan ke Database
-        if nisn and nama_siswa and jenis_pelanggaran:
+        if nisn and nama_siswa and jenis_pelanggaran and tanggal:
             try:
+                # Kolom tanggal ikut di-insert ke database
                 conn.execute(
-                    "INSERT INTO pelanggaran (nisn, nama_siswa, kelas, jenis_pelanggaran, poin) VALUES (?, ?, ?, ?, ?)",
-                    (nisn, nama_siswa, kelas, jenis_pelanggaran, int(poin_val))
+                    "INSERT INTO pelanggaran (nisn, nama_siswa, kelas, jenis_pelanggaran, poin, tanggal) VALUES (?, ?, ?, ?, ?, ?)",
+                    (nisn, nama_siswa, kelas, jenis_pelanggaran, int(poin_val), tanggal)
                 )
                 conn.commit()
             except Exception as e:
                 print("Gagal menyimpan data pelanggaran:", e)
 
         conn.close()
-        # Redirect ke halaman yang sama agar tidak submit ulang saat di-refresh
         return redirect(url_for('poin'))
     
-    # Jika menampilkan halaman (GET)
     daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa").fetchall()
     daftar_pelanggaran = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 20").fetchall()
     conn.close()

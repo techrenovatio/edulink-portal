@@ -28,12 +28,20 @@
             }
         }
     </script>
+    <style>
+        /* Sembunyikan sidebar saat dicetak */
+        @media print {
+            aside, header { display: none !important; }
+            main { margin: 0 !important; padding: 0 !important; }
+            .print-hidden { display: none !important; }
+        }
+    </style>
 </head>
 <body class="bg-syekhPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
 
-    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden print-hidden"></div>
 
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40 print-hidden">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
@@ -70,7 +78,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
                 <div>
@@ -83,12 +91,18 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700">
+                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Catat Pelanggaran Siswa</h3>
                     <p class="text-xs text-gray-500 mb-5">Ketik NISN untuk mendeteksi data siswa otomatis.</p>
                     
-                    <!-- PERBAIKAN: Action URL dirubah menjadi spesifik ke /poin -->
                     <form action="/poin" method="POST" autocomplete="off" class="space-y-4">
+                        
+                        <!-- TAMBAHAN: FIELD TANGGAL KEJADIAN -->
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Tanggal Kejadian</label>
+                            <input type="date" id="inputTanggal" name="tanggal" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                        </div>
+
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN Siswa</label>
                             <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="Contoh: 0051231011" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
@@ -122,16 +136,23 @@
                     </form>
                 </div>
 
-                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGold-500">
-                    <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center">
+                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGold-500 w-full print:border-none print:shadow-none print:m-0">
+                    <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center print:px-0">
                         <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Riwayat Pelanggaran Terakhir</h3>
+                        
+                        <!-- TAMBAHAN: TOMBOL CETAK LAPORAN -->
+                        <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-4 py-2 transition flex items-center justify-center gap-2 rounded shadow-sm shrink-0 print-hidden">
+                            <i class="fa-solid fa-print"></i> Cetak
+                        </button>
                     </div>
                     
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[550px]">
-                            <thead class="bg-syekhPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-500 tracking-wider">
+                            <thead class="bg-syekhPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-500 tracking-wider print:bg-gray-100">
                                 <tr>
-                                    <th class="pl-6 py-3.5 border-b border-gray-200">NISN / Nama</th>
+                                    <!-- TAMBAHAN: KOLOM TANGGAL -->
+                                    <th class="pl-6 py-3.5 border-b border-gray-200">Tanggal</th>
+                                    <th class="px-3 py-3.5 border-b border-gray-200">NISN / Nama</th>
                                     <th class="px-3 py-3.5 border-b border-gray-200">Kelas</th>
                                     <th class="px-3 py-3.5 border-b border-gray-200">Pelanggaran</th>
                                     <th class="px-3 py-3.5 text-center border-b border-gray-200">Poin</th>
@@ -140,7 +161,10 @@
                             <tbody class="divide-y divide-gray-100">
                                 {% for p in pelanggaran_list %}
                                 <tr class="hover:bg-emerald-50/50 transition">
-                                    <td class="pl-6 py-3.5">
+                                    <!-- TAMBAHAN: DATA TANGGAL -->
+                                    <td class="pl-6 py-3.5 font-mono text-xs text-gray-500 whitespace-nowrap">{{ p.tanggal[:10] }}</td>
+                                    
+                                    <td class="px-3 py-3.5">
                                         <p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p>
                                         <p class="text-[10px] font-mono text-gray-500">{{ p.nisn }}</p>
                                     </td>
@@ -150,7 +174,7 @@
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center py-8 text-gray-400 italic">Belum ada data riwayat pelanggaran.</td>
+                                    <td colspan="5" class="text-center py-8 text-gray-400 italic">Belum ada data riwayat pelanggaran.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -163,6 +187,14 @@
 
     <script>
         const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set input kalender otomatis ke tanggal hari ini saat halaman dimuat
+            const dateInput = document.getElementById('inputTanggal');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        });
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
