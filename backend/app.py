@@ -23,6 +23,8 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
 
+# --- ROUTES ---
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -89,8 +91,8 @@ def add_user():
         conn = get_db_connection()
         try:
             conn.execute(
-                "INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)",
-                (nama, username, hashed_password, role)
+                "INSERT INTO users (username, password, role, nama) VALUES (?, ?, ?, ?)",
+                (username, hashed_password, role, nama)
             )
             conn.commit()
         except Exception as e:
@@ -147,7 +149,18 @@ def siswa():
 def poin():
     if 'user_id' not in session: 
         return redirect(url_for('login'))
-    return render_template('dashboard/poin.html', nama_user=session['nama'])
+    
+    conn = get_db_connection()
+    daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa").fetchall()
+    daftar_pelanggaran = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 20").fetchall()
+    conn.close()
+    
+    siswa_dict = {s['nisn']: {'nama': s['nama_siswa'], 'kelas': s['kelas']} for s in daftar_siswa}
+    
+    return render_template('dashboard/poin.html', 
+                           nama_user=session['nama'], 
+                           siswa_map=siswa_dict, 
+                           pelanggaran_list=daftar_pelanggaran)
 
 @app.route('/laporan')
 def laporan():
