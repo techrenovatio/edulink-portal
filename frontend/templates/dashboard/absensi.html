@@ -87,17 +87,23 @@
                 <div class="flex flex-wrap items-center gap-4">
                     <div class="flex items-center gap-2">
                         <label class="text-xs font-bold text-gray-500 uppercase">Kelas:</label>
-                        <select class="bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none cursor-pointer rounded">
-                            <option>Semua Kelas</option>
-                            <option>Kelas X IPA 1</option>
-                            <option>Kelas XI IPA 1</option>
-                            <option>Kelas XII IPS 2</option>
+                        <!-- PERBAIKAN: Dropdown berisi daftar kelas yang BENAR dari database -->
+                        <select id="selectKelasAbsensi" onchange="filterAbsensi()" class="bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none cursor-pointer rounded font-semibold text-syekhGreen-900">
+                            <option value="">-- Semua Kelas --</option>
+                            <option value="X IPA 1">Kelas X IPA 1</option>
+                            <option value="X IPS 1">Kelas X IPS 1</option>
+                            <option value="XI IPA 1">Kelas XI IPA 1</option>
+                            <option value="XI IPA 2">Kelas XI IPA 2</option>
+                            <option value="XI IPS 1">Kelas XI IPS 1</option>
+                            <option value="XII IPA 1">Kelas XII IPA 1</option>
+                            <option value="XII IPA 2">Kelas XII IPA 2</option>
+                            <option value="XII IPS 1">Kelas XII IPS 1</option>
                         </select>
                     </div>
                     <div class="flex items-center gap-2">
                         <label class="text-xs font-bold text-gray-500 uppercase">Tanggal:</label>
                         <div class="relative cursor-pointer" onclick="document.getElementById('tanggalAbsen').showPicker()">
-                            <input type="date" id="tanggalAbsen" class="bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none cursor-pointer rounded">
+                            <input type="date" id="tanggalAbsen" class="bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none cursor-pointer rounded font-semibold text-syekhGreen-900">
                         </div>
                     </div>
                 </div>
@@ -107,9 +113,9 @@
             </div>
 
             <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
                     <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[600px]">
-                        <thead class="bg-syekhPaper border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+                        <thead class="bg-syekhPaper border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider sticky top-0 z-10">
                             <tr>
                                 <th class="px-6 py-4">NISN</th>
                                 <th class="px-6 py-4">Nama Siswa</th>
@@ -117,31 +123,22 @@
                                 <th class="px-6 py-4 text-center">Status Kehadiran (Klik untuk Ubah)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr class="hover:bg-emerald-50/50 transition">
-                                <td class="px-6 py-4 font-mono text-gray-500">0051234910</td>
-                                <td class="px-6 py-4 font-bold text-syekhGreen-900">Ahmad Rizky Pratama</td>
-                                <td class="px-6 py-4">XI IPA 1</td>
+                        <tbody id="absensiTableBody" class="divide-y divide-gray-100">
+                            <!-- PERBAIKAN: Looping data siswa asli, bukan data palsu -->
+                            {% for s in siswa_list %}
+                            <tr class="hover:bg-emerald-50/50 transition absensi-row" data-kelas="{{ s.kelas }}">
+                                <td class="px-6 py-4 font-mono text-gray-500">{{ s.nisn }}</td>
+                                <td class="px-6 py-4 font-bold text-syekhGreen-900">{{ s.nama_siswa }}</td>
+                                <td class="px-6 py-4 text-xs font-mono font-bold text-gray-500">{{ s.kelas }}</td>
                                 <td class="px-6 py-4 text-center">
-                                    <button onclick="toggleStatus(this)" class="status-btn bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded">HADIR</button>
+                                    <button onclick="toggleStatus(this)" class="status-btn bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded shadow-sm w-24">HADIR</button>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-emerald-50/50 transition">
-                                <td class="px-6 py-4 font-mono text-gray-500">0051234911</td>
-                                <td class="px-6 py-4 font-bold text-syekhGreen-900">Budi Santoso</td>
-                                <td class="px-6 py-4">XI IPA 1</td>
-                                <td class="px-6 py-4 text-center">
-                                    <button onclick="toggleStatus(this)" class="status-btn bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded">IZIN</button>
-                                </td>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-8 text-gray-400 italic">Data siswa tidak ditemukan.</td>
                             </tr>
-                            <tr class="hover:bg-emerald-50/50 transition">
-                                <td class="px-6 py-4 font-mono text-gray-500">0051234912</td>
-                                <td class="px-6 py-4 font-bold text-syekhGreen-900">Citra Kirana</td>
-                                <td class="px-6 py-4">XI IPA 1</td>
-                                <td class="px-6 py-4 text-center">
-                                    <button onclick="toggleStatus(this)" class="status-btn bg-red-100 text-red-700 border border-red-200 hover:bg-red-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded">ALFA</button>
-                                </td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -161,11 +158,26 @@
             dateInput.value = today;
         });
 
+        // PERBAIKAN: Fungsi Filter Javascript untuk Menyembunyikan Kelas di Tabel Absensi
+        function filterAbsensi() {
+            const kelasVal = document.getElementById('selectKelasAbsensi').value;
+            const rows = document.querySelectorAll('.absensi-row');
+
+            rows.forEach(row => {
+                const rowKelas = row.getAttribute('data-kelas');
+                if (kelasVal === "" || rowKelas === kelasVal) {
+                    row.style.display = ""; // Tampilkan baris
+                } else {
+                    row.style.display = "none"; // Sembunyikan baris
+                }
+            });
+        }
+
         const statusList = [
-            { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-800 border border-emerald-200', hover: 'hover:bg-emerald-200' },
-            { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-800 border border-amber-200', hover: 'hover:bg-amber-200' },
-            { label: 'SAKIT', bg: 'bg-blue-100', text: 'text-blue-800 border border-blue-200', hover: 'hover:bg-blue-200' },
-            { label: 'ALFA', bg: 'bg-red-100', text: 'text-red-700 border border-red-200', hover: 'hover:bg-red-200' }
+            { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-800 border-emerald-200', hover: 'hover:bg-emerald-200' },
+            { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-800 border-amber-200', hover: 'hover:bg-amber-200' },
+            { label: 'SAKIT', bg: 'bg-blue-100', text: 'text-blue-800 border-blue-200', hover: 'hover:bg-blue-200' },
+            { label: 'ALFA', bg: 'bg-red-100', text: 'text-red-700 border-red-200', hover: 'hover:bg-red-200' }
         ];
 
         function toggleStatus(btn) {
@@ -174,7 +186,7 @@
             let nextIndex = (currentIndex + 1) % statusList.length;
             let nextStatus = statusList[nextIndex];
             
-            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} ${nextStatus.hover} px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded`;
+            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} border ${nextStatus.hover} px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded shadow-sm w-24`;
             btn.textContent = nextStatus.label;
         }
 

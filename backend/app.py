@@ -15,7 +15,6 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 app.secret_key = 'syekhyusuf_tangerang_secret_key_2026_change_this'
 
-# --- KONFIGURASI COOKIE SESSION (KOMPATIBEL LOKAL & HTTP GCP) ---
 app.config['SESSION_COOKIE_NAME'] = 'syekhyusuf_session'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False
@@ -24,11 +23,8 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
 
-# --- HELPER PERMISSION ---
 def is_admin():
     return 'user_id' in session and str(session.get('role', '')).strip().lower() == 'admin'
-
-# --- ROUTES ---
 
 @app.route('/')
 def home():
@@ -66,7 +62,6 @@ def logout():
 def dashboard_overview():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-        
     return render_template('dashboard/index.html', nama_user=session['nama'])
 
 @app.route('/users')
@@ -92,7 +87,6 @@ def add_user():
     
     if nama and username and password and role:
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        
         conn = get_db_connection()
         try:
             conn.execute(
@@ -167,7 +161,6 @@ def poin():
                            siswa_map=siswa_dict, 
                            pelanggaran_list=daftar_pelanggaran)
 
-# --- PERBAIKAN LOGIKA LAPORAN DINAMIS ---
 @app.route('/laporan')
 def laporan():
     if 'user_id' not in session: 
@@ -181,7 +174,6 @@ def laporan():
     total_poin = 0
     
     if search_query:
-        # Cari data asli di DB berdasarkan NISN atau Nama
         siswa_data = conn.execute(
             "SELECT * FROM siswa WHERE nisn = ? OR nama_siswa LIKE ?", 
             (search_query, f"%{search_query}%")
@@ -203,11 +195,20 @@ def laporan():
                            total_poin=total_poin,
                            search_query=search_query)
 
+# --- PERBAIKAN LOGIKA ABSENSI ---
 @app.route('/absensi')
 def absensi():
     if 'user_id' not in session: 
         return redirect(url_for('login'))
-    return render_template('dashboard/absensi.html', nama_user=session['nama'])
+        
+    # Ambil data siswa asli dari database agar tabel tidak berisi dummy data
+    conn = get_db_connection()
+    daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
+    conn.close()
+    
+    return render_template('dashboard/absensi.html', 
+                           nama_user=session['nama'], 
+                           siswa_list=daftar_siswa)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
