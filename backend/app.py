@@ -144,7 +144,7 @@ def siswa():
     
     return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa)
 
-# --- PERBAIKAN: MENAMBAHKAN TANGGAL PADA PENYIMPANAN POIN ---
+
 @app.route('/poin', methods=['GET', 'POST'])
 def poin():
     if 'user_id' not in session: 
@@ -158,11 +158,10 @@ def poin():
         kelas = request.form.get('kelas', '').strip()
         jenis_pelanggaran = request.form.get('jenis_pelanggaran', '').strip()
         poin_val = request.form.get('poin', 0)
-        tanggal = request.form.get('tanggal', '').strip() # Menangkap input tanggal dari form
+        tanggal = request.form.get('tanggal', '').strip()
 
         if nisn and nama_siswa and jenis_pelanggaran and tanggal:
             try:
-                # Kolom tanggal ikut di-insert ke database
                 conn.execute(
                     "INSERT INTO pelanggaran (nisn, nama_siswa, kelas, jenis_pelanggaran, poin, tanggal) VALUES (?, ?, ?, ?, ?, ?)",
                     (nisn, nama_siswa, kelas, jenis_pelanggaran, int(poin_val), tanggal)
@@ -176,6 +175,10 @@ def poin():
     
     daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa").fetchall()
     daftar_pelanggaran = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 20").fetchall()
+    
+    # Ambil opsi jenis pelanggaran dari database master
+    master_pelanggaran = conn.execute("SELECT * FROM master_pelanggaran ORDER BY poin ASC").fetchall()
+    
     conn.close()
     
     siswa_dict = {s['nisn']: {'nama': s['nama_siswa'], 'kelas': s['kelas']} for s in daftar_siswa}
@@ -183,7 +186,32 @@ def poin():
     return render_template('dashboard/poin.html', 
                            nama_user=session['nama'], 
                            siswa_map=siswa_dict, 
-                           pelanggaran_list=daftar_pelanggaran)
+                           pelanggaran_list=daftar_pelanggaran,
+                           master_pelanggaran=master_pelanggaran)
+
+# --- RUTE BARU: TAMBAH MASTER PELANGGARAN ---
+@app.route('/poin/tambah-master', methods=['POST'])
+def tambah_master_pelanggaran():
+    if not is_admin():
+        return redirect(url_for('poin'))
+        
+    nama = request.form.get('nama_pelanggaran', '').strip()
+    poin_val = request.form.get('poin_pelanggaran', 0)
+    
+    if nama and poin_val:
+        conn = get_db_connection()
+        try:
+            conn.execute(
+                "INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", 
+                (nama, int(poin_val))
+            )
+            conn.commit()
+        except Exception as e:
+            print("Gagal menambah master:", e)
+        finally:
+            conn.close()
+            
+    return redirect(url_for('poin'))
 
 @app.route('/laporan')
 def laporan():

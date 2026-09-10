@@ -29,7 +29,6 @@
         }
     </script>
     <style>
-        /* Sembunyikan sidebar saat dicetak */
         @media print {
             aside, header { display: none !important; }
             main { margin: 0 !important; padding: 0 !important; }
@@ -91,18 +90,16 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
+                <!-- KOLOM KIRI: FORM CATAT PELANGGARAN -->
                 <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Catat Pelanggaran Siswa</h3>
                     <p class="text-xs text-gray-500 mb-5">Ketik NISN untuk mendeteksi data siswa otomatis.</p>
                     
                     <form action="/poin" method="POST" autocomplete="off" class="space-y-4">
-                        
-                        <!-- TAMBAHAN: FIELD TANGGAL KEJADIAN -->
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Tanggal Kejadian</label>
                             <input type="date" id="inputTanggal" name="tanggal" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
                         </div>
-
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN Siswa</label>
                             <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="Contoh: 0051231011" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
@@ -116,16 +113,25 @@
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Kelas</label>
                             <input type="text" id="inputKelas" name="kelas" required readonly placeholder="Otomatis terisi..." class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-syekhGreen-900 focus:outline-none rounded">
                         </div>
+                        
                         <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Jenis Pelanggaran</label>
+                            <div class="flex justify-between items-end mb-1">
+                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Jenis Pelanggaran</label>
+                                <!-- TOMBOL TAMBAH PELANGGARAN HANYA UNTUK ADMIN -->
+                                {% if session['role'] == 'admin' %}
+                                <button type="button" onclick="openModal()" class="text-[10px] font-bold text-syekhGold-600 hover:text-syekhGreen-800 transition"><i class="fa-solid fa-plus"></i> Tambah Master</button>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- DROPDOWN DINAMIS DARI DATABASE -->
                             <select id="selectPelanggaran" name="jenis_pelanggaran" onchange="autoFillPoin(this)" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
                                 <option value="" data-poin="0" disabled selected>-- Pilih Jenis Violasi --</option>
-                                <option value="Terlambat Masuk Sekolah (>15 Menit)" data-poin="10">Terlambat Masuk Sekolah (+10 Poin)</option>
-                                <option value="Tidak Mengikuti Upacara Bendera" data-poin="25">Tidak Mengikuti Upacara (+25 Poin)</option>
-                                <option value="Meninggalkan Jam Pelajaran (Bolos)" data-poin="50">Bolos Jam Pelajaran (+50 Poin)</option>
-                                <option value="Rokok / VAPE di Lingkungan Sekolah" data-poin="75">Merokok / VAPE (+75 Poin - SP 2)</option>
+                                {% for mp in master_pelanggaran %}
+                                <option value="{{ mp.nama_pelanggaran }}" data-poin="{{ mp.poin }}">{{ mp.nama_pelanggaran }} (+{{ mp.poin }} Poin)</option>
+                                {% endfor %}
                             </select>
                         </div>
+                        
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bobot Poin</label>
                             <input type="number" id="inputPoin" name="poin" required readonly placeholder="0" class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-bold text-red-600 focus:outline-none rounded">
@@ -136,11 +142,10 @@
                     </form>
                 </div>
 
+                <!-- KOLOM KANAN: TABEL RIWAYAT -->
                 <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGold-500 w-full print:border-none print:shadow-none print:m-0">
                     <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center print:px-0">
                         <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Riwayat Pelanggaran Terakhir</h3>
-                        
-                        <!-- TAMBAHAN: TOMBOL CETAK LAPORAN -->
                         <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-4 py-2 transition flex items-center justify-center gap-2 rounded shadow-sm shrink-0 print-hidden">
                             <i class="fa-solid fa-print"></i> Cetak
                         </button>
@@ -150,7 +155,6 @@
                         <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[550px]">
                             <thead class="bg-syekhPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-500 tracking-wider print:bg-gray-100">
                                 <tr>
-                                    <!-- TAMBAHAN: KOLOM TANGGAL -->
                                     <th class="pl-6 py-3.5 border-b border-gray-200">Tanggal</th>
                                     <th class="px-3 py-3.5 border-b border-gray-200">NISN / Nama</th>
                                     <th class="px-3 py-3.5 border-b border-gray-200">Kelas</th>
@@ -161,9 +165,7 @@
                             <tbody class="divide-y divide-gray-100">
                                 {% for p in pelanggaran_list %}
                                 <tr class="hover:bg-emerald-50/50 transition">
-                                    <!-- TAMBAHAN: DATA TANGGAL -->
                                     <td class="pl-6 py-3.5 font-mono text-xs text-gray-500 whitespace-nowrap">{{ p.tanggal[:10] }}</td>
-                                    
                                     <td class="px-3 py-3.5">
                                         <p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p>
                                         <p class="text-[10px] font-mono text-gray-500">{{ p.nisn }}</p>
@@ -185,11 +187,35 @@
         </div>
     </main>
 
+    <!-- MODAL POPUP TAMBAH MASTER PELANGGARAN -->
+    <div id="modalMaster" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
+        <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl border-t-4 border-syekhGold-500">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Opsi Administrator</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-gray-500 mb-5">Tambahkan jenis pelanggaran baru beserta bobot poinnya ke dalam database sekolah.</p>
+            
+            <form action="/poin/tambah-master" method="POST" class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Jenis Pelanggaran</label>
+                    <input type="text" name="nama_pelanggaran" required placeholder="Cth: Menggunakan Atribut Tidak Sesuai" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bobot Poin</label>
+                    <input type="number" name="poin_pelanggaran" required placeholder="Cth: 15" min="1" max="100" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                </div>
+                <button type="submit" class="w-full bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-sm">
+                    Simpan Master Baru
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
         const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Set input kalender otomatis ke tanggal hari ini saat halaman dimuat
             const dateInput = document.getElementById('inputTanggal');
             const today = new Date().toISOString().split('T')[0];
             dateInput.value = today;
@@ -198,6 +224,14 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
+        }
+
+        // Modal Functionality
+        function openModal() {
+            document.getElementById('modalMaster').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('modalMaster').classList.add('hidden');
         }
 
         function autoSearchSiswa() {

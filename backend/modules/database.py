@@ -47,8 +47,28 @@ def init_db():
             no_hp_wali TEXT NOT NULL
         )
     ''')
+
+    # --- TABEL BARU: MASTER PELANGGARAN ---
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS master_pelanggaran (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nama_pelanggaran TEXT UNIQUE NOT NULL,
+            poin INTEGER NOT NULL
+        )
+    ''')
+
+    # Seed data awal untuk master_pelanggaran jika masih kosong
+    cursor.execute("SELECT COUNT(*) FROM master_pelanggaran")
+    if cursor.fetchone()[0] == 0:
+        default_data = [
+            ('Terlambat Masuk Sekolah (>15 Menit)', 10),
+            ('Tidak Mengikuti Upacara Bendera', 25),
+            ('Meninggalkan Jam Pelajaran (Bolos)', 50),
+            ('Rokok / VAPE di Lingkungan Sekolah', 75)
+        ]
+        cursor.executemany("INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", default_data)
     
-    # Hapus dan buat ulang admin123 untuk memastikan hash konsisten
+    # Reset dan pastikan akun admin123 selalu tersedia
     cursor.execute("DELETE FROM users WHERE username = 'admin123'")
     hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
     cursor.execute(
