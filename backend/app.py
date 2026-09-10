@@ -23,6 +23,10 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
 
+# --- HELPER PERMISSION ---
+def is_admin():
+    return 'user_id' in session and str(session.get('role', '')).strip().lower() == 'admin'
+
 # --- ROUTES ---
 
 @app.route('/')
@@ -45,7 +49,7 @@ def login():
             session.permanent = True
             session['user_id'] = user['id']
             session['nama'] = user['nama']
-            session['role'] = user['role']
+            session['role'] = str(user['role']).strip().lower()  # Normalisasi role ke lowercase
             return redirect(url_for('dashboard_overview'))
         else:
             return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
@@ -66,7 +70,7 @@ def dashboard_overview():
 
 @app.route('/users')
 def manage_users():
-    if 'user_id' not in session or session.get('role') != 'admin':
+    if not is_admin():
         return redirect(url_for('login'))
         
     conn = get_db_connection()
@@ -77,13 +81,13 @@ def manage_users():
 
 @app.route('/users/add', methods=['POST'])
 def add_user():
-    if 'user_id' not in session or session.get('role') != 'admin':
+    if not is_admin():
         return redirect(url_for('login'))
         
     nama = request.form.get('nama', '').strip()
     username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '')
-    role = request.form.get('role', '').strip()
+    role = request.form.get('role', '').strip().lower()
     
     if nama and username and password and role:
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
@@ -104,7 +108,7 @@ def add_user():
 
 @app.route('/users/delete/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
-    if 'user_id' not in session or session.get('role') != 'admin':
+    if not is_admin():
         return redirect(url_for('login'))
         
     if user_id != session.get('user_id'):
@@ -117,7 +121,7 @@ def delete_user(user_id):
 
 @app.route('/users/delete-multiple', methods=['POST'])
 def delete_multiple_users():
-    if 'user_id' not in session or session.get('role') != 'admin':
+    if not is_admin():
         return redirect(url_for('login'))
         
     user_ids = request.form.getlist('user_ids')
