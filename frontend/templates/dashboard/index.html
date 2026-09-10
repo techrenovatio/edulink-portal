@@ -38,9 +38,8 @@
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
-                    <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-full h-full object-contain">
-                </div>
+                <!-- LOGO TRANSPARAN & RESPONSIF DI SIDEBAR -->
+                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
                 <div>
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
                     <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>

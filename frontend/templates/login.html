@@ -34,10 +34,10 @@
     <!-- Sisi Kiri Visual Desktop -->
     <div class="hidden lg:flex lg:w-1/2 bg-syekhGreen-900 items-center justify-center p-12 relative z-0 border-r-4 border-syekhGold-500">
         <div class="max-w-md w-full flex flex-col items-center justify-center text-center text-white">
-            <div class="w-44 h-44 rounded-2xl bg-white/10 backdrop-blur border border-syekhGold-500/40 p-4 mb-6 flex items-center justify-center shadow-2xl">
-                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo SMA Syekh Yusuf" class="w-full h-full object-contain">
-            </div>
-            <h2 class="text-2xl font-serif font-bold tracking-tight text-white mb-2">SMA SYEKH YUSUF</h2>
+            <!-- LOGO TRANSPARAN BESAR -->
+            <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo SMA Syekh Yusuf" class="w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 object-contain drop-shadow-2xl mb-8 transition-all duration-300">
+            
+            <h2 class="text-3xl font-serif font-bold tracking-tight text-white mb-2">SMA SYEKH YUSUF</h2>
             <p class="text-xs text-syekhGold-400 font-bold uppercase tracking-widest mb-4">Kota Tangerang</p>
             <p class="text-xs text-syekhGreen-200 leading-relaxed font-light">
                 Jl. Syekh Yusuf Makassar No.20, Sukasari, Kec. Tangerang, Kota Tangerang, Banten 15118
@@ -54,10 +54,11 @@
         </div>
 
         <div class="my-auto py-8">
-            <div class="flex lg:hidden items-center gap-3 mb-6">
-                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-12 h-12 object-contain">
+            <div class="flex lg:hidden items-center gap-3 sm:gap-4 mb-8">
+                <!-- LOGO TRANSPARAN MOBILE -->
+                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md">
                 <div>
-                    <span class="text-lg font-serif font-bold text-syekhGreen-900 block">SMA SYEKH YUSUF</span>
+                    <span class="text-xl sm:text-2xl font-serif font-bold text-syekhGreen-900 block tracking-tight">SMA SYEKH YUSUF</span>
                     <span class="text-[9px] font-bold text-syekhGold-600 uppercase tracking-widest block">Kota Tangerang</span>
                 </div>
             </div>
@@ -119,6 +120,5 @@
             <span class="text-[10px] text-gray-400 uppercase tracking-widest">© 2026 SMA Syekh Yusuf Kota Tangerang.</span>
         </div>
     </div>
-
 </body>
 </html>

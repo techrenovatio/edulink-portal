@@ -36,9 +36,8 @@
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
-                    <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-full h-full object-contain">
-                </div>
+                <!-- LOGO TRANSPARAN RESPONSIF -->
+                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
                 <div>
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
                     <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
@@ -84,7 +83,6 @@
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             
-            <!-- FORM PENCARIAN DIPERBAIKI: Hapus dropdown kelas yang mengecoh -->
             <form action="/laporan" method="GET" class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex-1 flex flex-col sm:flex-row items-center gap-3">
                     <div class="relative w-full">
@@ -105,7 +103,6 @@
 
             {% if siswa %}
             
-                <!-- LOGIKA WARNA STATUS SURAT PERINGATAN (SP) -->
                 {% set sp_status = 'Aman' %}
                 {% set badge_class = 'bg-emerald-100 text-emerald-700 border-emerald-200' %}
                 
@@ -123,7 +120,6 @@
                     {% set badge_class = 'bg-yellow-100 text-yellow-800 border-yellow-200' %}
                 {% endif %}
 
-                <!-- Kartu Profil Hasil Pencarian -->
                 <div class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 items-center border-l-4 border-l-syekhGold-500">
                     <div class="md:col-span-2 flex items-center gap-4">
                         <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-syekhGreen-900 font-serif font-bold text-xl shrink-0 uppercase">
@@ -150,7 +146,6 @@
                     </div>
                 </div>
 
-                <!-- Tabel Riwayat Tersinkronisasi -->
                 <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
                     <div class="p-5 sm:p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                         <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Kronologi Pelanggaran Siswa</h3>
@@ -184,7 +179,6 @@
 
             {% elif search_query %}
                 
-                <!-- Jika Data Tidak Ditemukan -->
                 <div class="bg-white p-8 rounded-xl border border-red-200 shadow-sm text-center">
                     <h3 class="text-red-600 font-bold">Data tidak ditemukan!</h3>
                     <p class="text-sm text-gray-500 mt-2">Siswa dengan NISN atau Nama "<span class="font-bold text-gray-800">{{ search_query }}</span>" tidak terdaftar di sistem database.</p>
@@ -192,7 +186,6 @@
 
             {% else %}
                 
-                <!-- Tampilan Awal Sebelum Pencarian -->
                 <div class="bg-white p-12 rounded-xl border border-gray-200/80 shadow-sm text-center flex flex-col items-center justify-center">
                     <i class="fa-solid fa-file-invoice text-5xl text-gray-300 mb-4"></i>
                     <h3 class="text-gray-500 font-bold text-lg">Pencarian Rekapitulasi</h3>
