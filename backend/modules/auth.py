@@ -1,7 +1,7 @@
 from werkzeug.security import check_password_hash
 from modules.database import get_db_connection
 
-def verify_login(username, password, role):
+def verify_login(username, password, role=None):
     if not username or not password:
         return None
 

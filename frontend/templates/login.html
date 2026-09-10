@@ -1,124 +1,59 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Portal - SMA Syekh Yusuf Tangerang</title>
+import sqlite3
+import os
+from werkzeug.security import generate_password_hash
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(BASE_DIR, 'edulink.db')
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
     
-    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/logosma.webp') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL,
+            nama TEXT NOT NULL
+        )
+    ''')
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
-                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
-                        syekhDark: { 900: '#0F172A' },
-                        syekhPaper: '#F8FAFC',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-syekhPaper text-gray-800 font-sans min-h-screen flex selection:bg-syekhGreen-600 selection:text-white overflow-x-hidden">
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS pelanggaran (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nisn TEXT NOT NULL,
+            nama_siswa TEXT NOT NULL,
+            kelas TEXT NOT NULL,
+            jenis_pelanggaran TEXT NOT NULL,
+            poin INTEGER NOT NULL,
+            tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS siswa (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nisn TEXT UNIQUE NOT NULL,
+            nama_siswa TEXT NOT NULL,
+            jenis_kelamin TEXT NOT NULL,
+            kelas TEXT NOT NULL,
+            nama_wali TEXT NOT NULL,
+            no_hp_wali TEXT NOT NULL
+        )
+    ''')
+    
+    cursor.execute("DELETE FROM users WHERE username = 'admin123'")
+    hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
+    cursor.execute(
+        "INSERT INTO users (username, password, role, nama) VALUES (?, ?, ?, ?)",
+        ('admin123', hashed_pwd, 'admin', 'Administrator Utama')
+    )
 
-    <!-- Sisi Kiri Visual Desktop -->
-    <div class="hidden lg:flex lg:w-1/2 bg-syekhGreen-900 items-center justify-center p-12 relative z-0 border-r-4 border-syekhGold-500">
-        <div class="max-w-md w-full flex flex-col items-center justify-center text-center text-white">
-            <div class="w-44 h-44 rounded-2xl bg-white/10 backdrop-blur border border-syekhGold-500/40 p-4 mb-6 flex items-center justify-center shadow-2xl">
-                <img src="{{ url_for('static', filename='images/logosma.webp') }}" alt="Logo SMA Syekh Yusuf" class="w-full h-full object-contain">
-            </div>
-            <h2 class="text-2xl font-serif font-bold tracking-tight text-white mb-2">SMA SYEKH YUSUF</h2>
-            <p class="text-xs text-syekhGold-400 font-bold uppercase tracking-widest mb-4">Kota Tangerang</p>
-            <p class="text-xs text-syekhGreen-200 leading-relaxed font-light">
-                Jl. Syekh Yusuf Makassar No.20, Sukasari, Kec. Tangerang, Kota Tangerang, Banten 15118
-            </p>
-        </div>
-    </div>
-
-    <!-- Sisi Kanan Form Login -->
-    <div class="w-full lg:w-1/2 bg-white min-h-screen flex flex-col justify-between px-6 sm:px-16 lg:px-20 xl:px-28 py-10 relative shadow-2xl z-10">
-        <div>
-            <a href="/" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-syekhGreen-700 transition">
-                <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
-            </a>
-        </div>
-
-        <div class="my-auto py-8">
-            <div class="flex lg:hidden items-center gap-3 mb-6">
-                <img src="{{ url_for('static', filename='images/logosma.webp') }}" alt="Logo" class="w-12 h-12 object-contain">
-                <div>
-                    <span class="text-lg font-serif font-bold text-syekhGreen-900 block">SMA SYEKH YUSUF</span>
-                    <span class="text-[9px] font-bold text-syekhGold-600 uppercase tracking-widest block">Kota Tangerang</span>
-                </div>
-            </div>
-
-            <h1 class="text-3xl sm:text-4xl font-serif font-bold text-syekhGreen-900 mb-3 tracking-tight">
-                Portal Login Staff.
-            </h1>
-            <div class="border-l-4 border-syekhGold-500 pl-4 mb-8">
-                <p class="text-gray-500 text-xs sm:text-sm leading-relaxed">
-                    Masuk ke sistem manajemen kedisiplinan & akademik sekolah.
-                </p>
-            </div>
-
-            {% if error %}
-            <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-600 text-red-700 text-xs font-bold uppercase tracking-wider flex items-center gap-3">
-                <i class="fa-solid fa-circle-exclamation text-base"></i>
-                <span>{{ error }}</span>
-            </div>
-            {% endif %}
-
-            <form action="{{ url_for('login') }}" method="POST" class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pilih Peran Akses *</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="flex items-center justify-center gap-2 border border-gray-200 p-3.5 cursor-pointer rounded-lg has-[:checked]:bg-syekhGreen-900 has-[:checked]:text-white has-[:checked]:border-syekhGreen-900 transition text-xs font-bold uppercase tracking-wider">
-                            <input type="radio" name="role" value="admin" checked class="accent-syekhGold-500">
-                            <span>Administrator</span>
-                        </label>
-                        <label class="flex items-center justify-center gap-2 border border-gray-200 p-3.5 cursor-pointer rounded-lg has-[:checked]:bg-syekhGreen-900 has-[:checked]:text-white has-[:checked]:border-syekhGreen-900 transition text-xs font-bold uppercase tracking-wider">
-                            <input type="radio" name="role" value="guru" class="accent-syekhGold-500">
-                            <span>Guru / Staff</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Username / NIP</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" name="username" required placeholder="Masukkan Username Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Password</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="password" name="password" required placeholder="Masukkan Password Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
-                    </div>
-                </div>
-
-                <button type="submit" class="mt-2 bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-4 transition duration-300 flex items-center justify-center gap-3 text-[12px] uppercase tracking-widest rounded-lg shadow-xl w-full">
-                    Masuk Portal <i class="fa-solid fa-arrow-right text-syekhGold-400"></i>
-                </button>
-            </form>
-        </div>
-
-        <div class="border-t border-gray-100 pt-4 text-center">
-            <span class="text-[10px] text-gray-400 uppercase tracking-widest">© 2026 SMA Syekh Yusuf Kota Tangerang.</span>
-        </div>
-    </div>
-
-</body>
-</html>
+    conn.commit()
+    conn.close()
