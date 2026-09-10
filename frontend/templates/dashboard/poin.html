@@ -36,7 +36,6 @@
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <!-- LOGO TRANSPARAN RESPONSIF -->
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
                 <div>
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
@@ -88,7 +87,8 @@
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Catat Pelanggaran Siswa</h3>
                     <p class="text-xs text-gray-500 mb-5">Ketik NISN untuk mendeteksi data siswa otomatis.</p>
                     
-                    <form action="#" method="POST" autocomplete="off" class="space-y-4">
+                    <!-- PERBAIKAN: Action URL dirubah menjadi spesifik ke /poin -->
+                    <form action="/poin" method="POST" autocomplete="off" class="space-y-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN Siswa</label>
                             <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="Contoh: 0051231011" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
@@ -116,7 +116,7 @@
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bobot Poin</label>
                             <input type="number" id="inputPoin" name="poin" required readonly placeholder="0" class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-bold text-red-600 focus:outline-none rounded">
                         </div>
-                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded">
+                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-md">
                             Simpan Catatan Poin
                         </button>
                     </form>

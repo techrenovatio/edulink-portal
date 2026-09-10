@@ -144,12 +144,38 @@ def siswa():
     
     return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa)
 
-@app.route('/poin')
+# --- PERBAIKAN LOGIKA SIMPAN POIN (POST METHOD ALLOWED) ---
+@app.route('/poin', methods=['GET', 'POST'])
 def poin():
     if 'user_id' not in session: 
         return redirect(url_for('login'))
     
     conn = get_db_connection()
+
+    # Jika Formulir dikirimkan (Submit)
+    if request.method == 'POST':
+        nisn = request.form.get('nisn', '').strip()
+        nama_siswa = request.form.get('nama_siswa', '').strip()
+        kelas = request.form.get('kelas', '').strip()
+        jenis_pelanggaran = request.form.get('jenis_pelanggaran', '').strip()
+        poin_val = request.form.get('poin', 0)
+
+        # Simpan ke Database
+        if nisn and nama_siswa and jenis_pelanggaran:
+            try:
+                conn.execute(
+                    "INSERT INTO pelanggaran (nisn, nama_siswa, kelas, jenis_pelanggaran, poin) VALUES (?, ?, ?, ?, ?)",
+                    (nisn, nama_siswa, kelas, jenis_pelanggaran, int(poin_val))
+                )
+                conn.commit()
+            except Exception as e:
+                print("Gagal menyimpan data pelanggaran:", e)
+
+        conn.close()
+        # Redirect ke halaman yang sama agar tidak submit ulang saat di-refresh
+        return redirect(url_for('poin'))
+    
+    # Jika menampilkan halaman (GET)
     daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa").fetchall()
     daftar_pelanggaran = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 20").fetchall()
     conn.close()
@@ -195,13 +221,11 @@ def laporan():
                            total_poin=total_poin,
                            search_query=search_query)
 
-# --- PERBAIKAN LOGIKA ABSENSI ---
 @app.route('/absensi')
 def absensi():
     if 'user_id' not in session: 
         return redirect(url_for('login'))
         
-    # Ambil data siswa asli dari database agar tabel tidak berisi dummy data
     conn = get_db_connection()
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
     conn.close()
