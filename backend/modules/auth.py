@@ -12,9 +12,9 @@ def verify_login(username, password, role):
     users = conn.execute("SELECT * FROM users").fetchall()
     conn.close()
 
-    # Iterasi langsung di Python untuk menjamin pencocokan 100% akurat
     for user in users:
         db_user = dict(user)
+        # Cocokkan username dan role secara fleksibel (case-insensitive)
         if db_user['username'].strip().lower() == u_clean and db_user['role'].strip().lower() == r_clean:
             if check_password_hash(db_user['password'], password):
                 return db_user
