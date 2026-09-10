@@ -17,9 +17,8 @@ def verify_login(username, password, role=None):
         db_username = str(db_user.get('username', '')).strip().lower()
         db_role = str(db_user.get('role', '')).strip().lower()
 
-        # Cocokkan Username
         if db_username == u_clean:
-            # Jika role dikirim, pastikan cocok ATAU izinkan admin masuk sebagai role apa saja
+            # Izinkan login jika role cocok ATAU user adalah admin
             if not r_clean or db_role == r_clean or db_role == 'admin':
                 if check_password_hash(db_user['password'], password):
                     return db_user

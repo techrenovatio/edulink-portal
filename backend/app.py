@@ -15,13 +15,14 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 app.secret_key = 'syekhyusuf_tangerang_secret_key_2026_change_this'
 
-# --- PERBAIKAN PENTING COOKIE SESSION ---
+# --- KONFIGURASI FLEKSIBEL COOKIE SESSION ---
 app.config['SESSION_COOKIE_NAME'] = 'syekhyusuf_session'
-app.config['SESSION_COOKIE_HTTPONLY'] = False  # Izinkan fleksibilitas cookie
-app.config['SESSION_COOKIE_SECURE'] = False    # Bebaskan dari paksaan HTTPS jika lewat IP/sslip.io
-app.config['SESSION_COOKIE_SAMESITE'] = None   # Izinkan browser menyimpan cookie dari proxy
+app.config['SESSION_COOKIE_HTTPONLY'] = False  # Izinkan browser memproses cookie
+app.config['SESSION_COOKIE_SECURE'] = False    # Bebaskan dari paksaan HTTPS (penting untuk IP/sslip.io)
+app.config['SESSION_COOKIE_SAMESITE'] = None   # Izinkan cookie lintas-proxy
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
+# Inisialisasi Database
 init_db()
 
 # --- HELPER PERMISSION ---
@@ -44,6 +45,7 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
 
+        # Verifikasi ke auth.py
         user = verify_login(username, password, role)
 
         if user:
