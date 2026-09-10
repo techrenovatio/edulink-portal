@@ -13,9 +13,9 @@ static_dir = os.path.join(base_dir, 'frontend', 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-app.secret_key = 'edulink_super_secret_key_2026_change_this_to_random_bytes'
+app.secret_key = 'syekhyusuf_tangerang_secret_key_2026_change_this'
 
-app.config['SESSION_COOKIE_NAME'] = 'edulink_session'
+app.config['SESSION_COOKIE_NAME'] = 'syekhyusuf_session'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -49,7 +49,7 @@ def login():
             session.permanent = True
             session['user_id'] = user['id']
             session['nama'] = user['nama']
-            session['role'] = str(user['role']).strip().lower()  # Normalisasi role ke lowercase
+            session['role'] = str(user['role']).strip().lower()
             return redirect(url_for('dashboard_overview'))
         else:
             return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")

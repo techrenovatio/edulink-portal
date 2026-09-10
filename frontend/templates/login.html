@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Portal - EduLink</title>
+    <title>Login Portal - SMA Syekh Yusuf Tangerang</title>
     
-    <!-- Favicon / Logo Tab Browser -->
-    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/edulink-logo.webp') }}">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo-sma.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -18,110 +16,108 @@
                 extend: {
                     fontFamily: {
                         sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Merriweather"', 'serif'],
+                        serif: ['"Playfair Display"', 'serif'],
                     },
                     colors: {
-                        eduCrimson: { 600: '#A51C30', 700: '#8A1525' },
-                        eduDark: { 900: '#141414', 800: '#1A1A1A' },
-                        eduPaper: '#F7F7F7',
+                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
+                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
+                        syekhDark: { 900: '#0F172A' },
+                        syekhPaper: '#F8FAFC',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-eduPaper text-gray-800 font-sans min-h-screen flex selection:bg-eduCrimson-600 selection:text-white overflow-x-hidden">
+<body class="bg-syekhPaper text-gray-800 font-sans min-h-screen flex selection:bg-syekhGreen-600 selection:text-white overflow-x-hidden">
 
-    <!-- Sisi Kiri (Desktop Visual) -->
-    <div class="hidden lg:flex lg:w-1/2 bg-eduPaper items-center justify-center p-12 relative z-0">
-        <div class="max-w-md w-full flex flex-col items-center justify-center text-center">
-            <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" 
-                 alt="EduLink Logo Resmi" 
-                 class="w-full max-w-[380px] h-auto object-contain mix-blend-multiply border-none shadow-none bg-transparent">
+    <!-- Sisi Kiri Visual Desktop -->
+    <div class="hidden lg:flex lg:w-1/2 bg-syekhGreen-900 items-center justify-center p-12 relative z-0 border-r-4 border-syekhGold-500">
+        <div class="max-w-md w-full flex flex-col items-center justify-center text-center text-white">
+            <div class="w-40 h-40 rounded-2xl bg-white/10 backdrop-blur border border-syekhGold-500/40 p-4 mb-6 flex items-center justify-center shadow-2xl">
+                <img src="{{ url_for('static', filename='images/logo-sma.png') }}" alt="Logo SMA Syekh Yusuf" class="w-full h-full object-contain">
+            </div>
+            <h2 class="text-2xl font-serif font-bold tracking-tight text-white mb-2">SMA SYEKH YUSUF</h2>
+            <p class="text-xs text-syekhGold-400 font-bold uppercase tracking-widest mb-4">Kota Tangerang</p>
+            <p class="text-xs text-syekhGreen-200 leading-relaxed font-light">
+                Jl. Syekh Yusuf Makassar No.20, Sukasari, Kec. Tangerang, Kota Tangerang, Banten 15118
+            </p>
         </div>
     </div>
 
     <!-- Sisi Kanan Form Login -->
     <div class="w-full lg:w-1/2 bg-white min-h-screen flex flex-col justify-between px-6 sm:px-16 lg:px-20 xl:px-28 py-10 relative shadow-2xl z-10">
-        
         <div>
-            <a href="/" class="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-eduCrimson-600 transition duration-300">
-                <i class="fa-solid fa-arrow-left"></i> Kembali
+            <a href="/" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-syekhGreen-700 transition">
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
             </a>
         </div>
-        
+
         <div class="my-auto py-8">
             <div class="flex lg:hidden items-center gap-3 mb-6">
-                <img src="{{ url_for('static', filename='images/edulink-logo.webp') }}" 
-                     alt="Logo" 
-                     class="w-10 h-10 object-contain mix-blend-multiply border-none shadow-none bg-transparent">
-                <span class="text-2xl font-serif font-bold text-eduDark-900">EduLink.</span>
+                <img src="{{ url_for('static', filename='images/logo-sma.png') }}" alt="Logo" class="w-12 h-12 object-contain">
+                <div>
+                    <span class="text-lg font-serif font-bold text-syekhGreen-900 block">SMA SYEKH YUSUF</span>
+                    <span class="text-[9px] font-bold text-syekhGold-600 uppercase tracking-widest block">Kota Tangerang</span>
+                </div>
             </div>
 
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-eduDark-900 mb-4 tracking-tight">
-                Portal Login.
+            <h1 class="text-3xl sm:text-4xl font-serif font-bold text-syekhGreen-900 mb-3 tracking-tight">
+                Portal Login Staff.
             </h1>
-            <div class="border-l-[3px] border-eduCrimson-600 pl-4 mb-8">
-                <p class="text-gray-500 font-serif italic text-xs sm:text-sm leading-relaxed">
-                    Suite terpadu untuk Disiplin, Prestasi, Absensi, dan CBT – administrasi jauh lebih ringan.
+            <div class="border-l-4 border-syekhGold-500 pl-4 mb-8">
+                <p class="text-gray-500 text-xs sm:text-sm leading-relaxed">
+                    Masuk ke sistem manajemen kedisiplinan & akademik sekolah.
                 </p>
             </div>
 
             {% if error %}
-            <div class="mb-6 p-4 bg-red-50 border-l-4 border-eduCrimson-600 text-eduCrimson-700 text-xs font-bold uppercase tracking-wider flex items-center gap-3">
+            <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-600 text-red-700 text-xs font-bold uppercase tracking-wider flex items-center gap-3">
                 <i class="fa-solid fa-circle-exclamation text-base"></i>
                 <span>{{ error }}</span>
             </div>
             {% endif %}
-            
+
             <form action="{{ url_for('login') }}" method="POST" class="flex flex-col gap-5">
-                
-                <!-- Pilihan Role dengan Tombol Radio (Anti-Bug Mobile Browser) -->
                 <div class="flex flex-col gap-2">
-                    <label class="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">Pilih Peran Login *</label>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pilih Peran Akses *</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="flex items-center justify-center gap-2 border border-gray-200 p-3.5 cursor-pointer has-[:checked]:bg-eduDark-900 has-[:checked]:text-white has-[:checked]:border-eduDark-900 transition text-xs font-bold uppercase tracking-wider">
-                            <input type="radio" name="role" value="admin" checked class="accent-eduCrimson-600">
+                        <label class="flex items-center justify-center gap-2 border border-gray-200 p-3.5 cursor-pointer rounded-lg has-[:checked]:bg-syekhGreen-900 has-[:checked]:text-white has-[:checked]:border-syekhGreen-900 transition text-xs font-bold uppercase tracking-wider">
+                            <input type="radio" name="role" value="admin" checked class="accent-syekhGold-500">
                             <span>Administrator</span>
                         </label>
-                        <label class="flex items-center justify-center gap-2 border border-gray-200 p-3.5 cursor-pointer has-[:checked]:bg-eduDark-900 has-[:checked]:text-white has-[:checked]:border-eduDark-900 transition text-xs font-bold uppercase tracking-wider">
-                            <input type="radio" name="role" value="guru" class="accent-eduCrimson-600">
+                        <label class="flex items-center justify-center gap-2 border border-gray-200 p-3.5 cursor-pointer rounded-lg has-[:checked]:bg-syekhGreen-900 has-[:checked]:text-white has-[:checked]:border-syekhGreen-900 transition text-xs font-bold uppercase tracking-wider">
+                            <input type="radio" name="role" value="guru" class="accent-syekhGold-500">
                             <span>Guru / Staff</span>
                         </label>
                     </div>
                 </div>
-                
-                <!-- Input Username (Optimasi HP) -->
+
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">NIP / NISN / Username</label>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Username / NIP</label>
                     <div class="relative">
-                        <i class="fa-solid fa-id-card absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" name="username" required placeholder="Masukkan ID Anda" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text" class="w-full bg-gray-50/50 border border-gray-200 text-eduDark-900 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-eduCrimson-600 focus:bg-white transition duration-300 rounded-none">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" name="username" required placeholder="Masukkan Username Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
                     </div>
                 </div>
-                
-                <!-- Input Password -->
+
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">Password</label>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Password</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="password" name="password" required placeholder="Masukkan Password Anda" class="w-full bg-gray-50/50 border border-gray-200 text-eduDark-900 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-eduCrimson-600 focus:bg-white transition duration-300 rounded-none">
+                        <input type="password" name="password" required placeholder="Masukkan Password Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
                     </div>
                 </div>
-                
-                <button type="submit" class="mt-2 bg-eduDark-900 hover:bg-eduCrimson-600 text-white font-bold py-4 transition duration-300 flex items-center justify-center gap-3 text-[12px] uppercase tracking-widest shadow-xl w-full group">
-                    Masuk ke EduLink <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition duration-300"></i>
+
+                <button type="submit" class="mt-2 bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-4 transition duration-300 flex items-center justify-center gap-3 text-[12px] uppercase tracking-widest rounded-lg shadow-xl w-full">
+                    Masuk Portal <i class="fa-solid fa-arrow-right text-syekhGold-400"></i>
                 </button>
             </form>
         </div>
-        
-        <div class="border-t border-gray-100 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-            <span class="text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest">&copy; 2026 EduLink Platform.</span>
-            <a href="#" class="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] hover:text-eduCrimson-600 transition">
-                Tentang Aplikasi
-            </a>
+
+        <div class="border-t border-gray-100 pt-4 text-center">
+            <span class="text-[10px] text-gray-400 uppercase tracking-widest">© 2026 SMA Syekh Yusuf Kota Tangerang.</span>
         </div>
-        
     </div>
 
 </body>
