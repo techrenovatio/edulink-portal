@@ -48,7 +48,6 @@ def init_db():
         )
     ''')
     
-    # Hapus user admin123 lama jika bermasalah, lalu buat ulang dengan hash presisi
     cursor.execute("DELETE FROM users WHERE username = 'admin123'")
     hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
     cursor.execute(
