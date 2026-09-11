@@ -1,6 +1,6 @@
 import os
 from datetime import timedelta
-import sqlite3 # Import sqlite3 untuk menangani error duplikasi NISN
+import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash
 
@@ -59,11 +59,48 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# --- PERBAIKAN: DASHBOARD OVERVIEW DINAMIS ---
 @app.route('/dashboard')
 def dashboard_overview():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('dashboard/index.html', nama_user=session['nama'])
+        
+    conn = get_db_connection()
+    
+    # 1. Hitung Total Siswa
+    total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
+    
+    # 2. Hitung Distribusi Siswa Per Tingkatan Kelas (Untuk Chart)
+    kelas_x = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'X %'").fetchone()[0]
+    kelas_xi = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XI %'").fetchone()[0]
+    kelas_xii = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XII %'").fetchone()[0]
+    
+    # 3. Hitung Total Kasus Pelanggaran
+    total_pelanggaran = conn.execute("SELECT COUNT(*) FROM pelanggaran").fetchone()[0]
+    
+    # 4. Hitung SP Aktif (Siswa dengan Total Poin >= 50)
+    sp_query = """
+        SELECT nisn, SUM(poin) as total_poin 
+        FROM pelanggaran 
+        GROUP BY nisn 
+        HAVING total_poin >= 50
+    """
+    sp_aktif = len(conn.execute(sp_query).fetchall())
+    
+    # 5. Ambil 5 Log Aktivitas Terbaru
+    recent_logs = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 5").fetchall()
+    
+    conn.close()
+    
+    return render_template('dashboard/index.html', 
+                           nama_user=session['nama'],
+                           total_siswa=total_siswa,
+                           kelas_x=kelas_x,
+                           kelas_xi=kelas_xi,
+                           kelas_xii=kelas_xii,
+                           total_pelanggaran=total_pelanggaran,
+                           sp_aktif=sp_aktif,
+                           recent_logs=recent_logs)
 
 @app.route('/users')
 def manage_users():
@@ -134,8 +171,6 @@ def delete_multiple_users():
         
     return redirect(url_for('manage_users'))
 
-
-# --- PERBAIKAN LOGIKA DATA SISWA (TAMBAH & HAPUS) ---
 @app.route('/siswa', methods=['GET', 'POST'])
 def siswa():
     if 'user_id' not in session: 
@@ -179,8 +214,6 @@ def delete_siswa(nisn):
     conn = get_db_connection()
     try:
         conn.execute("DELETE FROM siswa WHERE nisn = ?", (nisn,))
-        # Opsional: Jika ingin menghapus histori pelanggaran siswa saat siswa dihapus
-        # conn.execute("DELETE FROM pelanggaran WHERE nisn = ?", (nisn,))
         conn.commit()
     except Exception as e:
         print("Gagal menghapus siswa:", e)

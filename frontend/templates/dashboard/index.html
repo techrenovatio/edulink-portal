@@ -34,11 +34,9 @@
 
     <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
 
-    <!-- SIDEBAR -->
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <!-- LOGO TRANSPARAN & RESPONSIF DI SIDEBAR -->
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
                 <div>
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
@@ -72,7 +70,6 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
         <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
             <div class="flex items-center gap-3">
@@ -92,7 +89,6 @@
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8 bg-gray-50/30">
             
-            <!-- Welcome Section -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200">
                 <div>
                     <h2 class="text-xl sm:text-3xl font-serif font-bold text-syekhGreen-900 mb-1">Selamat datang, {{ nama_user if nama_user else 'Administrator' }}.</h2>
@@ -105,22 +101,22 @@
                 </div>
             </div>
 
-            <!-- Top Cards -->
+            <!-- METRIK DATA DINAMIS -->
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
                 <div class="bg-white p-5 rounded-xl border border-gray-200/80 shadow-sm flex flex-col justify-between border-l-4 border-syekhGreen-700">
                     <div class="flex justify-between items-start">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Siswa Aktif</span>
                         <div class="w-8 h-8 rounded bg-emerald-50 flex items-center justify-center text-syekhGreen-700"><i class="fa-solid fa-users"></i></div>
                     </div>
-                    <h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">240 <span class="text-xs font-sans font-normal text-gray-500">Siswa</span></h3>
+                    <h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">{{ total_siswa }} <span class="text-xs font-sans font-normal text-gray-500">Siswa</span></h3>
                 </div>
                 
                 <div class="bg-white p-5 rounded-xl border border-gray-200/80 shadow-sm flex flex-col justify-between border-l-4 border-syekhGold-500">
                     <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pelanggaran Bulan Ini</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Pelanggaran</span>
                         <div class="w-8 h-8 rounded bg-amber-50 flex items-center justify-center text-syekhGold-600"><i class="fa-solid fa-triangle-exclamation"></i></div>
                     </div>
-                    <h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">35 <span class="text-xs font-sans font-normal text-gray-500">Kasus</span></h3>
+                    <h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">{{ total_pelanggaran }} <span class="text-xs font-sans font-normal text-gray-500">Kasus</span></h3>
                 </div>
                 
                 <div class="bg-white p-5 rounded-xl border border-gray-200/80 shadow-sm flex flex-col justify-between border-l-4 border-emerald-600">
@@ -136,13 +132,12 @@
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">SP Aktif Semester Ini</span>
                         <div class="w-8 h-8 rounded bg-red-50 flex items-center justify-center text-red-600"><i class="fa-solid fa-envelope-open-text"></i></div>
                     </div>
-                    <h3 class="text-3xl font-serif font-bold text-red-700 mt-2">3 <span class="text-xs font-sans font-normal text-gray-500">Siswa</span></h3>
+                    <h3 class="text-3xl font-serif font-bold text-red-700 mt-2">{{ sp_aktif }} <span class="text-xs font-sans font-normal text-gray-500">Siswa</span></h3>
                 </div>
             </div>
 
-            <!-- Charts Section -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Line Chart (Span 2) -->
+                <!-- Line Chart -->
                 <div class="lg:col-span-2 bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Tren Kedisiplinan vs Prestasi</h3>
@@ -156,34 +151,34 @@
                     </div>
                 </div>
 
-                <!-- Doughnut Chart (Span 1) -->
+                <!-- Doughnut Chart Dinamis -->
                 <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-6">Distribusi Kelas</h3>
                     <div class="h-[220px] flex justify-center items-center relative">
                         <canvas id="classDistributionChart"></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span class="text-2xl font-serif font-bold text-syekhGreen-900 mt-4">240</span>
+                            <span class="text-2xl font-serif font-bold text-syekhGreen-900 mt-4">{{ total_siswa }}</span>
                             <span class="text-[9px] text-gray-400 uppercase tracking-widest">Total Siswa</span>
                         </div>
                     </div>
                     <div class="mt-6 flex flex-col gap-2">
                         <div class="flex justify-between items-center text-xs">
                             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-syekhGreen-700"></span><span class="text-gray-600">Kelas X (Sepuluh)</span></div>
-                            <span class="font-bold text-syekhGreen-900">80</span>
+                            <span class="font-bold text-syekhGreen-900">{{ kelas_x }}</span>
                         </div>
                         <div class="flex justify-between items-center text-xs">
                             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-syekhGold-500"></span><span class="text-gray-600">Kelas XI (Sebelas)</span></div>
-                            <span class="font-bold text-syekhGreen-900">90</span>
+                            <span class="font-bold text-syekhGreen-900">{{ kelas_xi }}</span>
                         </div>
                         <div class="flex justify-between items-center text-xs">
                             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-300"></span><span class="text-gray-600">Kelas XII (Dua Belas)</span></div>
-                            <span class="font-bold text-syekhGreen-900">70</span>
+                            <span class="font-bold text-syekhGreen-900">{{ kelas_xii }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Activity Table -->
+            <!-- Tabel Aktivitas Terbaru Dinamis -->
             <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden border-t-4 border-t-syekhGold-500">
                 <div class="p-5 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                     <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Log Aktivitas Terbaru</h3>
@@ -200,30 +195,20 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
+                            {% for log in recent_logs %}
                             <tr class="hover:bg-emerald-50/30 transition">
-                                <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">Hari ini, 08:15</td>
-                                <td class="px-4 py-4 font-bold text-syekhGreen-900">Ahmad Rizky Pratama <span class="text-[10px] font-normal text-gray-400 font-mono block">0051234910</span></td>
-                                <td class="px-4 py-4">Terlambat Masuk Sekolah (>15 Menit)</td>
+                                <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">{{ log.tanggal[:10] }}</td>
+                                <td class="px-4 py-4 font-bold text-syekhGreen-900">{{ log.nama_siswa }} <span class="text-[10px] font-normal text-gray-400 font-mono block">{{ log.nisn }}</span></td>
+                                <td class="px-4 py-4">{{ log.jenis_pelanggaran }}</td>
                                 <td class="pr-6 py-4 text-right">
-                                    <span class="bg-gray-100 text-gray-600 px-2 py-0.5 text-[9px] font-bold uppercase rounded border border-gray-200">Tercatat</span>
+                                    <span class="bg-red-50 text-red-600 px-2 py-0.5 text-[9px] font-bold uppercase rounded border border-red-200">+{{ log.poin }} Poin</span>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-emerald-50/30 transition">
-                                <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">Kemarin, 13:40</td>
-                                <td class="px-4 py-4 font-bold text-syekhGreen-900">Budi Santoso <span class="text-[10px] font-normal text-gray-400 font-mono block">0051234911</span></td>
-                                <td class="px-4 py-4">Meninggalkan Jam Pelajaran (Bolos)</td>
-                                <td class="pr-6 py-4 text-right">
-                                    <span class="bg-amber-100 text-amber-700 px-2 py-0.5 text-[9px] font-bold uppercase rounded border border-amber-200">Peringatan</span>
-                                </td>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-6 text-gray-400 italic">Belum ada aktivitas terekam.</td>
                             </tr>
-                            <tr class="hover:bg-emerald-50/30 transition">
-                                <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">12 Sep 2026</td>
-                                <td class="px-4 py-4 font-bold text-syekhGreen-900">Rian Hidayat <span class="text-[10px] font-normal text-gray-400 font-mono block">0051234915</span></td>
-                                <td class="px-4 py-4">Rokok / VAPE di Lingkungan Sekolah</td>
-                                <td class="pr-6 py-4 text-right">
-                                    <span class="bg-red-100 text-red-700 px-2 py-0.5 text-[9px] font-bold uppercase rounded border border-red-200">Terbit SP 2</span>
-                                </td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -238,7 +223,6 @@
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
-        // Line Chart (Trend)
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
         new Chart(ctxLine, {
             type: 'line',
@@ -262,14 +246,14 @@
             }
         });
 
-        // Doughnut Chart (Class Distribution)
+        // Diagram Distribusi Dinamis
         const ctxDoughnut = document.getElementById('classDistributionChart').getContext('2d');
         new Chart(ctxDoughnut, {
             type: 'doughnut',
             data: {
                 labels: ['Kelas X', 'Kelas XI', 'Kelas XII'],
                 datasets: [{
-                    data: [80, 90, 70],
+                    data: [{{ kelas_x }}, {{ kelas_xi }}, {{ kelas_xii }}],
                     backgroundColor: ['#15803D', '#EAB308', '#6EE7B7'],
                     borderWidth: 0,
                     hoverOffset: 4
