@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+import sqlite3 # Import sqlite3 untuk menangani error duplikasi NISN
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash
 
@@ -133,16 +134,60 @@ def delete_multiple_users():
         
     return redirect(url_for('manage_users'))
 
-@app.route('/siswa')
+
+# --- PERBAIKAN LOGIKA DATA SISWA (TAMBAH & HAPUS) ---
+@app.route('/siswa', methods=['GET', 'POST'])
 def siswa():
     if 'user_id' not in session: 
         return redirect(url_for('login'))
     
     conn = get_db_connection()
+
+    if request.method == 'POST':
+        nisn = request.form.get('nisn', '').strip()
+        nama_siswa = request.form.get('nama_siswa', '').strip()
+        jenis_kelamin = request.form.get('jenis_kelamin', '').strip()
+        kelas = request.form.get('kelas', '').strip()
+        nama_wali = request.form.get('nama_wali', '').strip()
+        no_hp_wali = request.form.get('no_hp_wali', '').strip()
+
+        if nisn and nama_siswa and kelas:
+            try:
+                conn.execute(
+                    "INSERT INTO siswa (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali) VALUES (?, ?, ?, ?, ?, ?)",
+                    (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali)
+                )
+                conn.commit()
+            except sqlite3.IntegrityError:
+                print("Gagal: NISN sudah terdaftar di database.")
+            except Exception as e:
+                print("Error system:", e)
+        
+        conn.close()
+        return redirect(url_for('siswa'))
+
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
     conn.close()
     
     return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa)
+
+@app.route('/siswa/delete/<nisn>', methods=['POST'])
+def delete_siswa(nisn):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    conn = get_db_connection()
+    try:
+        conn.execute("DELETE FROM siswa WHERE nisn = ?", (nisn,))
+        # Opsional: Jika ingin menghapus histori pelanggaran siswa saat siswa dihapus
+        # conn.execute("DELETE FROM pelanggaran WHERE nisn = ?", (nisn,))
+        conn.commit()
+    except Exception as e:
+        print("Gagal menghapus siswa:", e)
+    finally:
+        conn.close()
+        
+    return redirect(url_for('siswa'))
 
 
 @app.route('/poin', methods=['GET', 'POST'])
@@ -175,10 +220,7 @@ def poin():
     
     daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa").fetchall()
     daftar_pelanggaran = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 20").fetchall()
-    
-    # Ambil opsi jenis pelanggaran dari database master
     master_pelanggaran = conn.execute("SELECT * FROM master_pelanggaran ORDER BY poin ASC").fetchall()
-    
     conn.close()
     
     siswa_dict = {s['nisn']: {'nama': s['nama_siswa'], 'kelas': s['kelas']} for s in daftar_siswa}
@@ -189,7 +231,6 @@ def poin():
                            pelanggaran_list=daftar_pelanggaran,
                            master_pelanggaran=master_pelanggaran)
 
-# --- RUTE BARU: TAMBAH MASTER PELANGGARAN ---
 @app.route('/poin/tambah-master', methods=['POST'])
 def tambah_master_pelanggaran():
     if not is_admin():
