@@ -27,9 +27,19 @@ init_db()
 def is_admin():
     return 'user_id' in session and str(session.get('role', '')).strip().lower() == 'admin'
 
+# --- PERBAIKAN: HALAMAN DEPAN DINAMIS ---
 @app.route('/')
 def home():
-    return render_template('index.html')
+    conn = get_db_connection()
+    try:
+        # Hitung jumlah siswa aktual dari database
+        total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
+    except Exception:
+        total_siswa = 0
+    finally:
+        conn.close()
+        
+    return render_template('index.html', total_siswa=total_siswa)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -59,7 +69,6 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# --- PERBAIKAN: DASHBOARD OVERVIEW DINAMIS ---
 @app.route('/dashboard')
 def dashboard_overview():
     if 'user_id' not in session:
@@ -67,18 +76,14 @@ def dashboard_overview():
         
     conn = get_db_connection()
     
-    # 1. Hitung Total Siswa
     total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
     
-    # 2. Hitung Distribusi Siswa Per Tingkatan Kelas (Untuk Chart)
     kelas_x = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'X %'").fetchone()[0]
     kelas_xi = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XI %'").fetchone()[0]
     kelas_xii = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XII %'").fetchone()[0]
     
-    # 3. Hitung Total Kasus Pelanggaran
     total_pelanggaran = conn.execute("SELECT COUNT(*) FROM pelanggaran").fetchone()[0]
     
-    # 4. Hitung SP Aktif (Siswa dengan Total Poin >= 50)
     sp_query = """
         SELECT nisn, SUM(poin) as total_poin 
         FROM pelanggaran 
@@ -87,7 +92,6 @@ def dashboard_overview():
     """
     sp_aktif = len(conn.execute(sp_query).fetchall())
     
-    # 5. Ambil 5 Log Aktivitas Terbaru
     recent_logs = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 5").fetchall()
     
     conn.close()
@@ -221,7 +225,6 @@ def delete_siswa(nisn):
         conn.close()
         
     return redirect(url_for('siswa'))
-
 
 @app.route('/poin', methods=['GET', 'POST'])
 def poin():
