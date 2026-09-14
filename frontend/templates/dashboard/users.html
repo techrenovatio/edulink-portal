@@ -97,6 +97,8 @@
                             <select id="selectRole" name="role" onchange="toggleGuruFields('add')" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="admin">Administrator</option>{% if current_role == 'superadmin' %}<option value="superadmin">Super Admin</option>{% endif %}</select>
                         </div>
                         
+                        <!-- HAK AKSES CETAK HANYA DITAMPILKAN JIKA LOGIN SEBAGAI SUPERADMIN -->
+                        {% if current_role == 'superadmin' %}
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Hak Akses Cetak Laporan</label>
                             <select name="can_print" class="w-full bg-gray-50 border py-2 px-3 text-xs focus:outline-none focus:border-syekhGreen-600 rounded">
@@ -104,6 +106,10 @@
                                 <option value="1">Ya, Izinkan Cetak</option>
                             </select>
                         </div>
+                        {% else %}
+                            <!-- Jika admin biasa yang membuat user, set deafult 0 secara tersembunyi -->
+                            <input type="hidden" name="can_print" value="0">
+                        {% endif %}
 
                         <div><label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Nama Lengkap</label><input type="text" name="nama" required class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
                         <div><label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Username Login</label><input type="text" name="username" required class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
@@ -163,7 +169,12 @@
                                         <th class="pl-4 py-3.5 w-8 print-hidden"><input type="checkbox" id="selectAll" class="w-3.5 h-3.5"></th>
                                         <th class="px-3 py-3.5">Profil</th>
                                         <th class="px-3 py-3.5">Detail (NIP/Mapel)</th>
+                                        
+                                        <!-- Kolom status Akses Print hanya dilihat oleh SUPERADMIN -->
+                                        {% if current_role == 'superadmin' %}
                                         <th class="px-3 py-3.5 text-center">Akses Print</th>
+                                        {% endif %}
+                                        
                                         <th class="px-3 py-3.5 text-center">Role</th>
                                         <th class="px-4 py-3.5 text-right print-hidden">Aksi</th>
                                     </tr>
@@ -178,17 +189,27 @@
                                                 {{ u.bidang_pelajaran }}<br><span class="text-[10px] text-gray-400 font-mono">{{ u.nip }}</span>
                                             {% else %}-{% endif %}
                                         </td>
+                                        
+                                        <!-- BADGE HANYA MUNCUL JIKA SUPERADMIN YANG LOGIN -->
+                                        {% if current_role == 'superadmin' %}
                                         <td class="px-3 py-3.5 text-center">
                                             {% if u.can_print == 1 or u.role|lower == 'superadmin' %}
-                                            <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"><i class="fa-solid fa-check"></i></span>
+                                            <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="Bisa Cetak"><i class="fa-solid fa-check"></i></span>
                                             {% else %}
-                                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-200"><i class="fa-solid fa-xmark"></i></span>
+                                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-200" title="Tidak Bisa Cetak"><i class="fa-solid fa-xmark"></i></span>
                                             {% endif %}
                                         </td>
+                                        {% endif %}
+
                                         <td class="px-3 py-3.5 text-center font-bold">{{ u.role|upper }}</td>
                                         <td class="px-4 py-3.5 text-right print-hidden">
-                                            <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.bidang_pelajaran }}', '{{ u.status_walikelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}', '{{ u.can_print }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun"><i class="fa-solid fa-pen-to-square"></i></button>
-                                            <button type="button" onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Akun"><i class="fa-solid fa-trash-can"></i></button>
+                                            <!-- Peringatan: Admin biasa tidak boleh mengedit atau menghapus akun SUPERADMIN lain -->
+                                            {% if u.role|lower == 'superadmin' and current_role == 'admin' %}
+                                                <span class="text-[10px] italic text-gray-300">Terkunci</span>
+                                            {% else %}
+                                                <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.bidang_pelajaran }}', '{{ u.status_walikelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}', '{{ u.can_print }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button type="button" onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Akun"><i class="fa-solid fa-trash-can"></i></button>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -216,6 +237,8 @@
                     <select id="edit_role" name="edit_role" onchange="toggleGuruFields('edit')" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="admin">Administrator</option>{% if current_role == 'superadmin' %}<option value="superadmin">Super Admin</option>{% endif %}</select>
                 </div>
                 
+                <!-- HAK AKSES CETAK DI MODAL EDIT HANYA UNTUK SUPERADMIN -->
+                {% if current_role == 'superadmin' %}
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase">Hak Akses Cetak</label>
                     <select id="edit_can_print" name="edit_can_print" class="w-full bg-gray-50 border py-2 px-3 text-xs">
@@ -223,6 +246,10 @@
                         <option value="1">Ya, Izinkan Cetak</option>
                     </select>
                 </div>
+                {% else %}
+                    <!-- Jika admin yang mengedit, status default/lama biarkan sama tanpa bisa diubah -->
+                    <input type="hidden" id="edit_can_print" name="edit_can_print">
+                {% endif %}
 
                 <div><label class="text-[10px] font-bold text-gray-500 uppercase">Nama Lengkap</label><input type="text" id="edit_nama" name="edit_nama" required class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
                 <div><label class="text-[10px] font-bold text-gray-500 uppercase">Ganti Password</label><input type="password" name="edit_password" placeholder="Kosongkan jika tak diubah" class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
@@ -286,7 +313,10 @@
             document.getElementById('edit_nip').value = nip;
             document.getElementById('edit_bidang_pelajaran').value = bidang;
             document.getElementById('edit_status_walikelas').value = status_wali;
-            document.getElementById('edit_can_print').value = can_print;
+            
+            // Set value input tersembunyi/tampil untuk can_print
+            const canPrintElement = document.getElementById('edit_can_print');
+            if(canPrintElement) { canPrintElement.value = can_print; }
             
             const kelasSelect = document.getElementById('edit_mengajar_kelas');
             if (kelasSelect && mengajar_kelas) {
