@@ -4,257 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presensi Harian - SMA Syekh Yusuf</title>
-    
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
-                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' }
-                    }
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] },
+                    colors: { syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' }, syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' } }
                 }
             }
         }
     </script>
+    <style>
+        @media print {
+            aside, header { display: none !important; }
+            main { margin: 0 !important; padding: 0 !important; }
+            .print-hidden { display: none !important; }
+            body { background-color: white !important; }
+        }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
 
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
-        <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
-            <div class="flex items-center gap-3">
-                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-md">
-                <div>
-                    <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
-                </div>
-            </div>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform print-hidden">
+        <div class="h-24 flex items-center px-6 border-b border-syekhGreen-800">
+            <span class="text-sm font-serif font-bold text-white">SMA SYEKH YUSUF</span>
         </div>
-
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
-            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Overview</span></a>
-            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Kelola Pengguna</span></a>
-            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
-            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
-            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
-            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white rounded-lg transition border-l-4 border-syekhGold-500"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Presensi Harian</span></a>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-chart-line w-5"></i><span class="text-xs font-semibold">OVERVIEW</span></a>
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-user-gear w-5"></i><span class="text-xs font-semibold">KELOLA PENGGUNA</span></a>
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-users w-5"></i><span class="text-xs font-semibold">DATA SISWA</span></a>
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-scale-balanced w-5"></i><span class="text-xs font-semibold">POIN PELANGGARAN</span></a>
+            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-file-invoice w-5"></i><span class="text-xs font-semibold">LAPORAN & REKAP</span></a>
+            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white border-l-4 border-syekhGold-500 rounded-lg"><i class="fa-solid fa-clipboard-user w-5 text-syekhGold-400"></i><span class="text-xs font-bold">PRESENSI HARIAN</span></a>
         </nav>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
-            <div>
-                <h1 class="text-lg sm:text-2xl font-serif font-bold text-syekhGreen-900 leading-tight">Presensi Kelas & Akademik</h1>
-                <p class="text-[10px] sm:text-xs text-syekhGold-600 font-bold uppercase tracking-wider">Guru Pengampu: {{ nama_user }}</p>
-            </div>
+    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0 print:m-0 print:h-auto overflow-y-auto">
+        <header class="h-24 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
+            <div><h1 class="text-xl font-serif font-bold text-syekhGreen-900">Presensi Kelas & Akademik</h1></div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
-            <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-end border-t-4 border-t-syekhGreen-700">
+        <div class="p-4 sm:p-8 space-y-6">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-end border-t-4 border-t-syekhGreen-700 print-hidden">
+                <div><label class="text-xs font-bold text-gray-500 uppercase">Tanggal</label><input type="date" id="tanggalAbsen" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Tanggal</label>
-                    <input type="date" id="tanggalAbsen" class="w-full bg-gray-50 border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded font-semibold text-syekhGreen-900">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Pilih Kelas</label>
-                    
-                    <!-- DAFTAR KELAS SUDAH DISAMAKAN DENGAN MENU DATA SISWA -->
-                    <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border border-gray-200 text-xs py-2 px-3 focus:outline-none rounded font-semibold text-syekhGreen-900">
+                    <label class="text-xs font-bold text-gray-500 uppercase">Kelas</label>
+                    <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                         <option value="">-- Pilih Kelas --</option>
-                        <option value="X IPA 1">X IPA 1</option>
-                        <option value="X IPS 1">X IPS 1</option>
-                        <option value="XI IPA 1">XI IPA 1</option>
-                        <option value="XI IPA 2">XI IPA 2</option>
-                        <option value="XI IPS 1">XI IPS 1</option>
-                        <option value="XII IPA 1">XII IPA 1</option>
-                        <option value="XII IPA 2">XII IPA 2</option>
-                        <option value="XII IPS 1">XII IPS 1</option>
-                    </select>
-                    
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Mata Pelajaran</label>
-                    <select id="selectMapel" class="w-full bg-gray-50 border border-gray-200 text-xs py-2 px-3 focus:outline-none rounded font-semibold text-syekhGreen-900">
-                        <option value="">-- Pilih Mapel --</option>
+                        <option value="X IPA 1">X IPA 1</option><option value="XI IPA 1">XI IPA 1</option><option value="XII IPA 1">XII IPA 1</option>
                     </select>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Pertemuan Ke-</label>
-                    <input type="number" id="inputPertemuan" min="1" max="50" value="1" class="w-full bg-gray-50 border border-gray-200 text-xs py-2 px-3 focus:outline-none rounded font-semibold text-syekhGreen-900">
-                </div>
+                <div><label class="text-xs font-bold text-gray-500 uppercase">Mata Pelajaran</label><select id="selectMapel" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="">-- Pilih Mapel --</option></select></div>
+                <div><label class="text-xs font-bold text-gray-500 uppercase">Pertemuan Ke-</label><input type="number" id="inputPertemuan" value="1" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
             </div>
 
-            <div class="flex justify-end">
-                <button onclick="simpanPresensi()" class="bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white text-[11px] font-bold uppercase tracking-widest px-6 py-3 transition flex items-center gap-2 rounded shadow-md">
-                    <i class="fa-solid fa-floppy-disk"></i> Simpan Data Presensi
+            <div class="flex justify-end gap-3 print-hidden">
+                <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[11px] font-bold uppercase tracking-widest px-6 py-3 transition flex items-center gap-2 rounded shadow-md">
+                    <i class="fa-solid fa-print"></i> Cetak Presensi
                 </button>
+                <button onclick="simpanPresensi()" class="bg-syekhGreen-800 text-white text-[11px] font-bold uppercase px-6 py-3 rounded shadow-md"><i class="fa-solid fa-floppy-disk"></i> Simpan Presensi</button>
             </div>
 
-            <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                    <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[700px]">
-                        <thead class="bg-gray-100 border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider sticky top-0 z-10">
-                            <tr>
-                                <th class="px-6 py-4">NISN / Nama Siswa</th>
-                                <th class="px-4 py-4 text-center">Akumulasi (H/I/S/A)</th>
-                                <th class="px-6 py-4 text-right">Status Kehadiran Hari Ini</th>
-                            </tr>
-                        </thead>
-                        <tbody id="absensiTableBody" class="divide-y divide-gray-100">
-                            {% for s in siswa_list %}
-                            {% set H = akumulasi[s.nisn]['Hadir'] if s.nisn in akumulasi else 0 %}
-                            {% set I = akumulasi[s.nisn]['Izin'] if s.nisn in akumulasi else 0 %}
-                            {% set S = akumulasi[s.nisn]['Sakit'] if s.nisn in akumulasi else 0 %}
-                            {% set A = akumulasi[s.nisn]['Alfa'] if s.nisn in akumulasi else 0 %}
-                            
-                            <tr class="hover:bg-emerald-50/50 transition absensi-row hidden" data-kelas="{{ s.kelas }}">
-                                <td class="px-6 py-4">
-                                    <p class="font-bold text-syekhGreen-900">{{ s.nama_siswa }}</p>
-                                    <p class="font-mono text-[10px] text-gray-500 nisn-cell">{{ s.nisn }}</p>
-                                </td>
-                                <td class="px-4 py-4 text-center">
-                                    <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200" title="Hadir">{{ H }}</span>
-                                    <span class="text-[10px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200" title="Izin">{{ I }}</span>
-                                    <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200" title="Sakit">{{ S }}</span>
-                                    <span class="text-[10px] font-bold bg-red-50 text-red-700 px-1.5 py-0.5 rounded border border-red-200" title="Alfa">{{ A }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <button onclick="toggleStatus(this)" class="status-btn bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded shadow-sm w-24">HADIR</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden print:border-none print:shadow-none w-full">
+                <table class="w-full text-left text-xs sm:text-sm text-gray-600">
+                    <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider">
+                        <tr>
+                            <th class="px-6 py-4">NISN / Nama Siswa</th>
+                            <th class="px-4 py-4 text-center">Akumulasi (H/I/S/A)</th>
+                            <th class="px-6 py-4 text-right print-hidden">Status Kehadiran Hari Ini</th>
+                        </tr>
+                    </thead>
+                    <tbody id="absensiTableBody">
+                        {% for s in siswa_list %}
+                        <tr class="border-b border-gray-50 absensi-row hidden" data-kelas="{{ s.kelas }}">
+                            <td class="px-6 py-4"><p class="font-bold text-syekhGreen-900">{{ s.nama_siswa }}</p><p class="text-[10px] text-gray-500 nisn-cell">{{ s.nisn }}</p></td>
+                            <td class="px-4 py-4 text-center"><span class="text-emerald-700 font-bold bg-emerald-50 px-1.5 rounded">0</span></td>
+                            <td class="px-6 py-4 text-right print-hidden"><button class="status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded">HADIR</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
 
     <script>
         const masterMapel = {{ mapel_master | tojson | safe }};
-        const hakKelas = "{{ hak_kelas }}"; // Disediakan backend (Contoh: "X IPA 1, XI IPS 1" atau "Semua")
-        const hakMapel = "{{ hak_mapel }}"; // Disediakan backend (Contoh: "Fisika, Biologi" atau "Semua")
-        const role = "{{ role }}";
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('tanggalAbsen').value = new Date().toISOString().split('T')[0];
-            filterDropdownKelasByHak();
-        });
-
-        function filterDropdownKelasByHak() {
-            const selectKelas = document.getElementById('selectKelasAbsensi');
-            if (role === 'admin' || role === 'superadmin' || hakKelas === 'Semua') return;
-
-            const allowedClasses = hakKelas.split(',').map(item => item.trim());
-            Array.from(selectKelas.options).forEach(opt => {
-                if (opt.value !== "" && !allowedClasses.includes(opt.value)) {
-                    opt.style.display = 'none'; // Sembunyikan kelas yang tidak diampu
-                }
-            });
-        }
+        const hakKelas = "{{ hak_kelas }}"; const hakMapel = "{{ hak_mapel }}"; const role = "{{ role }}";
+        
+        document.addEventListener('DOMContentLoaded', () => { document.getElementById('tanggalAbsen').value = new Date().toISOString().split('T')[0]; });
 
         function updateMapelDropdown() {
             const kelasVal = document.getElementById('selectKelasAbsensi').value;
-            const mapelSelect = document.getElementById('selectMapel');
-            mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-            
-            if(!kelasVal) return;
-
-            // Cari kategori level (X, XI IPA, dll)
-            let kategori = "";
-            if(kelasVal.startsWith("X ")) kategori = "X";
-            else if(kelasVal.includes("XI IPA")) kategori = "XI IPA";
-            else if(kelasVal.includes("XI IPS")) kategori = "XI IPS";
-            else if(kelasVal.includes("XII IPA")) kategori = "XII IPA";
-            else if(kelasVal.includes("XII IPS")) kategori = "XII IPS";
-
-            if(masterMapel[kategori]) {
-                const allowedMapel = hakMapel === 'Semua' ? masterMapel[kategori] : hakMapel.split(',').map(m => m.trim());
-                
-                masterMapel[kategori].forEach(mapel => {
-                    // Hanya tampilkan mapel yang ada di tabel master DAN yang diizinkan untuk guru ini
-                    if (role === 'admin' || role === 'superadmin' || hakMapel === 'Semua' || allowedMapel.includes(mapel)) {
-                        const opt = document.createElement('option');
-                        opt.value = mapel;
-                        opt.textContent = mapel;
-                        mapelSelect.appendChild(opt);
-                    }
-                });
-            }
-
-            // Memunculkan murid di tabel sesuai kelas
             const rows = document.querySelectorAll('.absensi-row');
-            rows.forEach(row => {
-                if (kelasVal === row.getAttribute('data-kelas')) {
-                    row.classList.remove('hidden');
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
-        }
-
-        const statusList = [
-            { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-800 border-emerald-200', hover: 'hover:bg-emerald-200' },
-            { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-800 border-amber-200', hover: 'hover:bg-amber-200' },
-            { label: 'SAKIT', bg: 'bg-blue-100', text: 'text-blue-800 border-blue-200', hover: 'hover:bg-blue-200' },
-            { label: 'ALFA', bg: 'bg-red-100', text: 'text-red-700 border-red-200', hover: 'hover:bg-red-200' }
-        ];
-
-        function toggleStatus(btn) {
-            const currentLabel = btn.textContent.trim();
-            let currentIndex = statusList.findIndex(s => s.label === currentLabel);
-            let nextIndex = (currentIndex + 1) % statusList.length;
-            let nextStatus = statusList[nextIndex];
-            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} border ${nextStatus.hover} px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider transition rounded shadow-sm w-24`;
-            btn.textContent = nextStatus.label;
-        }
-
-        async function simpanPresensi() {
-            const tanggal = document.getElementById('tanggalAbsen').value;
-            const mapel = document.getElementById('selectMapel').value;
-            const pertemuan = document.getElementById('inputPertemuan').value;
-            const rows = document.querySelectorAll('.absensi-row');
-            let records = [];
-            
-            if(!mapel) { alert('Harap pilih Mata Pelajaran terlebih dahulu!'); return; }
-
-            rows.forEach(row => {
-                if (!row.classList.contains('hidden')) {
-                    const nisn = row.querySelector('.nisn-cell').innerText.trim();
-                    const status = row.querySelector('.status-btn').innerText.trim();
-                    records.push({nisn: nisn, status: status});
-                }
-            });
-            
-            if(records.length === 0) return;
-            
-            try {
-                const response = await fetch('/presensi', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ tanggal: tanggal, mata_pelajaran: mapel, pertemuan: pertemuan, records: records })
-                });
-                
-                const result = await response.json();
-                if(result.status === 'success') {
-                    alert(result.message);
-                    location.reload(); // Refresh untuk mengupdate akumulasi
-                } else {
-                    alert('Gagal: ' + result.message);
-                }
-            } catch(e) { alert('Terjadi kesalahan koneksi.'); }
+            rows.forEach(row => { row.classList.toggle('hidden', kelasVal !== row.getAttribute('data-kelas')); });
         }
     </script>
 </body>

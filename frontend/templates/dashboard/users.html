@@ -4,442 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Pengguna - SMA Syekh Yusuf</title>
-    
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
-                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
-                        syekhDark: { 900: '#0F172A', 800: '#1E293B', 700: '#334155' },
-                        syekhPaper: '#F8FAFC',
-                    }
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] },
+                    colors: { syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' }, syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' } }
                 }
             }
         }
     </script>
+    <style>
+        @media print {
+            aside, header { display: none !important; }
+            main { margin: 0 !important; padding: 0 !important; }
+            .print-hidden { display: none !important; }
+            body { background-color: white !important; }
+        }
+    </style>
 </head>
-<body class="bg-syekhPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
 
-    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
-
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
-        <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
-            <div class="flex items-center gap-3">
-                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
-                <div>
-                    <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
-                    <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
-                </div>
-            </div>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform print-hidden">
+        <div class="h-24 flex items-center px-6 border-b border-syekhGreen-800">
+            <span class="text-sm font-serif font-bold text-white">SMA SYEKH YUSUF</span>
         </div>
-
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
-            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Overview</span></a>
-            <a href="/users" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white rounded-lg transition border-l-4 border-syekhGold-500"><i class="fa-solid fa-user-gear text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Kelola Pengguna</span></a>
-            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
-            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
-            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
-            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Presensi Harian</span></a>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-chart-line w-5"></i><span class="text-xs font-semibold">OVERVIEW</span></a>
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white border-l-4 border-syekhGold-500 rounded-lg"><i class="fa-solid fa-user-gear w-5 text-syekhGold-400"></i><span class="text-xs font-bold">KELOLA PENGGUNA</span></a>
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-users w-5"></i><span class="text-xs font-semibold">DATA SISWA</span></a>
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-scale-balanced w-5"></i><span class="text-xs font-semibold">POIN PELANGGARAN</span></a>
+            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-file-invoice w-5"></i><span class="text-xs font-semibold">LAPORAN & REKAP</span></a>
+            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-clipboard-user w-5"></i><span class="text-xs font-semibold">PRESENSI HARIAN</span></a>
         </nav>
-
-        <div class="p-5 border-t border-syekhGreen-800">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
-                <div class="overflow-hidden">
-                    <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">Administrator</p>
-                </div>
-            </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
-        </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
-                <div>
-                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-syekhGreen-900 leading-tight">User Management</h1>
-                    <p class="text-[10px] sm:text-xs text-syekhGold-600 font-bold uppercase tracking-wider hidden sm:block">Pengaturan Kredensial Pengguna & Guru</p>
-                </div>
-            </div>
+    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0 print:m-0 print:h-auto overflow-y-auto">
+        <header class="h-24 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
+            <div><h1 class="text-xl font-serif font-bold text-syekhGreen-900">User Management</h1></div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
+        <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <!-- KIRI: FORM TAMBAH -->
-                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700">
-                    <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Tambah Akun</h3>
-                    <p class="text-xs text-gray-500 mb-5">Kredensial login Guru atau Administrator.</p>
-                    
-                    <form action="/users/add" method="POST" autocomplete="off" class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Peran (Role)</label>
-                            <select id="selectRole" name="role" onchange="toggleGuruFields('add')" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                                <option value="guru" selected>Guru / Staff</option>
-                                <option value="admin">Administrator</option>
-                                {% if current_role == 'superadmin' %}
-                                <option value="superadmin">Super Admin</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Lengkap</label>
-                            <input type="text" name="nama" required placeholder="Contoh: Drs. H. Ahmad" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Username Login</label>
-                            <input type="text" name="username" required placeholder="Username unik (tanpa spasi)" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Password</label>
-                            <input type="password" name="password" required placeholder="***" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-
-                        <!-- KELOMPOK INPUT KHUSUS GURU -->
-                        <div id="addGuruFields" class="space-y-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                            <p class="text-[10px] font-bold text-syekhGold-600 uppercase tracking-wider border-b border-gray-200 pb-2">Informasi Khusus Guru</p>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NIP (Nomor Induk Pegawai)</label>
-                                <input type="text" name="nip" placeholder="Opsional / Strip jika tidak ada" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bidang Pelajaran (Gelar)</label>
-                                <input type="text" name="bidang_pelajaran" placeholder="Contoh: Guru Matematika" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Status Wali Kelas</label>
-                                <select name="status_walikelas" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                                    <option value="Bukan">Bukan Wali Kelas</option>
-                                    <option value="Wali Kelas">Ya, Wali Kelas</option>
-                                </select>
-                            </div>
-                            <div class="border-t border-gray-200 pt-3 mt-3">
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Kelas</label>
-                                <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> (Windows) atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> (Mac) untuk memilih lebih dari satu.</p>
-                                <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK KELAS -->
-                                <select name="mengajar_kelas" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-24 shadow-inner">
-                                    <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
-                                    <option value="X IPA 1">X IPA 1</option>
-                                    <option value="X IPS 1">X IPS 1</option>
-                                    <option value="XI IPA 1">XI IPA 1</option>
-                                    <option value="XI IPA 2">XI IPA 2</option>
-                                    <option value="XI IPS 1">XI IPS 1</option>
-                                    <option value="XII IPA 1">XII IPA 1</option>
-                                    <option value="XII IPA 2">XII IPA 2</option>
-                                    <option value="XII IPS 1">XII IPS 1</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Mata Pelajaran</label>
-                                <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> (Windows) atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> (Mac) untuk memilih lebih dari satu.</p>
-                                <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK MAPEL -->
-                                <select name="mengajar_mapel" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-32 shadow-inner">
-                                    <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
-                                    <option value="Matematika">Matematika / MatDas</option>
-                                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                                    <option value="Bahasa Inggris">Bahasa Inggris</option>
-                                    <option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
-                                    <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option>
-                                    <option value="Literasi Digital">Literasi Digital</option>
-                                    <option value="Bahasa Arab">Bahasa Arab</option>
-                                    <option value="Geografi">Geografi</option>
-                                    <option value="Penjaskes">Penjaskes</option>
-                                    <option value="Fisika">Fisika</option>
-                                    <option value="Biologi">Biologi</option>
-                                    <option value="Sosiologi">Sosiologi</option>
-                                    <option value="Ekonomi">Ekonomi</option>
-                                    <option value="Budi Pekerti">Budi Pekerti</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-md">
-                            Simpan User Baru
-                        </button>
+                <!-- KOLOM KIRI (Dihilangkan saat print) -->
+                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
+                    <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Tambah Akun</h3>
+                    <form action="/users/add" method="POST" class="space-y-4">
+                        <select id="selectRole" name="role" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="superadmin">Super Admin</option></select>
+                        <input type="text" name="nama" required placeholder="Nama" class="w-full bg-gray-50 border py-2 px-3 text-xs">
+                        <input type="text" name="username" required placeholder="Username" class="w-full bg-gray-50 border py-2 px-3 text-xs">
+                        <input type="password" name="password" required placeholder="Password" class="w-full bg-gray-50 border py-2 px-3 text-xs">
+                        <button type="submit" class="w-full bg-syekhGreen-800 text-white font-bold py-3 text-xs">Simpan</button>
                     </form>
                 </div>
 
-                <!-- KANAN: TABEL DAFTAR PENGGUNA -->
-                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGold-500 overflow-hidden">
-                    <form id="bulkDeleteForm" action="/users/delete-multiple" method="POST" onsubmit="return confirm('Hapus user tercentang?')">
-                        <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center">
-                            <div class="flex items-center gap-3">
-                                <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Daftar Pengguna</h3>
-                                <button type="submit" id="btnDeleteSelected" class="hidden text-[10px] sm:text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-2.5 py-1 uppercase tracking-wider rounded items-center gap-1">
-                                    <i class="fa-solid fa-trash-can text-xs"></i> Hapus (<span id="selectedCount">0</span>)
-                                </button>
-                            </div>
-                            <span class="text-xs font-mono bg-emerald-50 text-syekhGreen-800 border border-emerald-200 px-2.5 py-1 font-bold rounded">{{ users|length }} User</span>
-                        </div>
-                        
-                        <div class="overflow-x-auto max-h-[650px] overflow-y-auto">
-                            <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[700px]">
-                                <thead class="bg-syekhPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-500 tracking-wider sticky top-0 z-10">
-                                    <tr>
-                                        <th class="pl-4 sm:pl-6 py-3.5 w-8 border-b border-gray-200">
-                                            <input type="checkbox" id="selectAll" class="w-3.5 h-3.5 accent-syekhGreen-600">
-                                        </th>
-                                        <th class="px-3 py-3.5 border-b border-gray-200">Profil</th>
-                                        <th class="px-3 py-3.5 border-b border-gray-200">Detail Guru (NIP/Mapel)</th>
-                                        <th class="px-3 py-3.5 text-center border-b border-gray-200">Role</th>
-                                        <th class="px-4 sm:px-6 py-3.5 text-right border-b border-gray-200">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    {% for u in users %}
-                                    <tr class="hover:bg-emerald-50/50 transition">
-                                        <td class="pl-4 sm:pl-6 py-3.5">
-                                            <input type="checkbox" name="user_ids" value="{{ u.id }}" class="user-checkbox w-3.5 h-3.5 accent-syekhGreen-600">
-                                        </td>
-                                        <td class="px-3 py-3.5">
-                                            <p class="font-bold text-syekhGreen-900">{{ u.nama }}</p>
-                                            <p class="font-mono text-[10px] text-gray-400">@{{ u.username }}</p>
-                                        </td>
-                                        <td class="px-3 py-3.5">
-                                            {% if u.role|lower == 'guru' %}
-                                                <p class="text-xs">{{ u.bidang_pelajaran }}</p>
-                                                <p class="font-mono text-[10px] text-gray-400">{{ u.nip }} {% if u.status_walikelas == 'Wali Kelas' %}<span class="text-syekhGold-600 font-bold ml-1">(Wali Kelas)</span>{% endif %}</p>
-                                            {% else %}
-                                                <span class="text-gray-300 italic text-xs">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="px-3 py-3.5 text-center">
-                                            {% if u.role|lower == 'superadmin' %}
-                                            <span class="bg-purple-100 text-purple-800 border border-purple-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded">Super Admin</span>
-                                            {% elif u.role|lower == 'admin' %}
-                                            <span class="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded">Admin</span>
-                                            {% else %}
-                                            <span class="bg-gray-100 text-gray-600 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded">Guru</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="px-4 sm:px-6 py-3.5 text-right whitespace-nowrap">
-                                            <!-- TOMBOL EDIT USER -->
-                                            <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.bidang_pelajaran }}', '{{ u.status_walikelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </button>
-                                            <button type="button" onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Akun">
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </form>
-                    <form id="singleDeleteForm" method="POST" class="hidden"></form>
+                <!-- KOLOM KANAN -->
+                <div class="lg:col-span-2 bg-white rounded-xl border shadow-sm border-t-4 border-t-syekhGold-500 overflow-hidden w-full print:border-none print:shadow-none print:m-0">
+                    <div class="p-4 border-b border-gray-100 flex justify-between items-center print:px-0">
+                        <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Daftar Pengguna</h3>
+                        <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm print-hidden"><i class="fa-solid fa-print"></i> Cetak</button>
+                    </div>
+                    <table class="w-full text-left text-xs text-gray-600">
+                        <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider">
+                            <tr>
+                                <th class="pl-4 py-3">Profil</th>
+                                <th class="px-3 py-3">Detail (NIP/Mapel)</th>
+                                <th class="px-3 py-3 text-center">Role</th>
+                                <th class="px-4 py-3 text-right print-hidden">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr class="border-b border-gray-50">
+                                <td class="pl-4 py-3"><p class="font-bold text-syekhGreen-900">{{ u.nama }}</p><p class="text-[10px] text-gray-400">@{{ u.username }}</p></td>
+                                <td class="px-3 py-3">{% if u.role|lower == 'guru' %}{{ u.bidang_pelajaran }}<br>{{ u.nip }}{% else %}-{% endif %}</td>
+                                <td class="px-3 py-3 text-center font-bold">{{ u.role|upper }}</td>
+                                <td class="px-4 py-3 text-right print-hidden"><button class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </main>
-
-    <!-- MODAL EDIT USER -->
-    <div id="modalEditUser" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
-        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl border-t-4 border-syekhGold-500 mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Ubah Data Pengguna</h3>
-                <button onclick="closeEditUserModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            
-            <form id="editUserForm" method="POST" autocomplete="off" class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Peran (Role)</label>
-                    <select id="edit_role" name="edit_role" onchange="toggleGuruFields('edit')" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        <option value="guru">Guru / Staff</option>
-                        <option value="admin">Administrator</option>
-                        {% if current_role == 'superadmin' %}
-                        <option value="superadmin">Super Admin</option>
-                        {% endif %}
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Lengkap</label>
-                    <input type="text" id="edit_nama" name="edit_nama" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Ganti Password (Opsional)</label>
-                    <input type="password" name="edit_password" placeholder="Kosongkan jika tidak ingin mengubah sandi" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                </div>
-
-                <div id="editGuruFields" class="space-y-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                    <p class="text-[10px] font-bold text-syekhGold-600 uppercase tracking-wider border-b border-gray-200 pb-2">Informasi Khusus Guru</p>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NIP (Nomor Induk Pegawai)</label>
-                        <input type="text" id="edit_nip" name="edit_nip" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Mata Pelajaran (Bidang)</label>
-                        <input type="text" id="edit_bidang_pelajaran" name="edit_bidang_pelajaran" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Status Wali Kelas</label>
-                        <select id="edit_status_walikelas" name="edit_status_walikelas" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                            <option value="Bukan">Bukan Wali Kelas</option>
-                            <option value="Wali Kelas">Ya, Wali Kelas</option>
-                        </select>
-                    </div>
-                    <div class="border-t border-gray-200 pt-3 mt-3">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Kelas</label>
-                        <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> untuk memilih banyak.</p>
-                        <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK KELAS (EDIT) -->
-                        <select id="edit_mengajar_kelas" name="edit_mengajar_kelas" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-24 shadow-inner">
-                            <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
-                            <option value="X IPA 1">X IPA 1</option>
-                            <option value="X IPS 1">X IPS 1</option>
-                            <option value="XI IPA 1">XI IPA 1</option>
-                            <option value="XI IPA 2">XI IPA 2</option>
-                            <option value="XI IPS 1">XI IPS 1</option>
-                            <option value="XII IPA 1">XII IPA 1</option>
-                            <option value="XII IPA 2">XII IPA 2</option>
-                            <option value="XII IPS 1">XII IPS 1</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Mata Pelajaran</label>
-                        <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> untuk memilih banyak.</p>
-                        <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK MAPEL (EDIT) -->
-                        <select id="edit_mengajar_mapel" name="edit_mengajar_mapel" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-32 shadow-inner">
-                            <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
-                            <option value="Matematika">Matematika / MatDas</option>
-                            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                            <option value="Bahasa Inggris">Bahasa Inggris</option>
-                            <option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
-                            <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option>
-                            <option value="Literasi Digital">Literasi Digital</option>
-                            <option value="Bahasa Arab">Bahasa Arab</option>
-                            <option value="Geografi">Geografi</option>
-                            <option value="Penjaskes">Penjaskes</option>
-                            <option value="Fisika">Fisika</option>
-                            <option value="Biologi">Biologi</option>
-                            <option value="Sosiologi">Sosiologi</option>
-                            <option value="Ekonomi">Ekonomi</option>
-                            <option value="Budi Pekerti">Budi Pekerti</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button type="submit" class="w-full bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-sm">
-                    Simpan Perubahan
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-            document.getElementById('sidebarBackdrop').classList.toggle('hidden');
-        }
-
-        // FUNGSI UNTUK MENYEMBUNYIKAN/MENAMPILKAN INPUT GURU
-        function toggleGuruFields(mode) {
-            const roleSelect = document.getElementById(mode === 'add' ? 'selectRole' : 'edit_role');
-            const guruFields = document.getElementById(mode === 'add' ? 'addGuruFields' : 'editGuruFields');
-            if (roleSelect.value === 'guru') {
-                guruFields.classList.remove('hidden');
-            } else {
-                guruFields.classList.add('hidden');
-            }
-        }
-
-        // Panggil saat pertama kali load agar form add merespon pilihan default
-        document.addEventListener('DOMContentLoaded', () => {
-            toggleGuruFields('add');
-        });
-
-        // FUNGSI MODAL EDIT (Diperbarui untuk Multiple Select)
-        function openEditUserModal(id, nama, role, nip, bidang, status_wali, mengajar_kelas, mengajar_mapel) {
-            document.getElementById('edit_nama').value = nama;
-            document.getElementById('edit_role').value = role.toLowerCase();
-            document.getElementById('edit_nip').value = nip;
-            document.getElementById('edit_bidang_pelajaran').value = bidang;
-            document.getElementById('edit_status_walikelas').value = status_wali;
-            
-            // Set logic dropdown kelas multiple
-            const kelasSelect = document.getElementById('edit_mengajar_kelas');
-            if (kelasSelect && mengajar_kelas) {
-                const kelasArray = mengajar_kelas.split(',').map(item => item.trim());
-                Array.from(kelasSelect.options).forEach(opt => {
-                    opt.selected = kelasArray.includes(opt.value) || (kelasArray.includes('Semua') && opt.value === 'Semua');
-                });
-            }
-
-            // Set logic dropdown mapel multiple
-            const mapelSelect = document.getElementById('edit_mengajar_mapel');
-            if (mapelSelect && mengajar_mapel) {
-                const mapelArray = mengajar_mapel.split(',').map(item => item.trim());
-                Array.from(mapelSelect.options).forEach(opt => {
-                    opt.selected = mapelArray.includes(opt.value) || (mapelArray.includes('Semua') && opt.value === 'Semua');
-                });
-            }
-            
-            toggleGuruFields('edit'); // Sembunyikan jika dia admin/superadmin
-            
-            document.getElementById('editUserForm').action = `/users/edit/${id}`;
-            document.getElementById('modalEditUser').classList.remove('hidden');
-        }
-
-        function closeEditUserModal() {
-            document.getElementById('modalEditUser').classList.add('hidden');
-        }
-
-        // FUNGSI HAPUS CHECKBOX / SINGLE
-        const selectAll = document.getElementById('selectAll');
-        const userCheckboxes = document.querySelectorAll('.user-checkbox');
-        const btnDeleteSelected = document.getElementById('btnDeleteSelected');
-        const selectedCount = document.getElementById('selectedCount');
-
-        function updateDeleteButton() {
-            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-            const count = checkedBoxes.length;
-            selectedCount.textContent = count;
-            if (count > 0) {
-                btnDeleteSelected.classList.remove('hidden');
-                btnDeleteSelected.classList.add('flex');
-            } else {
-                btnDeleteSelected.classList.add('hidden');
-                btnDeleteSelected.classList.remove('flex');
-            }
-        }
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function() {
-                userCheckboxes.forEach(cb => { cb.checked = this.checked; });
-                updateDeleteButton();
-            });
-        }
-
-        userCheckboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
-                if (!this.checked && selectAll) selectAll.checked = false;
-                updateDeleteButton();
-            });
-        });
-
-        function deleteSingleUser(userId, userName) {
-            if (confirm(`Hapus akun '${userName}' secara permanen?`)) {
-                const singleForm = document.getElementById('singleDeleteForm');
-                singleForm.action = `/users/delete/${userId}`;
-                singleForm.submit();
-            }
-        }
-    </script>
 </body>
 </html>

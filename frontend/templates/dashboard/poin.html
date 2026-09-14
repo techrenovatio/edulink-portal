@@ -4,26 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poin Pelanggaran - SMA Syekh Yusuf</title>
-    
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
-                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
-                        syekhDark: { 900: '#0F172A', 800: '#1E293B', 700: '#334155' },
-                        syekhPaper: '#F8FAFC',
-                    }
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] },
+                    colors: { syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' }, syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' } }
                 }
             }
         }
@@ -33,236 +23,75 @@
             aside, header { display: none !important; }
             main { margin: 0 !important; padding: 0 !important; }
             .print-hidden { display: none !important; }
+            body { background-color: white !important; }
         }
     </style>
 </head>
-<body class="bg-syekhPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
 
-    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden print-hidden"></div>
-
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40 print-hidden">
-        <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
-            <div class="flex items-center gap-3">
-                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
-                <div>
-                    <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
-                    <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
-                </div>
-            </div>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform print-hidden">
+        <div class="h-24 flex items-center px-6 border-b border-syekhGreen-800">
+            <span class="text-sm font-serif font-bold text-white">SMA SYEKH YUSUF</span>
         </div>
-
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
-            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Overview</span></a>
-            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Kelola Pengguna</span></a>
-            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
-            <a href="/poin" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white rounded-lg transition border-l-4 border-syekhGold-500"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Poin Pelanggaran</span></a>
-            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
-            <!-- Perubahan Menu -->
-            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Presensi Harian</span></a>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-chart-line w-5"></i><span class="text-xs font-semibold">OVERVIEW</span></a>
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-user-gear w-5"></i><span class="text-xs font-semibold">KELOLA PENGGUNA</span></a>
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-users w-5"></i><span class="text-xs font-semibold">DATA SISWA</span></a>
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white border-l-4 border-syekhGold-500 rounded-lg"><i class="fa-solid fa-scale-balanced w-5 text-syekhGold-400"></i><span class="text-xs font-bold">POIN PELANGGARAN</span></a>
+            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-file-invoice w-5"></i><span class="text-xs font-semibold">LAPORAN & REKAP</span></a>
+            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-clipboard-user w-5"></i><span class="text-xs font-semibold">PRESENSI HARIAN</span></a>
         </nav>
-
-        <div class="p-5 border-t border-syekhGreen-800">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
-                <div class="overflow-hidden">
-                    <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">Administrator</p>
-                </div>
-            </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
-        </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
-                <div>
-                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-syekhGreen-900 leading-tight">Manajemen Poin Kedisiplinan</h1>
-                    <p class="text-[10px] sm:text-xs text-syekhGold-600 font-bold uppercase tracking-wider hidden sm:block">Pencatatan Violasi & Terbitan Surat Peringatan (SP)</p>
-                </div>
-            </div>
+    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0 print:m-0 print:h-auto overflow-y-auto">
+        <header class="h-24 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
+            <div><h1 class="text-xl font-serif font-bold text-syekhGreen-900">Manajemen Poin Kedisiplinan</h1></div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
+        <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <!-- KOLOM KIRI: FORM CATAT PELANGGARAN -->
-                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
-                    <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Catat Pelanggaran Siswa</h3>
-                    <p class="text-xs text-gray-500 mb-5">Ketik NISN untuk mendeteksi data siswa otomatis.</p>
-                    
+                <!-- KOLOM KIRI: FORM (Dihilangkan saat print) -->
+                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
+                    <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Catat Pelanggaran</h3>
                     <form action="/poin" method="POST" autocomplete="off" class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Tanggal Kejadian</label>
-                            <input type="date" id="inputTanggal" name="tanggal" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN Siswa</label>
-                            <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="Contoh: 0051231011" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                            <span id="nisnStatus" class="text-[10px] font-bold mt-1 block"></span>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Siswa</label>
-                            <input type="text" id="inputNamaSiswa" name="nama_siswa" required readonly placeholder="Otomatis terisi..." class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-syekhGreen-900 focus:outline-none rounded">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Kelas</label>
-                            <input type="text" id="inputKelas" name="kelas" required readonly placeholder="Otomatis terisi..." class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-syekhGreen-900 focus:outline-none rounded">
-                        </div>
-                        
-                        <div>
-                            <div class="flex justify-between items-end mb-1">
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Jenis Pelanggaran</label>
-                                <!-- TOMBOL TAMBAH PELANGGARAN HANYA UNTUK ADMIN/SUPERADMIN -->
-                                {% if session['role'] in ['admin', 'superadmin'] %}
-                                <button type="button" onclick="openModal()" class="text-[10px] font-bold text-syekhGold-600 hover:text-syekhGreen-800 transition"><i class="fa-solid fa-plus"></i> Tambah Master</button>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- DROPDOWN DINAMIS DARI DATABASE -->
-                            <select id="selectPelanggaran" name="jenis_pelanggaran" onchange="autoFillPoin(this)" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                                <option value="" data-poin="0" disabled selected>-- Pilih Jenis Violasi --</option>
-                                {% for mp in master_pelanggaran %}
-                                <option value="{{ mp.nama_pelanggaran }}" data-poin="{{ mp.poin }}">{{ mp.nama_pelanggaran }} (+{{ mp.poin }} Poin)</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bobot Poin</label>
-                            <input type="number" id="inputPoin" name="poin" required readonly placeholder="0" class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-bold text-red-600 focus:outline-none rounded">
-                        </div>
-                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-md">
-                            Simpan Catatan Poin
-                        </button>
+                        <input type="text" id="inputNisn" name="nisn" required placeholder="NISN Siswa" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                        <input type="text" name="nama_siswa" required placeholder="Nama Siswa" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                        <input type="text" name="kelas" required placeholder="Kelas" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                        <select name="jenis_pelanggaran" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option>Terlambat</option></select>
+                        <button type="submit" class="w-full bg-syekhGreen-800 text-white font-bold py-3 text-xs rounded">Simpan</button>
                     </form>
                 </div>
 
                 <!-- KOLOM KANAN: TABEL RIWAYAT -->
-                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGold-500 w-full print:border-none print:shadow-none print:m-0">
-                    <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center print:px-0">
-                        <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Riwayat Pelanggaran Terakhir</h3>
-                        <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-4 py-2 transition flex items-center justify-center gap-2 rounded shadow-sm shrink-0 print-hidden">
-                            <i class="fa-solid fa-print"></i> Cetak
-                        </button>
+                <div class="lg:col-span-2 bg-white rounded-xl border shadow-sm border-t-4 border-t-syekhGold-500 w-full print:border-none print:shadow-none print:m-0">
+                    <div class="p-4 border-b border-gray-100 flex justify-between items-center print:px-0">
+                        <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Riwayat Pelanggaran Terakhir</h3>
+                        <button onclick="window.print()" class="bg-syekhGold-500 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm print-hidden"><i class="fa-solid fa-print"></i> Cetak</button>
                     </div>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[550px]">
-                            <thead class="bg-syekhPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-500 tracking-wider print:bg-gray-100">
-                                <tr>
-                                    <th class="pl-6 py-3.5 border-b border-gray-200">Tanggal</th>
-                                    <th class="px-3 py-3.5 border-b border-gray-200">NISN / Nama</th>
-                                    <th class="px-3 py-3.5 border-b border-gray-200">Kelas</th>
-                                    <th class="px-3 py-3.5 border-b border-gray-200">Pelanggaran</th>
-                                    <th class="px-3 py-3.5 text-center border-b border-gray-200">Poin</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                {% for p in pelanggaran_list %}
-                                <tr class="hover:bg-emerald-50/50 transition">
-                                    <td class="pl-6 py-3.5 font-mono text-xs text-gray-500 whitespace-nowrap">{{ p.tanggal[:10] }}</td>
-                                    <td class="px-3 py-3.5">
-                                        <p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p>
-                                        <p class="text-[10px] font-mono text-gray-500">{{ p.nisn }}</p>
-                                    </td>
-                                    <td class="px-3 py-3.5 font-mono text-xs text-gray-500">{{ p.kelas }}</td>
-                                    <td class="px-3 py-3.5">{{ p.jenis_pelanggaran }}</td>
-                                    <td class="px-3 py-3.5 text-center font-bold text-red-600">+{{ p.poin }}</td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-8 text-gray-400 italic">Belum ada data riwayat pelanggaran.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-left text-xs text-gray-600">
+                        <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider">
+                            <tr>
+                                <th class="pl-6 py-3">Tanggal</th>
+                                <th class="px-3 py-3">Siswa</th>
+                                <th class="px-3 py-3">Pelanggaran</th>
+                                <th class="px-3 py-3 text-center">Poin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in pelanggaran_list %}
+                            <tr class="border-b border-gray-50">
+                                <td class="pl-6 py-3 font-mono">{{ p.tanggal[:10] }}</td>
+                                <td class="px-3 py-3"><p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p><p class="text-[10px]">{{ p.nisn }}</p></td>
+                                <td class="px-3 py-3">{{ p.jenis_pelanggaran }}</td>
+                                <td class="px-3 py-3 text-center font-bold text-red-600">+{{ p.poin }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </main>
-
-    <!-- MODAL POPUP TAMBAH MASTER PELANGGARAN -->
-    <div id="modalMaster" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
-        <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl border-t-4 border-syekhGold-500">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Opsi Administrator</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-xs text-gray-500 mb-5">Tambahkan jenis pelanggaran baru beserta bobot poinnya ke dalam database sekolah.</p>
-            
-            <form action="/poin/tambah-master" method="POST" class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Jenis Pelanggaran</label>
-                    <input type="text" name="nama_pelanggaran" required placeholder="Cth: Menggunakan Atribut Tidak Sesuai" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bobot Poin</label>
-                    <input type="number" name="poin_pelanggaran" required placeholder="Cth: 15" min="1" max="100" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                </div>
-                <button type="submit" class="w-full bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-sm">
-                    Simpan Master Baru
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const dateInput = document.getElementById('inputTanggal');
-            const today = new Date().toISOString().split('T')[0];
-            dateInput.value = today;
-        });
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-            document.getElementById('sidebarBackdrop').classList.toggle('hidden');
-        }
-
-        // Modal Functionality
-        function openModal() {
-            document.getElementById('modalMaster').classList.remove('hidden');
-        }
-        function closeModal() {
-            document.getElementById('modalMaster').classList.add('hidden');
-        }
-
-        function autoSearchSiswa() {
-            const nisnInput = document.getElementById('inputNisn').value.trim();
-            const namaEl = document.getElementById('inputNamaSiswa');
-            const kelasEl = document.getElementById('inputKelas');
-            const statusEl = document.getElementById('nisnStatus');
-
-            if (siswaMap[nisnInput]) {
-                namaEl.value = siswaMap[nisnInput].nama;
-                kelasEl.value = siswaMap[nisnInput].kelas;
-                statusEl.textContent = '✓ Siswa terdeteksi';
-                statusEl.className = 'text-[10px] font-bold mt-1 block text-emerald-600';
-            } else {
-                namaEl.value = '';
-                kelasEl.value = '';
-                if (nisnInput.length >= 8) {
-                    statusEl.textContent = '✗ NISN tidak ditemukan';
-                    statusEl.className = 'text-[10px] font-bold mt-1 block text-red-600';
-                } else {
-                    statusEl.textContent = '';
-                }
-            }
-        }
-
-        function autoFillPoin(selectEl) {
-            const selectedOption = selectEl.options[selectEl.selectedIndex];
-            const poin = selectedOption.getAttribute('data-poin');
-            document.getElementById('inputPoin').value = poin;
-        }
-    </script>
 </body>
 </html>
