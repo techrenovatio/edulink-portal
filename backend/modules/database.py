@@ -24,6 +24,17 @@ def init_db():
         )
     ''')
     
+    # --- UPDATE TABEL USERS (Menambahkan kolom baru jika belum ada) ---
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [col['name'] for col in cursor.fetchall()]
+    
+    if 'nip' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN nip TEXT DEFAULT '-'")
+    if 'bidang_pelajaran' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN bidang_pelajaran TEXT DEFAULT '-'")
+    if 'status_walikelas' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN status_walikelas TEXT DEFAULT 'Bukan'")
+        
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS pelanggaran (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +67,6 @@ def init_db():
         )
     ''')
 
-    # --- TABEL BARU: ABSENSI HARIAN ---
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS absensi (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,11 +87,12 @@ def init_db():
         ]
         cursor.executemany("INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", default_data)
     
+    # Reset akun default menjadi SUPER ADMIN
     cursor.execute("DELETE FROM users WHERE username = 'admin123'")
     hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
     cursor.execute(
-        "INSERT INTO users (username, password, role, nama) VALUES (?, ?, ?, ?)",
-        ('admin123', hashed_pwd, 'admin', 'Administrator Utama')
+        "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ('admin123', hashed_pwd, 'superadmin', 'Super Administrator', '-', '-', 'Bukan')
     )
 
     conn.commit()
