@@ -22,6 +22,15 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
 
+# --- FITUR BARU: MENCEGAH BROWSER MENYIMPAN CACHE ---
+# Ini akan mengatasi masalah tombol "Back" yang memunculkan halaman role sebelumnya
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 MAPEL_MASTER = {
     'X': ['Matematika Dasar', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti', 'Sosiologi', 'Ekonomi'],
     'XI IPA': ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti'],
@@ -71,8 +80,6 @@ def login():
                 session['role'] = db_role
                 session['mengajar_kelas'] = user['mengajar_kelas'] if 'mengajar_kelas' in user.keys() else 'Semua'
                 session['mengajar_mapel'] = user['mengajar_mapel'] if 'mengajar_mapel' in user.keys() else 'Semua'
-                
-                # FITUR BARU: Menyimpan hak akses Print ke Memori Sesi
                 session['can_print'] = user['can_print'] if 'can_print' in user.keys() else 0
                 
                 return redirect(url_for('dashboard_overview'))
@@ -117,7 +124,6 @@ def add_user():
     role = request.form.get('role', '').strip().lower()
     
     can_print = int(request.form.get('can_print', 0))
-    
     nip = request.form.get('nip', '-').strip()
     bidang_pelajaran = request.form.get('bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('status_walikelas', 'Bukan')
@@ -150,7 +156,6 @@ def edit_user(user_id):
     password = request.form.get('edit_password', '')
     
     can_print = int(request.form.get('edit_can_print', 0))
-    
     nip = request.form.get('edit_nip', '-').strip()
     bidang_pelajaran = request.form.get('edit_bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
