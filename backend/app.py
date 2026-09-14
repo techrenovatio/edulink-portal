@@ -20,10 +20,8 @@ app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
-# Jalankan inisialisasi DB setiap kali aplikasi mulai
 init_db()
 
-# DATA MASTER MATA PELAJARAN BERDASARKAN TINGKAT
 MAPEL_MASTER = {
     'X': ['Matematika Dasar', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti', 'Sosiologi', 'Ekonomi'],
     'XI IPA': ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti'],
@@ -50,7 +48,6 @@ def home():
         conn.close()
     return render_template('index.html', total_siswa=total_siswa)
 
-# --- PERBAIKAN: LOGIKA LOGIN SUPERADMIN BYPASS ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session: 
@@ -65,20 +62,15 @@ def login():
         user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
         conn.close()
 
-        # Cek apakah user ada dan password cocok
         if user and check_password_hash(user['password'], password):
             db_role = str(user['role']).strip().lower()
-            
-            # Izinkan login jika rolenya persis sama, ATAU jika form 'admin' tapi di DB 'superadmin'
             if db_role == form_role or (form_role == 'admin' and db_role == 'superadmin'):
                 session.permanent = True
                 session['user_id'] = user['id']
                 session['nama'] = user['nama']
                 session['role'] = db_role
-                # Simpan hak akses mengajar
                 session['mengajar_kelas'] = user['mengajar_kelas'] if 'mengajar_kelas' in user.keys() else 'Semua'
                 session['mengajar_mapel'] = user['mengajar_mapel'] if 'mengajar_mapel' in user.keys() else 'Semua'
-                
                 return redirect(url_for('dashboard_overview'))
         
         return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
@@ -112,6 +104,7 @@ def manage_users():
     conn.close()
     return render_template('dashboard/users.html', nama_user=session['nama'], users=users, current_role=session.get('role', '').lower())
 
+# --- PERBAIKAN: Menangani Multi-Select Dropdown pada ADD ---
 @app.route('/users/add', methods=['POST'])
 def add_user():
     if not is_admin_or_super(): return redirect(url_for('login'))
@@ -122,8 +115,13 @@ def add_user():
     nip = request.form.get('nip', '-').strip()
     bidang_pelajaran = request.form.get('bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('status_walikelas', 'Bukan')
-    mengajar_kelas = request.form.get('mengajar_kelas', 'Semua').strip()
-    mengajar_mapel = request.form.get('mengajar_mapel', 'Semua').strip()
+    
+    # Ambil list dari multiple select, gabungkan dengan koma
+    mengajar_kelas_list = request.form.getlist('mengajar_kelas')
+    mengajar_kelas = ", ".join(mengajar_kelas_list) if mengajar_kelas_list else "Semua"
+    
+    mengajar_mapel_list = request.form.getlist('mengajar_mapel')
+    mengajar_mapel = ", ".join(mengajar_mapel_list) if mengajar_mapel_list else "Semua"
     
     if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
     if nama and username and password and role:
@@ -139,6 +137,7 @@ def add_user():
         finally: conn.close()
     return redirect(url_for('manage_users'))
 
+# --- PERBAIKAN: Menangani Multi-Select Dropdown pada EDIT ---
 @app.route('/users/edit/<int:user_id>', methods=['POST'])
 def edit_user(user_id):
     if not is_admin_or_super(): return redirect(url_for('login'))
@@ -148,8 +147,13 @@ def edit_user(user_id):
     nip = request.form.get('edit_nip', '-').strip()
     bidang_pelajaran = request.form.get('edit_bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
-    mengajar_kelas = request.form.get('edit_mengajar_kelas', 'Semua').strip()
-    mengajar_mapel = request.form.get('edit_mengajar_mapel', 'Semua').strip()
+    
+    # Ambil list dari multiple select modal edit, gabungkan dengan koma
+    mengajar_kelas_list = request.form.getlist('edit_mengajar_kelas')
+    mengajar_kelas = ", ".join(mengajar_kelas_list) if mengajar_kelas_list else "Semua"
+    
+    mengajar_mapel_list = request.form.getlist('edit_mengajar_mapel')
+    mengajar_mapel = ", ".join(mengajar_mapel_list) if mengajar_mapel_list else "Semua"
 
     if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
     conn = get_db_connection()
@@ -313,7 +317,6 @@ def presensi():
         return redirect(url_for('login'))
         
     conn = get_db_connection()
-    
     if request.method == 'POST':
         data = request.json
         tanggal = data.get('tanggal')
@@ -324,7 +327,6 @@ def presensi():
         
         if not tanggal or not records or not mapel or not pertemuan: 
             return jsonify({"status": "error", "message": "Data Presensi tidak lengkap"}), 400
-            
         try:
             for record in records:
                 nisn = record.get('nisn')
@@ -342,7 +344,6 @@ def presensi():
             conn.close()
 
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
-    
     akumulasi_raw = conn.execute("SELECT nisn, status, COUNT(*) as count FROM presensi_harian GROUP BY nisn, status").fetchall()
     akumulasi = {}
     for row in akumulasi_raw:
@@ -352,19 +353,11 @@ def presensi():
         if status_key in akumulasi[nisn]: akumulasi[nisn][status_key] = row['count']
         
     conn.close()
-    
     hak_kelas = session.get('mengajar_kelas', 'Semua')
     hak_mapel = session.get('mengajar_mapel', 'Semua')
     role = session.get('role', 'guru')
     
-    return render_template('dashboard/presensi.html', 
-                           nama_user=session['nama'], 
-                           siswa_list=daftar_siswa,
-                           akumulasi=akumulasi,
-                           mapel_master=MAPEL_MASTER,
-                           hak_kelas=hak_kelas,
-                           hak_mapel=hak_mapel,
-                           role=role)
+    return render_template('dashboard/presensi.html', nama_user=session['nama'], siswa_list=daftar_siswa, akumulasi=akumulasi, mapel_master=MAPEL_MASTER, hak_kelas=hak_kelas, hak_mapel=hak_mapel, role=role)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')

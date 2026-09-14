@@ -54,7 +54,6 @@
             <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
             <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
-            <!-- Perubahan Menu: Absensi Harian -> Presensi Harian -->
             <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Presensi Harian</span></a>
         </nav>
 
@@ -133,17 +132,45 @@
                             </div>
                             <div class="border-t border-gray-200 pt-3 mt-3">
                                 <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Kelas</label>
-                                <p class="text-[9px] text-gray-400 mb-1">Ketik kelas dengan koma (Contoh: X IPA 1, XI IPS 1) atau "Semua"</p>
-                                <input type="text" name="mengajar_kelas" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                                <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> (Windows) atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> (Mac) untuk memilih lebih dari satu.</p>
+                                <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK KELAS -->
+                                <select name="mengajar_kelas" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-24 shadow-inner">
+                                    <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
+                                    <option value="X IPA 1">X IPA 1</option>
+                                    <option value="X IPS 1">X IPS 1</option>
+                                    <option value="XI IPA 1">XI IPA 1</option>
+                                    <option value="XI IPA 2">XI IPA 2</option>
+                                    <option value="XI IPS 1">XI IPS 1</option>
+                                    <option value="XII IPA 1">XII IPA 1</option>
+                                    <option value="XII IPA 2">XII IPA 2</option>
+                                    <option value="XII IPS 1">XII IPS 1</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Mata Pelajaran</label>
-                                <p class="text-[9px] text-gray-400 mb-1">Ketik mapel dengan koma (Contoh: Fisika, Biologi) atau "Semua"</p>
-                                <input type="text" name="mengajar_mapel" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                                <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> (Windows) atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> (Mac) untuk memilih lebih dari satu.</p>
+                                <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK MAPEL -->
+                                <select name="mengajar_mapel" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-32 shadow-inner">
+                                    <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
+                                    <option value="Matematika">Matematika / MatDas</option>
+                                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                    <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                    <option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
+                                    <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option>
+                                    <option value="Literasi Digital">Literasi Digital</option>
+                                    <option value="Bahasa Arab">Bahasa Arab</option>
+                                    <option value="Geografi">Geografi</option>
+                                    <option value="Penjaskes">Penjaskes</option>
+                                    <option value="Fisika">Fisika</option>
+                                    <option value="Biologi">Biologi</option>
+                                    <option value="Sosiologi">Sosiologi</option>
+                                    <option value="Ekonomi">Ekonomi</option>
+                                    <option value="Budi Pekerti">Budi Pekerti</option>
+                                </select>
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded">
+                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-md">
                             Simpan User Baru
                         </button>
                     </form>
@@ -270,13 +297,41 @@
                     </div>
                     <div class="border-t border-gray-200 pt-3 mt-3">
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Kelas</label>
-                        <p class="text-[9px] text-gray-400 mb-1">Ketik kelas dengan koma (Contoh: X IPA 1, XI IPS 1) atau "Semua"</p>
-                        <input type="text" id="edit_mengajar_kelas" name="edit_mengajar_kelas" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                        <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> untuk memilih banyak.</p>
+                        <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK KELAS (EDIT) -->
+                        <select id="edit_mengajar_kelas" name="edit_mengajar_kelas" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-24 shadow-inner">
+                            <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
+                            <option value="X IPA 1">X IPA 1</option>
+                            <option value="X IPS 1">X IPS 1</option>
+                            <option value="XI IPA 1">XI IPA 1</option>
+                            <option value="XI IPA 2">XI IPA 2</option>
+                            <option value="XI IPS 1">XI IPS 1</option>
+                            <option value="XII IPA 1">XII IPA 1</option>
+                            <option value="XII IPA 2">XII IPA 2</option>
+                            <option value="XII IPS 1">XII IPS 1</option>
+                        </select>
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Mata Pelajaran</label>
-                        <p class="text-[9px] text-gray-400 mb-1">Ketik mapel dengan koma (Contoh: Fisika, Biologi) atau "Semua"</p>
-                        <input type="text" id="edit_mengajar_mapel" name="edit_mengajar_mapel" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                        <p class="text-[9px] text-gray-400 mb-2 italic">Tahan tombol <kbd class="bg-gray-200 px-1 rounded">Ctrl</kbd> atau <kbd class="bg-gray-200 px-1 rounded">Cmd</kbd> untuk memilih banyak.</p>
+                        <!-- PERUBAHAN: DROPDOWN MULTIPLE UNTUK MAPEL (EDIT) -->
+                        <select id="edit_mengajar_mapel" name="edit_mengajar_mapel" multiple class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded h-32 shadow-inner">
+                            <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
+                            <option value="Matematika">Matematika / MatDas</option>
+                            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                            <option value="Bahasa Inggris">Bahasa Inggris</option>
+                            <option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
+                            <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option>
+                            <option value="Literasi Digital">Literasi Digital</option>
+                            <option value="Bahasa Arab">Bahasa Arab</option>
+                            <option value="Geografi">Geografi</option>
+                            <option value="Penjaskes">Penjaskes</option>
+                            <option value="Fisika">Fisika</option>
+                            <option value="Biologi">Biologi</option>
+                            <option value="Sosiologi">Sosiologi</option>
+                            <option value="Ekonomi">Ekonomi</option>
+                            <option value="Budi Pekerti">Budi Pekerti</option>
+                        </select>
                     </div>
                 </div>
 
@@ -309,7 +364,7 @@
             toggleGuruFields('add');
         });
 
-        // FUNGSI MODAL EDIT
+        // FUNGSI MODAL EDIT (Diperbarui untuk Multiple Select)
         function openEditUserModal(id, nama, role, nip, bidang, status_wali, mengajar_kelas, mengajar_mapel) {
             document.getElementById('edit_nama').value = nama;
             document.getElementById('edit_role').value = role.toLowerCase();
@@ -317,11 +372,23 @@
             document.getElementById('edit_bidang_pelajaran').value = bidang;
             document.getElementById('edit_status_walikelas').value = status_wali;
             
-            // Populate new fields
-            const kelasInput = document.getElementById('edit_mengajar_kelas');
-            const mapelInput = document.getElementById('edit_mengajar_mapel');
-            if(kelasInput) kelasInput.value = mengajar_kelas !== 'None' ? mengajar_kelas : 'Semua';
-            if(mapelInput) mapelInput.value = mengajar_mapel !== 'None' ? mengajar_mapel : 'Semua';
+            // Set logic dropdown kelas multiple
+            const kelasSelect = document.getElementById('edit_mengajar_kelas');
+            if (kelasSelect && mengajar_kelas) {
+                const kelasArray = mengajar_kelas.split(',').map(item => item.trim());
+                Array.from(kelasSelect.options).forEach(opt => {
+                    opt.selected = kelasArray.includes(opt.value) || (kelasArray.includes('Semua') && opt.value === 'Semua');
+                });
+            }
+
+            // Set logic dropdown mapel multiple
+            const mapelSelect = document.getElementById('edit_mengajar_mapel');
+            if (mapelSelect && mengajar_mapel) {
+                const mapelArray = mengajar_mapel.split(',').map(item => item.trim());
+                Array.from(mapelSelect.options).forEach(opt => {
+                    opt.selected = mapelArray.includes(opt.value) || (mapelArray.includes('Semua') && opt.value === 'Semua');
+                });
+            }
             
             toggleGuruFields('edit'); // Sembunyikan jika dia admin/superadmin
             
