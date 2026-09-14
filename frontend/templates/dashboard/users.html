@@ -54,7 +54,8 @@
             <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
             <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
-            <a href="/absensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Absensi Harian</span></a>
+            <!-- Perubahan Menu: Absensi Harian -> Presensi Harian -->
+            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Presensi Harian</span></a>
         </nav>
 
         <div class="p-5 border-t border-syekhGreen-800">
@@ -120,8 +121,8 @@
                                 <input type="text" name="nip" placeholder="Opsional / Strip jika tidak ada" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Mata Pelajaran (Bidang)</label>
-                                <input type="text" name="bidang_pelajaran" placeholder="Contoh: Matematika" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Bidang Pelajaran (Gelar)</label>
+                                <input type="text" name="bidang_pelajaran" placeholder="Contoh: Guru Matematika" class="w-full bg-white border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Status Wali Kelas</label>
@@ -129,6 +130,16 @@
                                     <option value="Bukan">Bukan Wali Kelas</option>
                                     <option value="Wali Kelas">Ya, Wali Kelas</option>
                                 </select>
+                            </div>
+                            <div class="border-t border-gray-200 pt-3 mt-3">
+                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Kelas</label>
+                                <p class="text-[9px] text-gray-400 mb-1">Ketik kelas dengan koma (Contoh: X IPA 1, XI IPS 1) atau "Semua"</p>
+                                <input type="text" name="mengajar_kelas" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Mata Pelajaran</label>
+                                <p class="text-[9px] text-gray-400 mb-1">Ketik mapel dengan koma (Contoh: Fisika, Biologi) atau "Semua"</p>
+                                <input type="text" name="mengajar_mapel" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
                             </div>
                         </div>
 
@@ -193,7 +204,7 @@
                                         </td>
                                         <td class="px-4 sm:px-6 py-3.5 text-right whitespace-nowrap">
                                             <!-- TOMBOL EDIT USER -->
-                                            <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.bidang_pelajaran }}', '{{ u.status_walikelas }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun">
+                                            <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.bidang_pelajaran }}', '{{ u.status_walikelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </button>
                                             <button type="button" onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Akun">
@@ -257,6 +268,16 @@
                             <option value="Wali Kelas">Ya, Wali Kelas</option>
                         </select>
                     </div>
+                    <div class="border-t border-gray-200 pt-3 mt-3">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Kelas</label>
+                        <p class="text-[9px] text-gray-400 mb-1">Ketik kelas dengan koma (Contoh: X IPA 1, XI IPS 1) atau "Semua"</p>
+                        <input type="text" id="edit_mengajar_kelas" name="edit_mengajar_kelas" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Otoritas Mengajar: Mata Pelajaran</label>
+                        <p class="text-[9px] text-gray-400 mb-1">Ketik mapel dengan koma (Contoh: Fisika, Biologi) atau "Semua"</p>
+                        <input type="text" id="edit_mengajar_mapel" name="edit_mengajar_mapel" value="Semua" class="w-full bg-white border border-gray-200 text-xs py-2 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                    </div>
                 </div>
 
                 <button type="submit" class="w-full bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-sm">
@@ -289,12 +310,18 @@
         });
 
         // FUNGSI MODAL EDIT
-        function openEditUserModal(id, nama, role, nip, bidang, status_wali) {
+        function openEditUserModal(id, nama, role, nip, bidang, status_wali, mengajar_kelas, mengajar_mapel) {
             document.getElementById('edit_nama').value = nama;
             document.getElementById('edit_role').value = role.toLowerCase();
             document.getElementById('edit_nip').value = nip;
             document.getElementById('edit_bidang_pelajaran').value = bidang;
             document.getElementById('edit_status_walikelas').value = status_wali;
+            
+            // Populate new fields
+            const kelasInput = document.getElementById('edit_mengajar_kelas');
+            const mapelInput = document.getElementById('edit_mengajar_mapel');
+            if(kelasInput) kelasInput.value = mengajar_kelas !== 'None' ? mengajar_kelas : 'Semua';
+            if(mapelInput) mapelInput.value = mengajar_mapel !== 'None' ? mengajar_mapel : 'Semua';
             
             toggleGuruFields('edit'); // Sembunyikan jika dia admin/superadmin
             

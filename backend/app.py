@@ -1,8 +1,7 @@
 import os
 from datetime import timedelta
 import sqlite3
-# PERBAIKAN: Menambahkan import check_password_hash
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from modules.database import init_db, get_db_connection
@@ -15,14 +14,23 @@ static_dir = os.path.join(base_dir, 'frontend', 'static')
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 app.secret_key = 'syekhyusuf_tangerang_secret_key_2026_change_this'
-
 app.config['SESSION_COOKIE_NAME'] = 'syekhyusuf_session'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
+# Jalankan inisialisasi DB setiap kali aplikasi mulai
 init_db()
+
+# DATA MASTER MATA PELAJARAN BERDASARKAN TINGKAT
+MAPEL_MASTER = {
+    'X': ['Matematika Dasar', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti', 'Sosiologi', 'Ekonomi'],
+    'XI IPA': ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti'],
+    'XI IPS': ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Sosiologi', 'Budi Pekerti'],
+    'XII IPA': ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti'],
+    'XII IPS': ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Sosiologi', 'Budi Pekerti']
+}
 
 def is_superadmin():
     return 'user_id' in session and str(session.get('role', '')).strip().lower() == 'superadmin'
@@ -36,16 +44,16 @@ def home():
     conn = get_db_connection()
     try:
         total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
-    except Exception:
+    except:
         total_siswa = 0
     finally:
         conn.close()
     return render_template('index.html', total_siswa=total_siswa)
 
-# --- PERBAIKAN: LOGIKA LOGIN BYPASS SUPERADMIN ---
+# --- PERBAIKAN: LOGIKA LOGIN SUPERADMIN BYPASS ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if 'user_id' in session:
+    if 'user_id' in session: 
         return redirect(url_for('dashboard_overview'))
 
     if request.method == 'POST':
@@ -57,19 +65,24 @@ def login():
         user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
         conn.close()
 
+        # Cek apakah user ada dan password cocok
         if user and check_password_hash(user['password'], password):
             db_role = str(user['role']).strip().lower()
             
-            # Izinkan masuk jika role persis sama, ATAU jika form='admin' tapi di database='superadmin'
+            # Izinkan login jika rolenya persis sama, ATAU jika form 'admin' tapi di DB 'superadmin'
             if db_role == form_role or (form_role == 'admin' and db_role == 'superadmin'):
                 session.permanent = True
                 session['user_id'] = user['id']
                 session['nama'] = user['nama']
                 session['role'] = db_role
+                # Simpan hak akses mengajar
+                session['mengajar_kelas'] = user['mengajar_kelas'] if 'mengajar_kelas' in user.keys() else 'Semua'
+                session['mengajar_mapel'] = user['mengajar_mapel'] if 'mengajar_mapel' in user.keys() else 'Semua'
+                
                 return redirect(url_for('dashboard_overview'))
         
         return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
-
+        
     return render_template('login.html')
 
 @app.route('/logout')
@@ -79,141 +92,96 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard_overview():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-        
+    if 'user_id' not in session: return redirect(url_for('login'))
     conn = get_db_connection()
     total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
     kelas_x = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'X %'").fetchone()[0]
     kelas_xi = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XI %'").fetchone()[0]
     kelas_xii = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XII %'").fetchone()[0]
     total_pelanggaran = conn.execute("SELECT COUNT(*) FROM pelanggaran").fetchone()[0]
-    
-    sp_query = """
-        SELECT nisn, SUM(poin) as total_poin 
-        FROM pelanggaran 
-        GROUP BY nisn 
-        HAVING total_poin >= 50
-    """
-    sp_aktif = len(conn.execute(sp_query).fetchall())
+    sp_aktif = len(conn.execute("SELECT nisn, SUM(poin) as total_poin FROM pelanggaran GROUP BY nisn HAVING total_poin >= 50").fetchall())
     recent_logs = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 5").fetchall()
     conn.close()
-    
-    return render_template('dashboard/index.html', 
-                           nama_user=session['nama'],
-                           total_siswa=total_siswa,
-                           kelas_x=kelas_x,
-                           kelas_xi=kelas_xi,
-                           kelas_xii=kelas_xii,
-                           total_pelanggaran=total_pelanggaran,
-                           sp_aktif=sp_aktif,
-                           recent_logs=recent_logs)
+    return render_template('dashboard/index.html', nama_user=session['nama'], total_siswa=total_siswa, kelas_x=kelas_x, kelas_xi=kelas_xi, kelas_xii=kelas_xii, total_pelanggaran=total_pelanggaran, sp_aktif=sp_aktif, recent_logs=recent_logs)
 
 @app.route('/users')
 def manage_users():
-    if not is_admin_or_super():
-        return redirect(url_for('login'))
-        
+    if not is_admin_or_super(): return redirect(url_for('login'))
     conn = get_db_connection()
     users = conn.execute("SELECT * FROM users ORDER BY id DESC").fetchall()
     conn.close()
-    
-    current_role = session.get('role', '').lower()
-    return render_template('dashboard/users.html', nama_user=session['nama'], users=users, current_role=current_role)
+    return render_template('dashboard/users.html', nama_user=session['nama'], users=users, current_role=session.get('role', '').lower())
 
 @app.route('/users/add', methods=['POST'])
 def add_user():
-    if not is_admin_or_super():
-        return redirect(url_for('login'))
-        
+    if not is_admin_or_super(): return redirect(url_for('login'))
     nama = request.form.get('nama', '').strip()
     username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '')
     role = request.form.get('role', '').strip().lower()
-    
-    nip = request.form.get('nip', '-').strip() or '-'
-    bidang_pelajaran = request.form.get('bidang_pelajaran', '-').strip() or '-'
+    nip = request.form.get('nip', '-').strip()
+    bidang_pelajaran = request.form.get('bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('status_walikelas', 'Bukan')
+    mengajar_kelas = request.form.get('mengajar_kelas', 'Semua').strip()
+    mengajar_mapel = request.form.get('mengajar_mapel', 'Semua').strip()
     
-    if role in ['admin', 'superadmin'] and not is_superadmin():
-        return redirect(url_for('manage_users'))
-    
+    if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
     if nama and username and password and role:
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         conn = get_db_connection()
         try:
             conn.execute(
-                "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (username, hashed_password, role, nama, nip, bidang_pelajaran, status_walikelas)
+                "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (username, hashed_password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel)
             )
             conn.commit()
-        except Exception as e:
-            pass
-        finally:
-            conn.close()
-            
+        except: pass
+        finally: conn.close()
     return redirect(url_for('manage_users'))
 
 @app.route('/users/edit/<int:user_id>', methods=['POST'])
 def edit_user(user_id):
-    if not is_admin_or_super():
-        return redirect(url_for('login'))
-        
+    if not is_admin_or_super(): return redirect(url_for('login'))
     nama = request.form.get('edit_nama', '').strip()
     role = request.form.get('edit_role', '').strip().lower()
     password = request.form.get('edit_password', '')
-    nip = request.form.get('edit_nip', '-').strip() or '-'
-    bidang_pelajaran = request.form.get('edit_bidang_pelajaran', '-').strip() or '-'
+    nip = request.form.get('edit_nip', '-').strip()
+    bidang_pelajaran = request.form.get('edit_bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
+    mengajar_kelas = request.form.get('edit_mengajar_kelas', 'Semua').strip()
+    mengajar_mapel = request.form.get('edit_mengajar_mapel', 'Semua').strip()
 
-    if role in ['admin', 'superadmin'] and not is_superadmin():
-        return redirect(url_for('manage_users'))
-        
+    if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
     conn = get_db_connection()
     try:
         if password: 
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-            conn.execute("""
-                UPDATE users 
-                SET nama=?, role=?, password=?, nip=?, bidang_pelajaran=?, status_walikelas=?
-                WHERE id=?
-            """, (nama, role, hashed_password, nip, bidang_pelajaran, status_walikelas, user_id))
+            conn.execute("UPDATE users SET nama=?, role=?, password=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=? WHERE id=?", 
+                         (nama, role, hashed_password, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, user_id))
         else: 
-            conn.execute("""
-                UPDATE users 
-                SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?
-                WHERE id=?
-            """, (nama, role, nip, bidang_pelajaran, status_walikelas, user_id))
+            conn.execute("UPDATE users SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=? WHERE id=?", 
+                         (nama, role, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, user_id))
         conn.commit()
-    except Exception as e:
-        pass
-    finally:
-        conn.close()
-        
+    except: pass
+    finally: conn.close()
     return redirect(url_for('manage_users'))
 
 @app.route('/users/delete/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
-    if not is_admin_or_super():
-        return redirect(url_for('login'))
-        
+    if not is_admin_or_super(): return redirect(url_for('login'))
     if user_id != session.get('user_id'):
         conn = get_db_connection()
         conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
         conn.commit()
         conn.close()
-        
     return redirect(url_for('manage_users'))
 
 @app.route('/users/delete-multiple', methods=['POST'])
 def delete_multiple_users():
-    if not is_admin_or_super():
-        return redirect(url_for('login'))
-        
+    if not is_admin_or_super(): return redirect(url_for('login'))
     user_ids = request.form.getlist('user_ids')
     current_user_id = str(session.get('user_id'))
     valid_ids = [uid for uid in user_ids if uid.isdigit() and uid != current_user_id]
-    
     if valid_ids:
         conn = get_db_connection()
         query = f"DELETE FROM users WHERE id IN ({','.join(['?']*len(valid_ids))})"
@@ -237,7 +205,7 @@ def siswa():
             try:
                 conn.execute("INSERT INTO siswa (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali) VALUES (?, ?, ?, ?, ?, ?)", (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali))
                 conn.commit()
-            except Exception as e: pass
+            except: pass
         conn.close()
         return redirect(url_for('siswa'))
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
@@ -256,7 +224,7 @@ def edit_siswa(nisn):
     try:
         conn.execute("UPDATE siswa SET nama_siswa=?, jenis_kelamin=?, kelas=?, nama_wali=?, no_hp_wali=? WHERE nisn=?", (nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali, nisn))
         conn.commit()
-    except Exception as e: pass
+    except: pass
     finally: conn.close()
     return redirect(url_for('siswa'))
 
@@ -267,7 +235,7 @@ def delete_siswa(nisn):
     try:
         conn.execute("DELETE FROM siswa WHERE nisn = ?", (nisn,))
         conn.commit()
-    except Exception as e: pass
+    except: pass
     finally: conn.close()
     return redirect(url_for('siswa'))
 
@@ -286,7 +254,7 @@ def poin():
             try:
                 conn.execute("INSERT INTO pelanggaran (nisn, nama_siswa, kelas, jenis_pelanggaran, poin, tanggal) VALUES (?, ?, ?, ?, ?, ?)", (nisn, nama_siswa, kelas, jenis_pelanggaran, int(poin_val), tanggal))
                 conn.commit()
-            except Exception as e: pass
+            except: pass
         conn.close()
         return redirect(url_for('poin'))
     daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa").fetchall()
@@ -306,7 +274,7 @@ def tambah_master_pelanggaran():
         try:
             conn.execute("INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", (nama, int(poin_val)))
             conn.commit()
-        except Exception as e: pass
+        except: pass
         finally: conn.close()
     return redirect(url_for('poin'))
 
@@ -324,7 +292,7 @@ def laporan():
         if siswa_data:
             pelanggaran_data = conn.execute("SELECT * FROM pelanggaran WHERE nisn = ? ORDER BY tanggal DESC", (siswa_data['nisn'],)).fetchall()
             total_poin = sum(p['poin'] for p in pelanggaran_data)
-            absensi_data = conn.execute("SELECT status, COUNT(*) as total FROM absensi WHERE nisn = ? GROUP BY status", (siswa_data['nisn'],)).fetchall()
+            absensi_data = conn.execute("SELECT status, COUNT(*) as total FROM presensi_harian WHERE nisn = ? GROUP BY status", (siswa_data['nisn'],)).fetchall()
             total_hari = 0
             for row in absensi_data:
                 status_val = row['status']
@@ -338,31 +306,65 @@ def laporan():
     conn.close()
     return render_template('dashboard/laporan.html', nama_user=session['nama'], siswa=siswa_data, pelanggaran=pelanggaran_data, total_poin=total_poin, kehadiran=kehadiran, search_query=search_query)
 
-@app.route('/absensi', methods=['GET', 'POST'])
-def absensi():
+@app.route('/presensi', methods=['GET', 'POST'])
+def presensi():
     if 'user_id' not in session: 
         if request.method == 'POST': return jsonify({"status": "error", "message": "Unauthorized"}), 401
         return redirect(url_for('login'))
+        
     conn = get_db_connection()
+    
     if request.method == 'POST':
         data = request.json
         tanggal = data.get('tanggal')
+        mapel = data.get('mata_pelajaran')
+        pertemuan = data.get('pertemuan')
         records = data.get('records', [])
-        if not tanggal or not records: return jsonify({"status": "error", "message": "Data tidak lengkap"}), 400
+        guru_id = session['user_id']
+        
+        if not tanggal or not records or not mapel or not pertemuan: 
+            return jsonify({"status": "error", "message": "Data Presensi tidak lengkap"}), 400
+            
         try:
             for record in records:
                 nisn = record.get('nisn')
                 status = record.get('status')
-                existing = conn.execute("SELECT id FROM absensi WHERE tanggal=? AND nisn=?", (tanggal, nisn)).fetchone()
-                if existing: conn.execute("UPDATE absensi SET status=? WHERE id=?", (status, existing['id']))
-                else: conn.execute("INSERT INTO absensi (tanggal, nisn, status) VALUES (?, ?, ?)", (tanggal, nisn, status))
+                existing = conn.execute("SELECT id FROM presensi_harian WHERE tanggal=? AND nisn=? AND mata_pelajaran=?", (tanggal, nisn, mapel)).fetchone()
+                if existing: 
+                    conn.execute("UPDATE presensi_harian SET status=?, pertemuan=?, guru_id=? WHERE id=?", (status, pertemuan, guru_id, existing['id']))
+                else: 
+                    conn.execute("INSERT INTO presensi_harian (tanggal, nisn, mata_pelajaran, pertemuan, status, guru_id) VALUES (?, ?, ?, ?, ?, ?)", (tanggal, nisn, mapel, pertemuan, status, guru_id))
             conn.commit()
-            return jsonify({"status": "success", "message": "Presensi harian berhasil direkam ke database!"})
-        except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
-        finally: conn.close()
+            return jsonify({"status": "success", "message": "Presensi kelas berhasil disimpan!"})
+        except Exception as e: 
+            return jsonify({"status": "error", "message": str(e)}), 500
+        finally: 
+            conn.close()
+
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
+    
+    akumulasi_raw = conn.execute("SELECT nisn, status, COUNT(*) as count FROM presensi_harian GROUP BY nisn, status").fetchall()
+    akumulasi = {}
+    for row in akumulasi_raw:
+        nisn = row['nisn']
+        if nisn not in akumulasi: akumulasi[nisn] = {'Hadir':0, 'Izin':0, 'Sakit':0, 'Alfa':0}
+        status_key = row['status'].capitalize()
+        if status_key in akumulasi[nisn]: akumulasi[nisn][status_key] = row['count']
+        
     conn.close()
-    return render_template('dashboard/absensi.html', nama_user=session['nama'], siswa_list=daftar_siswa)
+    
+    hak_kelas = session.get('mengajar_kelas', 'Semua')
+    hak_mapel = session.get('mengajar_mapel', 'Semua')
+    role = session.get('role', 'guru')
+    
+    return render_template('dashboard/presensi.html', 
+                           nama_user=session['nama'], 
+                           siswa_list=daftar_siswa,
+                           akumulasi=akumulasi,
+                           mapel_master=MAPEL_MASTER,
+                           hak_kelas=hak_kelas,
+                           hak_mapel=hak_mapel,
+                           role=role)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')

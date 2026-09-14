@@ -24,16 +24,15 @@ def init_db():
         )
     ''')
     
-    # --- UPDATE TABEL USERS (Menambahkan kolom baru jika belum ada) ---
+    # Update kolom tabel users
     cursor.execute("PRAGMA table_info(users)")
     columns = [col['name'] for col in cursor.fetchall()]
     
-    if 'nip' not in columns:
-        cursor.execute("ALTER TABLE users ADD COLUMN nip TEXT DEFAULT '-'")
-    if 'bidang_pelajaran' not in columns:
-        cursor.execute("ALTER TABLE users ADD COLUMN bidang_pelajaran TEXT DEFAULT '-'")
-    if 'status_walikelas' not in columns:
-        cursor.execute("ALTER TABLE users ADD COLUMN status_walikelas TEXT DEFAULT 'Bukan'")
+    if 'nip' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN nip TEXT DEFAULT '-'")
+    if 'bidang_pelajaran' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN bidang_pelajaran TEXT DEFAULT '-'")
+    if 'status_walikelas' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN status_walikelas TEXT DEFAULT 'Bukan'")
+    if 'mengajar_kelas' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN mengajar_kelas TEXT DEFAULT 'Semua'")
+    if 'mengajar_mapel' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN mengajar_mapel TEXT DEFAULT 'Semua'")
         
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS pelanggaran (
@@ -68,12 +67,15 @@ def init_db():
     ''')
 
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS absensi (
+        CREATE TABLE IF NOT EXISTS presensi_harian (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             tanggal DATE NOT NULL,
             nisn TEXT NOT NULL,
+            mata_pelajaran TEXT NOT NULL,
+            pertemuan INTEGER NOT NULL,
             status TEXT NOT NULL,
-            UNIQUE(tanggal, nisn)
+            guru_id INTEGER,
+            UNIQUE(tanggal, nisn, mata_pelajaran)
         )
     ''')
 
@@ -87,12 +89,12 @@ def init_db():
         ]
         cursor.executemany("INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", default_data)
     
-    # Reset akun default menjadi SUPER ADMIN
+    # RE-CREATE SUPERADMIN (Hapus yang lama dan paksa insert baru agar hash password fresh)
     cursor.execute("DELETE FROM users WHERE username = 'admin123'")
     hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
     cursor.execute(
-        "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        ('admin123', hashed_pwd, 'superadmin', 'Super Administrator', '-', '-', 'Bukan')
+        "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        ('admin123', hashed_pwd, 'superadmin', 'Administrator Utama', '-', '-', 'Bukan', 'Semua', 'Semua')
     )
 
     conn.commit()
