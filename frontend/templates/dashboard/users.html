@@ -87,8 +87,20 @@
         </header>
 
         <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
+            
+            <!-- BLOK FLASH ALERT UNTUK MENAMPILKAN ERROR / SUKSES -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="p-4 rounded-xl border shadow-sm flex items-center gap-3 {% if category == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-emerald-50 border-emerald-200 text-emerald-800{% endif %}">
+                    <i class="fa-solid {% if category == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %} text-lg"></i>
+                    <span class="text-sm font-bold">{{ message }}</span>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
-                
                 <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Tambah Akun</h3>
                     <form action="/users/add" method="POST" class="space-y-4">
@@ -97,7 +109,6 @@
                             <select id="selectRole" name="role" onchange="toggleGuruFields('add')" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="admin">Administrator</option>{% if current_role == 'superadmin' %}<option value="superadmin">Super Admin</option>{% endif %}</select>
                         </div>
                         
-                        <!-- HAK AKSES CETAK HANYA DITAMPILKAN JIKA LOGIN SEBAGAI SUPERADMIN -->
                         {% if current_role == 'superadmin' %}
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Hak Akses Cetak Laporan</label>
@@ -107,7 +118,6 @@
                             </select>
                         </div>
                         {% else %}
-                            <!-- Jika admin biasa yang membuat user, set deafult 0 secara tersembunyi -->
                             <input type="hidden" name="can_print" value="0">
                         {% endif %}
 
@@ -170,7 +180,6 @@
                                         <th class="px-3 py-3.5">Profil</th>
                                         <th class="px-3 py-3.5">Detail (NIP/Mapel)</th>
                                         
-                                        <!-- Kolom status Akses Print hanya dilihat oleh SUPERADMIN -->
                                         {% if current_role == 'superadmin' %}
                                         <th class="px-3 py-3.5 text-center">Akses Print</th>
                                         {% endif %}
@@ -190,7 +199,6 @@
                                             {% else %}-{% endif %}
                                         </td>
                                         
-                                        <!-- BADGE HANYA MUNCUL JIKA SUPERADMIN YANG LOGIN -->
                                         {% if current_role == 'superadmin' %}
                                         <td class="px-3 py-3.5 text-center">
                                             {% if u.can_print == 1 or u.role|lower == 'superadmin' %}
@@ -203,7 +211,6 @@
 
                                         <td class="px-3 py-3.5 text-center font-bold">{{ u.role|upper }}</td>
                                         <td class="px-4 py-3.5 text-right print-hidden">
-                                            <!-- Peringatan: Admin biasa tidak boleh mengedit atau menghapus akun SUPERADMIN lain -->
                                             {% if u.role|lower == 'superadmin' and current_role == 'admin' %}
                                                 <span class="text-[10px] italic text-gray-300">Terkunci</span>
                                             {% else %}
@@ -237,7 +244,6 @@
                     <select id="edit_role" name="edit_role" onchange="toggleGuruFields('edit')" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="admin">Administrator</option>{% if current_role == 'superadmin' %}<option value="superadmin">Super Admin</option>{% endif %}</select>
                 </div>
                 
-                <!-- HAK AKSES CETAK DI MODAL EDIT HANYA UNTUK SUPERADMIN -->
                 {% if current_role == 'superadmin' %}
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase">Hak Akses Cetak</label>
@@ -247,7 +253,6 @@
                     </select>
                 </div>
                 {% else %}
-                    <!-- Jika admin yang mengedit, status default/lama biarkan sama tanpa bisa diubah -->
                     <input type="hidden" id="edit_can_print" name="edit_can_print">
                 {% endif %}
 
@@ -314,7 +319,6 @@
             document.getElementById('edit_bidang_pelajaran').value = bidang;
             document.getElementById('edit_status_walikelas').value = status_wali;
             
-            // Set value input tersembunyi/tampil untuk can_print
             const canPrintElement = document.getElementById('edit_can_print');
             if(canPrintElement) { canPrintElement.value = can_print; }
             

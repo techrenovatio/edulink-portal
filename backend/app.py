@@ -1,7 +1,8 @@
 import os
 from datetime import timedelta
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+# PERBAIKAN: menambahkan import flash
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from modules.database import init_db, get_db_connection
@@ -86,7 +87,6 @@ def logout():
 def dashboard_overview():
     if 'user_id' not in session: return redirect(url_for('login'))
     conn = get_db_connection()
-    # Hanya hitung siswa yang statusnya 'Aktif'
     total_siswa = conn.execute("SELECT COUNT(*) FROM siswa WHERE status_siswa='Aktif'").fetchone()[0]
     kelas_x = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'X %' AND status_siswa='Aktif'").fetchone()[0]
     kelas_xi = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XI %' AND status_siswa='Aktif'").fetchone()[0]
@@ -124,7 +124,10 @@ def add_user():
     mengajar_mapel_list = request.form.getlist('mengajar_mapel')
     mengajar_mapel = ", ".join(mengajar_mapel_list) if mengajar_mapel_list else "Semua"
     
-    if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
+    if role in ['admin', 'superadmin'] and not is_superadmin(): 
+        flash("Anda tidak diizinkan membuat akun Administrator.", "error")
+        return redirect(url_for('manage_users'))
+        
     if nama and username and password and role:
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         conn = get_db_connection()
@@ -134,8 +137,16 @@ def add_user():
                 (username, hashed_password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print)
             )
             conn.commit()
-        except: pass
-        finally: conn.close()
+            flash(f"Akun pengguna {nama} berhasil dibuat!", "success")
+        except sqlite3.IntegrityError:
+            flash(f"GAGAL: Username '{username}' sudah dipakai oleh pengguna lain!", "error")
+        except Exception as e: 
+            flash("Terjadi kesalahan sistem saat membuat akun.", "error")
+        finally: 
+            conn.close()
+    else:
+        flash("Mohon lengkapi seluruh kolom isian yang wajib!", "error")
+        
     return redirect(url_for('manage_users'))
 
 @app.route('/users/edit/<int:user_id>', methods=['POST'])
@@ -153,7 +164,10 @@ def edit_user(user_id):
     mengajar_mapel_list = request.form.getlist('edit_mengajar_mapel')
     mengajar_mapel = ", ".join(mengajar_mapel_list) if mengajar_mapel_list else "Semua"
 
-    if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
+    if role in ['admin', 'superadmin'] and not is_superadmin(): 
+        flash("Anda tidak diizinkan mengubah role menjadi Admin.", "error")
+        return redirect(url_for('manage_users'))
+        
     conn = get_db_connection()
     try:
         if password: 
@@ -164,8 +178,13 @@ def edit_user(user_id):
             conn.execute("UPDATE users SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=? WHERE id=?", 
                          (nama, role, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print, user_id))
         conn.commit()
-    except: pass
-    finally: conn.close()
+        flash("Perubahan profil berhasil disimpan!", "success")
+    except sqlite3.IntegrityError:
+        flash("GAGAL: Perubahan dibatalkan karena username bentrok dengan akun lain!", "error")
+    except Exception as e: 
+        flash("Terjadi kesalahan sistem saat menyimpan.", "error")
+    finally: 
+        conn.close()
     return redirect(url_for('manage_users'))
 
 @app.route('/users/delete/<int:user_id>', methods=['POST'])
@@ -173,9 +192,14 @@ def delete_user(user_id):
     if not is_admin_or_super(): return redirect(url_for('login'))
     if user_id != session.get('user_id'):
         conn = get_db_connection()
-        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
-        conn.commit()
-        conn.close()
+        try:
+            conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+            conn.commit()
+            flash("Akun pengguna berhasil dihapus.", "success")
+        except:
+            flash("Gagal menghapus akun pengguna.", "error")
+        finally:
+            conn.close()
     return redirect(url_for('manage_users'))
 
 @app.route('/users/delete-multiple', methods=['POST'])
@@ -190,6 +214,7 @@ def delete_multiple_users():
         conn.execute(query, valid_ids)
         conn.commit()
         conn.close()
+        flash(f"{len(valid_ids)} Akun pengguna berhasil dihapus massal.", "success")
     return redirect(url_for('manage_users'))
 
 @app.route('/siswa', methods=['GET', 'POST'])
@@ -212,7 +237,6 @@ def siswa():
         conn.close()
         return redirect(url_for('siswa'))
     
-    # Sortir aktif di atas, disusul kelas dan nama
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY CASE WHEN status_siswa='Aktif' THEN 1 ELSE 2 END, kelas ASC, nama_siswa ASC").fetchall()
     conn.close()
     return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa)
