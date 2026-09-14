@@ -29,7 +29,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
 
-    <!-- SIDEBAR BISA ANDA PASTE KEMBALI DI SINI SEPERTI FILE LAINNYA -->
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
@@ -38,6 +37,9 @@
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
                 </div>
             </div>
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
 
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
@@ -67,16 +69,20 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Pilih Kelas</label>
+                    
+                    <!-- DAFTAR KELAS SUDAH DISAMAKAN DENGAN MENU DATA SISWA -->
                     <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border border-gray-200 text-xs py-2 px-3 focus:outline-none rounded font-semibold text-syekhGreen-900">
                         <option value="">-- Pilih Kelas --</option>
-                        <!-- Logika filter kelas untuk guru akan masuk disini via JS -->
                         <option value="X IPA 1">X IPA 1</option>
                         <option value="X IPS 1">X IPS 1</option>
                         <option value="XI IPA 1">XI IPA 1</option>
+                        <option value="XI IPA 2">XI IPA 2</option>
                         <option value="XI IPS 1">XI IPS 1</option>
                         <option value="XII IPA 1">XII IPA 1</option>
+                        <option value="XII IPA 2">XII IPA 2</option>
                         <option value="XII IPS 1">XII IPS 1</option>
                     </select>
+                    
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Mata Pelajaran</label>
