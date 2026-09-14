@@ -1,11 +1,11 @@
 import os
 from datetime import timedelta
 import sqlite3
+# PERBAIKAN: Menambahkan import check_password_hash
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from modules.database import init_db, get_db_connection
-from modules.auth import verify_login
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 base_dir = os.path.dirname(current_dir)
@@ -24,7 +24,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
 
-# --- PERBAIKAN: Validasi Role Hierarki ---
 def is_superadmin():
     return 'user_id' in session and str(session.get('role', '')).strip().lower() == 'superadmin'
 
@@ -43,27 +42,33 @@ def home():
         conn.close()
     return render_template('index.html', total_siswa=total_siswa)
 
+# --- PERBAIKAN: LOGIKA LOGIN BYPASS SUPERADMIN ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
         return redirect(url_for('dashboard_overview'))
 
     if request.method == 'POST':
-        role = request.form.get('role', '').strip()
+        form_role = request.form.get('role', '').strip().lower()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
 
-        # verify_login sekarang harus bisa mengecek superadmin juga (ditangani di auth.py atau abaikan role saat query jika pakai role-dropdown)
-        user = verify_login(username, password, role)
+        conn = get_db_connection()
+        user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        conn.close()
 
-        if user:
-            session.permanent = True
-            session['user_id'] = user['id']
-            session['nama'] = user['nama']
-            session['role'] = str(user['role']).strip().lower()
-            return redirect(url_for('dashboard_overview'))
-        else:
-            return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
+        if user and check_password_hash(user['password'], password):
+            db_role = str(user['role']).strip().lower()
+            
+            # Izinkan masuk jika role persis sama, ATAU jika form='admin' tapi di database='superadmin'
+            if db_role == form_role or (form_role == 'admin' and db_role == 'superadmin'):
+                session.permanent = True
+                session['user_id'] = user['id']
+                session['nama'] = user['nama']
+                session['role'] = db_role
+                return redirect(url_for('dashboard_overview'))
+        
+        return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
 
     return render_template('login.html')
 
@@ -104,7 +109,6 @@ def dashboard_overview():
                            sp_aktif=sp_aktif,
                            recent_logs=recent_logs)
 
-# --- PERBAIKAN: Manajemen Users ---
 @app.route('/users')
 def manage_users():
     if not is_admin_or_super():
@@ -127,12 +131,10 @@ def add_user():
     password = request.form.get('password', '')
     role = request.form.get('role', '').strip().lower()
     
-    # Detail Khusus Guru
     nip = request.form.get('nip', '-').strip() or '-'
     bidang_pelajaran = request.form.get('bidang_pelajaran', '-').strip() or '-'
     status_walikelas = request.form.get('status_walikelas', 'Bukan')
     
-    # Hanya Superadmin yang boleh membuat akun Superadmin/Admin
     if role in ['admin', 'superadmin'] and not is_superadmin():
         return redirect(url_for('manage_users'))
     
@@ -146,7 +148,7 @@ def add_user():
             )
             conn.commit()
         except Exception as e:
-            print("Gagal membuat user:", e)
+            pass
         finally:
             conn.close()
             
@@ -169,14 +171,14 @@ def edit_user(user_id):
         
     conn = get_db_connection()
     try:
-        if password: # Jika password diisi, update password juga
+        if password: 
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
             conn.execute("""
                 UPDATE users 
                 SET nama=?, role=?, password=?, nip=?, bidang_pelajaran=?, status_walikelas=?
                 WHERE id=?
             """, (nama, role, hashed_password, nip, bidang_pelajaran, status_walikelas, user_id))
-        else: # Update profil tanpa password
+        else: 
             conn.execute("""
                 UPDATE users 
                 SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?
@@ -184,7 +186,7 @@ def edit_user(user_id):
             """, (nama, role, nip, bidang_pelajaran, status_walikelas, user_id))
         conn.commit()
     except Exception as e:
-        print("Gagal update user:", e)
+        pass
     finally:
         conn.close()
         
@@ -220,7 +222,6 @@ def delete_multiple_users():
         conn.close()
     return redirect(url_for('manage_users'))
 
-# ... [Biarkan sisa rute /siswa, /poin, /laporan, /absensi sama persis seperti sebelumnya] ...
 @app.route('/siswa', methods=['GET', 'POST'])
 def siswa():
     if 'user_id' not in session: return redirect(url_for('login'))
