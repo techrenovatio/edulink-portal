@@ -51,47 +51,250 @@
         <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <!-- KOLOM KIRI (Dihilangkan saat print) -->
                 <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Tambah Akun</h3>
                     <form action="/users/add" method="POST" class="space-y-4">
-                        <select id="selectRole" name="role" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="superadmin">Super Admin</option></select>
-                        <input type="text" name="nama" required placeholder="Nama" class="w-full bg-gray-50 border py-2 px-3 text-xs">
-                        <input type="text" name="username" required placeholder="Username" class="w-full bg-gray-50 border py-2 px-3 text-xs">
-                        <input type="password" name="password" required placeholder="Password" class="w-full bg-gray-50 border py-2 px-3 text-xs">
-                        <button type="submit" class="w-full bg-syekhGreen-800 text-white font-bold py-3 text-xs">Simpan</button>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Peran (Role)</label>
+                            <select id="selectRole" name="role" onchange="toggleGuruFields('add')" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="admin">Administrator</option>{% if current_role == 'superadmin' %}<option value="superadmin">Super Admin</option>{% endif %}</select>
+                        </div>
+                        
+                        <!-- FITUR BARU: HAK AKSES CETAK -->
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Hak Akses Cetak Laporan</label>
+                            <select name="can_print" class="w-full bg-gray-50 border py-2 px-3 text-xs focus:outline-none focus:border-syekhGreen-600 rounded">
+                                <option value="0">Tidak Diizinkan</option>
+                                <option value="1">Ya, Izinkan Cetak</option>
+                            </select>
+                        </div>
+
+                        <div><label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Nama Lengkap</label><input type="text" name="nama" required class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
+                        <div><label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Username Login</label><input type="text" name="username" required class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
+                        <div><label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Password</label><input type="password" name="password" required class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
+
+                        <div id="addGuruFields" class="space-y-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <p class="text-[10px] font-bold text-syekhGold-600 uppercase border-b border-gray-200 pb-2">Informasi Khusus Guru</p>
+                            <div><label class="text-[10px] font-bold text-gray-500 uppercase">NIP</label><input type="text" name="nip" class="w-full bg-white border py-2 px-3 text-xs"></div>
+                            <div><label class="text-[10px] font-bold text-gray-500 uppercase">Bidang Pelajaran</label><input type="text" name="bidang_pelajaran" class="w-full bg-white border py-2 px-3 text-xs"></div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">Status Wali Kelas</label>
+                                <select name="status_walikelas" class="w-full bg-white border py-2 px-3 text-xs"><option value="Bukan">Bukan Wali Kelas</option><option value="Wali Kelas">Ya, Wali Kelas</option></select>
+                            </div>
+                            <div class="border-t border-gray-200 pt-3 mt-3">
+                                <label class="text-[10px] font-bold text-gray-500 uppercase block">Otoritas Mengajar: Kelas</label>
+                                <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
+                                <select name="mengajar_kelas" multiple class="w-full bg-white border py-2 px-3 text-xs h-24 shadow-inner">
+                                    <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
+                                    <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
+                                    <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
+                                    <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase block">Otoritas Mengajar: Mata Pelajaran</label>
+                                <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
+                                <select name="mengajar_mapel" multiple class="w-full bg-white border py-2 px-3 text-xs h-32 shadow-inner">
+                                    <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
+                                    <option value="Matematika">Matematika / MatDas</option><option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                    <option value="Bahasa Inggris">Bahasa Inggris</option><option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
+                                    <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option><option value="Literasi Digital">Literasi Digital</option>
+                                    <option value="Bahasa Arab">Bahasa Arab</option><option value="Geografi">Geografi</option>
+                                    <option value="Penjaskes">Penjaskes</option><option value="Fisika">Fisika</option>
+                                    <option value="Biologi">Biologi</option><option value="Sosiologi">Sosiologi</option>
+                                    <option value="Ekonomi">Ekonomi</option><option value="Budi Pekerti">Budi Pekerti</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-syekhGreen-800 text-white font-bold py-3 text-xs rounded">Simpan</button>
                     </form>
                 </div>
 
-                <!-- KOLOM KANAN -->
                 <div class="lg:col-span-2 bg-white rounded-xl border shadow-sm border-t-4 border-t-syekhGold-500 overflow-hidden w-full print:border-none print:shadow-none print:m-0">
-                    <div class="p-4 border-b border-gray-100 flex justify-between items-center print:px-0">
-                        <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Daftar Pengguna</h3>
-                        <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm print-hidden"><i class="fa-solid fa-print"></i> Cetak</button>
-                    </div>
-                    <table class="w-full text-left text-xs text-gray-600">
-                        <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider">
-                            <tr>
-                                <th class="pl-4 py-3">Profil</th>
-                                <th class="px-3 py-3">Detail (NIP/Mapel)</th>
-                                <th class="px-3 py-3 text-center">Role</th>
-                                <th class="px-4 py-3 text-right print-hidden">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for u in users %}
-                            <tr class="border-b border-gray-50">
-                                <td class="pl-4 py-3"><p class="font-bold text-syekhGreen-900">{{ u.nama }}</p><p class="text-[10px] text-gray-400">@{{ u.username }}</p></td>
-                                <td class="px-3 py-3">{% if u.role|lower == 'guru' %}{{ u.bidang_pelajaran }}<br>{{ u.nip }}{% else %}-{% endif %}</td>
-                                <td class="px-3 py-3 text-center font-bold">{{ u.role|upper }}</td>
-                                <td class="px-4 py-3 text-right print-hidden"><button class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <form id="bulkDeleteForm" action="/users/delete-multiple" method="POST" onsubmit="return confirm('Hapus user tercentang?')">
+                        <div class="p-4 border-b border-gray-100 flex justify-between items-center print:px-0">
+                            <div class="flex items-center gap-3">
+                                <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Daftar Pengguna</h3>
+                                <button type="submit" id="btnDeleteSelected" class="hidden text-[10px] font-bold text-white bg-red-600 px-2.5 py-1 uppercase rounded gap-1"><i class="fa-solid fa-trash-can"></i> Hapus (<span id="selectedCount">0</span>)</button>
+                            </div>
+                            <span class="text-xs font-mono bg-emerald-50 text-syekhGreen-800 border px-2.5 py-1 font-bold rounded print-hidden">{{ users|length }} User</span>
+                        </div>
+                        <div class="overflow-x-auto max-h-[650px] overflow-y-auto">
+                            <table class="w-full text-left text-xs text-gray-600 min-w-[700px]">
+                                <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider sticky top-0 z-10">
+                                    <tr>
+                                        <th class="pl-4 py-3.5 w-8 print-hidden"><input type="checkbox" id="selectAll" class="w-3.5 h-3.5"></th>
+                                        <th class="px-3 py-3.5">Profil</th>
+                                        <th class="px-3 py-3.5">Detail (NIP/Mapel)</th>
+                                        <th class="px-3 py-3.5 text-center">Akses Print</th>
+                                        <th class="px-3 py-3.5 text-center">Role</th>
+                                        <th class="px-4 py-3.5 text-right print-hidden">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for u in users %}
+                                    <tr class="border-b border-gray-50 hover:bg-emerald-50/50 transition">
+                                        <td class="pl-4 py-3.5 print-hidden"><input type="checkbox" name="user_ids" value="{{ u.id }}" class="user-checkbox w-3.5 h-3.5"></td>
+                                        <td class="px-3 py-3.5"><p class="font-bold text-syekhGreen-900">{{ u.nama }}</p><p class="text-[10px] text-gray-400">@{{ u.username }}</p></td>
+                                        <td class="px-3 py-3.5">
+                                            {% if u.role|lower == 'guru' %}
+                                                {{ u.bidang_pelajaran }}<br><span class="text-[10px] text-gray-400 font-mono">{{ u.nip }}</span>
+                                            {% else %}-{% endif %}
+                                        </td>
+                                        
+                                        <!-- BADGE AKSES PRINT -->
+                                        <td class="px-3 py-3.5 text-center">
+                                            {% if u.can_print == 1 or u.role|lower == 'superadmin' %}
+                                            <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"><i class="fa-solid fa-check"></i></span>
+                                            {% else %}
+                                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-200"><i class="fa-solid fa-xmark"></i></span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="px-3 py-3.5 text-center font-bold">{{ u.role|upper }}</td>
+                                        <td class="px-4 py-3.5 text-right print-hidden">
+                                            <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.bidang_pelajaran }}', '{{ u.status_walikelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}', '{{ u.can_print }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun"><i class="fa-solid fa-pen-to-square"></i></button>
+                                            <button type="button" onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Akun"><i class="fa-solid fa-trash-can"></i></button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                    <form id="singleDeleteForm" method="POST" class="hidden"></form>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- MODAL EDIT USER -->
+    <div id="modalEditUser" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl border-t-4 border-syekhGold-500 mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Ubah Data Pengguna</h3>
+                <button onclick="closeEditUserModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="editUserForm" method="POST" autocomplete="off" class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Peran (Role)</label>
+                    <select id="edit_role" name="edit_role" onchange="toggleGuruFields('edit')" class="w-full bg-gray-50 border py-2 px-3 text-xs"><option value="guru">Guru</option><option value="admin">Administrator</option>{% if current_role == 'superadmin' %}<option value="superadmin">Super Admin</option>{% endif %}</select>
+                </div>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Hak Akses Cetak</label>
+                    <select id="edit_can_print" name="edit_can_print" class="w-full bg-gray-50 border py-2 px-3 text-xs">
+                        <option value="0">Tidak Diizinkan</option>
+                        <option value="1">Ya, Izinkan Cetak</option>
+                    </select>
+                </div>
+
+                <div><label class="text-[10px] font-bold text-gray-500 uppercase">Nama Lengkap</label><input type="text" id="edit_nama" name="edit_nama" required class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
+                <div><label class="text-[10px] font-bold text-gray-500 uppercase">Ganti Password</label><input type="password" name="edit_password" placeholder="Kosongkan jika tak diubah" class="w-full bg-gray-50 border py-2 px-3 text-xs"></div>
+
+                <div id="editGuruFields" class="space-y-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p class="text-[10px] font-bold text-syekhGold-600 uppercase border-b border-gray-200 pb-2">Informasi Khusus Guru</p>
+                    <div><label class="text-[10px] font-bold text-gray-500 uppercase">NIP</label><input type="text" id="edit_nip" name="edit_nip" class="w-full bg-white border py-2 px-3 text-xs"></div>
+                    <div><label class="text-[10px] font-bold text-gray-500 uppercase">Bidang Pelajaran</label><input type="text" id="edit_bidang_pelajaran" name="edit_bidang_pelajaran" class="w-full bg-white border py-2 px-3 text-xs"></div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Status Wali Kelas</label>
+                        <select id="edit_status_walikelas" name="edit_status_walikelas" class="w-full bg-white border py-2 px-3 text-xs"><option value="Bukan">Bukan Wali Kelas</option><option value="Wali Kelas">Ya, Wali Kelas</option></select>
+                    </div>
+                    <div class="border-t border-gray-200 pt-3 mt-3">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase block">Otoritas Mengajar: Kelas</label>
+                        <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
+                        <select id="edit_mengajar_kelas" name="edit_mengajar_kelas" multiple class="w-full bg-white border py-2 px-3 text-xs h-24 shadow-inner">
+                            <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
+                            <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
+                            <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
+                            <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase block">Otoritas Mengajar: Mata Pelajaran</label>
+                        <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
+                        <select id="edit_mengajar_mapel" name="edit_mengajar_mapel" multiple class="w-full bg-white border py-2 px-3 text-xs h-32 shadow-inner">
+                            <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
+                            <option value="Matematika">Matematika / MatDas</option><option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                            <option value="Bahasa Inggris">Bahasa Inggris</option><option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
+                            <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option><option value="Literasi Digital">Literasi Digital</option>
+                            <option value="Bahasa Arab">Bahasa Arab</option><option value="Geografi">Geografi</option>
+                            <option value="Penjaskes">Penjaskes</option><option value="Fisika">Fisika</option>
+                            <option value="Biologi">Biologi</option><option value="Sosiologi">Sosiologi</option>
+                            <option value="Ekonomi">Ekonomi</option><option value="Budi Pekerti">Budi Pekerti</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-syekhGold-500 text-syekhGreen-900 font-bold py-3 text-xs rounded">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebarBackdrop').classList.toggle('hidden');
+        }
+
+        function toggleGuruFields(mode) {
+            const roleSelect = document.getElementById(mode === 'add' ? 'selectRole' : 'edit_role');
+            const guruFields = document.getElementById(mode === 'add' ? 'addGuruFields' : 'editGuruFields');
+            guruFields.classList.toggle('hidden', roleSelect.value !== 'guru');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { toggleGuruFields('add'); });
+
+        function openEditUserModal(id, nama, role, nip, bidang, status_wali, mengajar_kelas, mengajar_mapel, can_print) {
+            document.getElementById('edit_nama').value = nama;
+            document.getElementById('edit_role').value = role.toLowerCase();
+            document.getElementById('edit_nip').value = nip;
+            document.getElementById('edit_bidang_pelajaran').value = bidang;
+            document.getElementById('edit_status_walikelas').value = status_wali;
+            document.getElementById('edit_can_print').value = can_print;
+            
+            const kelasSelect = document.getElementById('edit_mengajar_kelas');
+            if (kelasSelect && mengajar_kelas) {
+                const kelasArray = mengajar_kelas.split(',').map(i => i.trim());
+                Array.from(kelasSelect.options).forEach(opt => { opt.selected = kelasArray.includes(opt.value); });
+            }
+
+            const mapelSelect = document.getElementById('edit_mengajar_mapel');
+            if (mapelSelect && mengajar_mapel) {
+                const mapelArray = mengajar_mapel.split(',').map(i => i.trim());
+                Array.from(mapelSelect.options).forEach(opt => { opt.selected = mapelArray.includes(opt.value); });
+            }
+            
+            toggleGuruFields('edit');
+            document.getElementById('editUserForm').action = `/users/edit/${id}`;
+            document.getElementById('modalEditUser').classList.remove('hidden');
+        }
+
+        function closeEditUserModal() { document.getElementById('modalEditUser').classList.add('hidden'); }
+
+        const selectAll = document.getElementById('selectAll');
+        const userCheckboxes = document.querySelectorAll('.user-checkbox');
+        const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+        const selectedCount = document.getElementById('selectedCount');
+
+        function updateDeleteButton() {
+            const count = document.querySelectorAll('.user-checkbox:checked').length;
+            selectedCount.textContent = count;
+            btnDeleteSelected.classList.toggle('hidden', count === 0);
+            btnDeleteSelected.classList.toggle('flex', count > 0);
+        }
+
+        if (selectAll) { selectAll.addEventListener('change', function() { userCheckboxes.forEach(cb => cb.checked = this.checked); updateDeleteButton(); }); }
+        userCheckboxes.forEach(cb => cb.addEventListener('change', updateDeleteButton));
+
+        function deleteSingleUser(userId, userName) {
+            if (confirm(`Hapus akun '${userName}' secara permanen?`)) {
+                const singleForm = document.getElementById('singleDeleteForm');
+                singleForm.action = `/users/delete/${userId}`;
+                singleForm.submit();
+            }
+        }
+    </script>
 </body>
 </html>

@@ -84,9 +84,11 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
+                {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                 <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-print"></i> Cetak
                 </button>
+                {% endif %}
                 <button class="bg-gray-100 border border-gray-200 text-syekhGreen-900 px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2">
                     <i class="fa-solid fa-calendar-day"></i> TA 2025/2026
                 </button>

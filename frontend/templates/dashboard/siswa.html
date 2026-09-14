@@ -160,9 +160,11 @@
                             </select>
                             
                             <!-- TOMBOL CETAK -->
+                            {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                             <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-4 py-2 transition flex items-center justify-center gap-2 rounded shadow-sm shrink-0">
                                 <i class="fa-solid fa-print"></i> Cetak
                             </button>
+                            {% endif %}
                         </div>
                     </div>
                     

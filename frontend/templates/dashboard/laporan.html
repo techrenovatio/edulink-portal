@@ -52,7 +52,8 @@
             <form action="/laporan" method="GET" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between gap-4 print-hidden">
                 <input type="text" name="q" value="{{ search_query }}" placeholder="Ketik NISN atau Nama Siswa..." class="flex-1 bg-gray-50 border py-3 px-4 text-xs rounded" required>
                 <button type="submit" class="bg-syekhGreen-800 text-white text-xs font-bold px-6 py-3 rounded">Cari Data</button>
-                {% if siswa %}
+                
+                {% if siswa and (session.get('can_print') == 1 or session.get('role') == 'superadmin') %}
                 <button type="button" onclick="window.print()" class="bg-syekhGold-500 text-syekhGreen-900 text-xs font-bold px-5 py-3 flex items-center gap-2 rounded"><i class="fa-solid fa-print"></i> Cetak Laporan</button>
                 {% endif %}
             </form>

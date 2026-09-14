@@ -67,7 +67,9 @@
                 <div class="lg:col-span-2 bg-white rounded-xl border shadow-sm border-t-4 border-t-syekhGold-500 w-full print:border-none print:shadow-none print:m-0">
                     <div class="p-4 border-b border-gray-100 flex justify-between items-center print:px-0">
                         <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Riwayat Pelanggaran Terakhir</h3>
+                        {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                         <button onclick="window.print()" class="bg-syekhGold-500 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm print-hidden"><i class="fa-solid fa-print"></i> Cetak</button>
+                        {% endif %}
                     </div>
                     <table class="w-full text-left text-xs text-gray-600">
                         <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider">

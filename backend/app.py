@@ -71,6 +71,10 @@ def login():
                 session['role'] = db_role
                 session['mengajar_kelas'] = user['mengajar_kelas'] if 'mengajar_kelas' in user.keys() else 'Semua'
                 session['mengajar_mapel'] = user['mengajar_mapel'] if 'mengajar_mapel' in user.keys() else 'Semua'
+                
+                # FITUR BARU: Menyimpan hak akses Print ke Memori Sesi
+                session['can_print'] = user['can_print'] if 'can_print' in user.keys() else 0
+                
                 return redirect(url_for('dashboard_overview'))
         
         return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
@@ -104,7 +108,6 @@ def manage_users():
     conn.close()
     return render_template('dashboard/users.html', nama_user=session['nama'], users=users, current_role=session.get('role', '').lower())
 
-# --- PERBAIKAN: Menangani Multi-Select Dropdown pada ADD ---
 @app.route('/users/add', methods=['POST'])
 def add_user():
     if not is_admin_or_super(): return redirect(url_for('login'))
@@ -112,11 +115,13 @@ def add_user():
     username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '')
     role = request.form.get('role', '').strip().lower()
+    
+    can_print = int(request.form.get('can_print', 0))
+    
     nip = request.form.get('nip', '-').strip()
     bidang_pelajaran = request.form.get('bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('status_walikelas', 'Bukan')
     
-    # Ambil list dari multiple select, gabungkan dengan koma
     mengajar_kelas_list = request.form.getlist('mengajar_kelas')
     mengajar_kelas = ", ".join(mengajar_kelas_list) if mengajar_kelas_list else "Semua"
     
@@ -129,26 +134,27 @@ def add_user():
         conn = get_db_connection()
         try:
             conn.execute(
-                "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (username, hashed_password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel)
+                "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (username, hashed_password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print)
             )
             conn.commit()
         except: pass
         finally: conn.close()
     return redirect(url_for('manage_users'))
 
-# --- PERBAIKAN: Menangani Multi-Select Dropdown pada EDIT ---
 @app.route('/users/edit/<int:user_id>', methods=['POST'])
 def edit_user(user_id):
     if not is_admin_or_super(): return redirect(url_for('login'))
     nama = request.form.get('edit_nama', '').strip()
     role = request.form.get('edit_role', '').strip().lower()
     password = request.form.get('edit_password', '')
+    
+    can_print = int(request.form.get('edit_can_print', 0))
+    
     nip = request.form.get('edit_nip', '-').strip()
     bidang_pelajaran = request.form.get('edit_bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
     
-    # Ambil list dari multiple select modal edit, gabungkan dengan koma
     mengajar_kelas_list = request.form.getlist('edit_mengajar_kelas')
     mengajar_kelas = ", ".join(mengajar_kelas_list) if mengajar_kelas_list else "Semua"
     
@@ -160,11 +166,11 @@ def edit_user(user_id):
     try:
         if password: 
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-            conn.execute("UPDATE users SET nama=?, role=?, password=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=? WHERE id=?", 
-                         (nama, role, hashed_password, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, user_id))
+            conn.execute("UPDATE users SET nama=?, role=?, password=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=? WHERE id=?", 
+                         (nama, role, hashed_password, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print, user_id))
         else: 
-            conn.execute("UPDATE users SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=? WHERE id=?", 
-                         (nama, role, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, user_id))
+            conn.execute("UPDATE users SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=? WHERE id=?", 
+                         (nama, role, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print, user_id))
         conn.commit()
     except: pass
     finally: conn.close()

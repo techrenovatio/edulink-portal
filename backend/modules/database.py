@@ -33,6 +33,9 @@ def init_db():
     if 'status_walikelas' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN status_walikelas TEXT DEFAULT 'Bukan'")
     if 'mengajar_kelas' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN mengajar_kelas TEXT DEFAULT 'Semua'")
     if 'mengajar_mapel' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN mengajar_mapel TEXT DEFAULT 'Semua'")
+    
+    # FITUR BARU: Hak Akses Cetak Laporan (1 = Ya, 0 = Tidak)
+    if 'can_print' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN can_print INTEGER DEFAULT 0")
         
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS pelanggaran (
@@ -89,12 +92,12 @@ def init_db():
         ]
         cursor.executemany("INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", default_data)
     
-    # RE-CREATE SUPERADMIN (Hapus yang lama dan paksa insert baru agar hash password fresh)
+    # Reset Akun Super Administrator
     cursor.execute("DELETE FROM users WHERE username = 'admin123'")
     hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
     cursor.execute(
-        "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        ('admin123', hashed_pwd, 'superadmin', 'Administrator Utama', '-', '-', 'Bukan', 'Semua', 'Semua')
+        "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        ('admin123', hashed_pwd, 'superadmin', 'Administrator Utama', '-', '-', 'Bukan', 'Semua', 'Semua', 1)
     )
 
     conn.commit()

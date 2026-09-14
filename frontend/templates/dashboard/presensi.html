@@ -55,7 +55,9 @@
                     <label class="text-xs font-bold text-gray-500 uppercase">Kelas</label>
                     <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                         <option value="">-- Pilih Kelas --</option>
-                        <option value="X IPA 1">X IPA 1</option><option value="XI IPA 1">XI IPA 1</option><option value="XII IPA 1">XII IPA 1</option>
+                        <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
+                        <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
+                        <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
                     </select>
                 </div>
                 <div><label class="text-xs font-bold text-gray-500 uppercase">Mata Pelajaran</label><select id="selectMapel" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="">-- Pilih Mapel --</option></select></div>
@@ -63,9 +65,11 @@
             </div>
 
             <div class="flex justify-end gap-3 print-hidden">
+                {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                 <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[11px] font-bold uppercase tracking-widest px-6 py-3 transition flex items-center gap-2 rounded shadow-md">
                     <i class="fa-solid fa-print"></i> Cetak Presensi
                 </button>
+                {% endif %}
                 <button onclick="simpanPresensi()" class="bg-syekhGreen-800 text-white text-[11px] font-bold uppercase px-6 py-3 rounded shadow-md"><i class="fa-solid fa-floppy-disk"></i> Simpan Presensi</button>
             </div>
 
@@ -80,10 +84,20 @@
                     </thead>
                     <tbody id="absensiTableBody">
                         {% for s in siswa_list %}
+                        {% set H = akumulasi[s.nisn]['Hadir'] if s.nisn in akumulasi else 0 %}
+                        {% set I = akumulasi[s.nisn]['Izin'] if s.nisn in akumulasi else 0 %}
+                        {% set S = akumulasi[s.nisn]['Sakit'] if s.nisn in akumulasi else 0 %}
+                        {% set A = akumulasi[s.nisn]['Alfa'] if s.nisn in akumulasi else 0 %}
+                        
                         <tr class="border-b border-gray-50 absensi-row hidden" data-kelas="{{ s.kelas }}">
                             <td class="px-6 py-4"><p class="font-bold text-syekhGreen-900">{{ s.nama_siswa }}</p><p class="text-[10px] text-gray-500 nisn-cell">{{ s.nisn }}</p></td>
-                            <td class="px-4 py-4 text-center"><span class="text-emerald-700 font-bold bg-emerald-50 px-1.5 rounded">0</span></td>
-                            <td class="px-6 py-4 text-right print-hidden"><button class="status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded">HADIR</button></td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200" title="Hadir">{{ H }}</span>
+                                <span class="text-[10px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200" title="Izin">{{ I }}</span>
+                                <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200" title="Sakit">{{ S }}</span>
+                                <span class="text-[10px] font-bold bg-red-50 text-red-700 px-1.5 py-0.5 rounded border border-red-200" title="Alfa">{{ A }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right print-hidden"><button class="status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded" onclick="toggleStatus(this)">HADIR</button></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -96,12 +110,97 @@
         const masterMapel = {{ mapel_master | tojson | safe }};
         const hakKelas = "{{ hak_kelas }}"; const hakMapel = "{{ hak_mapel }}"; const role = "{{ role }}";
         
-        document.addEventListener('DOMContentLoaded', () => { document.getElementById('tanggalAbsen').value = new Date().toISOString().split('T')[0]; });
+        document.addEventListener('DOMContentLoaded', () => { document.getElementById('tanggalAbsen').value = new Date().toISOString().split('T')[0]; filterDropdownKelasByHak(); });
+
+        function filterDropdownKelasByHak() {
+            const selectKelas = document.getElementById('selectKelasAbsensi');
+            if (role === 'admin' || role === 'superadmin' || hakKelas === 'Semua') return;
+
+            const allowedClasses = hakKelas.split(',').map(item => item.trim());
+            Array.from(selectKelas.options).forEach(opt => {
+                if (opt.value !== "" && !allowedClasses.includes(opt.value)) {
+                    opt.style.display = 'none';
+                }
+            });
+        }
 
         function updateMapelDropdown() {
             const kelasVal = document.getElementById('selectKelasAbsensi').value;
+            const mapelSelect = document.getElementById('selectMapel');
+            mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+            
+            if(!kelasVal) return;
+
+            let kategori = "";
+            if(kelasVal.startsWith("X ")) kategori = "X";
+            else if(kelasVal.includes("XI IPA")) kategori = "XI IPA";
+            else if(kelasVal.includes("XI IPS")) kategori = "XI IPS";
+            else if(kelasVal.includes("XII IPA")) kategori = "XII IPA";
+            else if(kelasVal.includes("XII IPS")) kategori = "XII IPS";
+
+            if(masterMapel[kategori]) {
+                const allowedMapel = hakMapel === 'Semua' ? masterMapel[kategori] : hakMapel.split(',').map(m => m.trim());
+                masterMapel[kategori].forEach(mapel => {
+                    if (role === 'admin' || role === 'superadmin' || hakMapel === 'Semua' || allowedMapel.includes(mapel)) {
+                        const opt = document.createElement('option');
+                        opt.value = mapel; opt.textContent = mapel;
+                        mapelSelect.appendChild(opt);
+                    }
+                });
+            }
+
             const rows = document.querySelectorAll('.absensi-row');
             rows.forEach(row => { row.classList.toggle('hidden', kelasVal !== row.getAttribute('data-kelas')); });
+        }
+
+        const statusList = [
+            { label: 'HADIR', bg: 'bg-emerald-100', text: 'text-emerald-800' },
+            { label: 'IZIN', bg: 'bg-amber-100', text: 'text-amber-800' },
+            { label: 'SAKIT', bg: 'bg-blue-100', text: 'text-blue-800' },
+            { label: 'ALFA', bg: 'bg-red-100', text: 'text-red-700' }
+        ];
+
+        function toggleStatus(btn) {
+            const currentLabel = btn.textContent.trim();
+            let currentIndex = statusList.findIndex(s => s.label === currentLabel);
+            let nextIndex = (currentIndex + 1) % statusList.length;
+            let nextStatus = statusList[nextIndex];
+            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} font-bold px-4 py-1.5 text-[10px] rounded w-24`;
+            btn.textContent = nextStatus.label;
+        }
+
+        async function simpanPresensi() {
+            const tanggal = document.getElementById('tanggalAbsen').value;
+            const mapel = document.getElementById('selectMapel').value;
+            const pertemuan = document.getElementById('inputPertemuan').value;
+            const rows = document.querySelectorAll('.absensi-row:not(.hidden)');
+            let records = [];
+            
+            if(!mapel) { alert('Harap pilih Mata Pelajaran terlebih dahulu!'); return; }
+
+            rows.forEach(row => {
+                const nisn = row.querySelector('.nisn-cell').innerText.trim();
+                const status = row.querySelector('.status-btn').innerText.trim();
+                records.push({nisn: nisn, status: status});
+            });
+            
+            if(records.length === 0) return;
+            
+            try {
+                const response = await fetch('/presensi', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ tanggal: tanggal, mata_pelajaran: mapel, pertemuan: pertemuan, records: records })
+                });
+                
+                const result = await response.json();
+                if(result.status === 'success') {
+                    alert(result.message);
+                    location.reload(); 
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            } catch(e) { alert('Terjadi kesalahan koneksi.'); }
         }
     </script>
 </body>
