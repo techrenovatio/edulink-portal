@@ -67,7 +67,15 @@
                 <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">Administrator</p>
+                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">
+                        {% if session.get('role') == 'superadmin' %}
+                            Super Administrator
+                        {% elif session.get('role') == 'admin' %}
+                            Administrator
+                        {% else %}
+                            Guru / Staff
+                        {% endif %}
+                    </p>
                 </div>
             </div>
             <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
