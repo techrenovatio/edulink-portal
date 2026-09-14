@@ -50,12 +50,10 @@
 
         <div class="p-4 sm:p-8 space-y-6">
             <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
-                
-                <!-- FITUR BARU: INFO GURU & SISWA -->
                 <div class="flex flex-wrap items-center justify-between mb-4 pb-4 border-b border-gray-100">
                     <div class="flex items-center gap-6">
                         <span class="text-xs font-bold text-gray-600"><i class="fa-solid fa-user-tie text-syekhGold-500 mr-2 text-sm"></i> Guru Pengampu: <span class="text-syekhGreen-900">{{ nama_user }}</span></span>
-                        <span class="text-xs font-bold text-gray-600"><i class="fa-solid fa-users text-emerald-500 mr-2 text-sm"></i> Total Siswa Kelas: <span id="totalSiswaKelas" class="text-syekhGreen-900">0</span></span>
+                        <span class="text-xs font-bold text-gray-600"><i class="fa-solid fa-users text-emerald-500 mr-2 text-sm"></i> Total Siswa (Aktif): <span id="totalSiswaKelas" class="text-syekhGreen-900">0</span></span>
                     </div>
                 </div>
 
@@ -76,7 +74,6 @@
             </div>
 
             <div class="flex justify-end gap-3 print-hidden">
-                <!-- FITUR BARU: TOMBOL LIHAT PRESENSI -->
                 <button onclick="lihatPresensi()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold uppercase tracking-widest px-6 py-3 transition flex items-center gap-2 rounded shadow-md">
                     <i class="fa-solid fa-magnifying-glass"></i> Lihat Presensi
                 </button>
@@ -95,7 +92,6 @@
                         <tr>
                             <th class="px-6 py-4">NISN / Nama Siswa</th>
                             <th class="px-4 py-4 text-center">Akumulasi (H/I/S/A)</th>
-                            <!-- FITUR BARU: KOLOM DESKRIPSI -->
                             <th class="px-4 py-4 print-hidden w-64">Deskripsi / Catatan</th>
                             <th class="px-6 py-4 text-right print-hidden">Status Kehadiran Hari Ini</th>
                         </tr>
@@ -107,18 +103,40 @@
                         {% set S = akumulasi[s.nisn]['Sakit'] if s.nisn in akumulasi else 0 %}
                         {% set A = akumulasi[s.nisn]['Alfa'] if s.nisn in akumulasi else 0 %}
                         
-                        <tr class="border-b border-gray-50 absensi-row hidden" data-kelas="{{ s.kelas }}">
-                            <td class="px-6 py-4"><p class="font-bold text-syekhGreen-900">{{ s.nama_siswa }}</p><p class="text-[10px] text-gray-500 nisn-cell">{{ s.nisn }}</p></td>
+                        <tr class="border-b border-gray-50 absensi-row hidden" data-kelas="{{ s.kelas }}" data-status="{{ s.status_siswa }}">
+                            <td class="px-6 py-4">
+                                <p class="font-bold text-syekhGreen-900 flex items-center gap-2">
+                                    {{ s.nama_siswa }}
+                                    {% if s.status_siswa and s.status_siswa != 'Aktif' %}
+                                    <span class="text-[9px] bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded font-bold uppercase">{{ s.status_siswa }}</span>
+                                    {% endif %}
+                                </p>
+                                <p class="text-[10px] text-gray-500 nisn-cell">{{ s.nisn }}</p>
+                            </td>
                             <td class="px-4 py-4 text-center">
                                 <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200" title="Hadir">{{ H }}</span>
                                 <span class="text-[10px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200" title="Izin">{{ I }}</span>
                                 <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200" title="Sakit">{{ S }}</span>
                                 <span class="text-[10px] font-bold bg-red-50 text-red-700 px-1.5 py-0.5 rounded border border-red-200" title="Alfa">{{ A }}</span>
                             </td>
-                            <!-- INPUT DESKRIPSI -->
-                            <td class="px-4 py-4 print-hidden"><input type="text" class="deskripsi-input w-full bg-gray-50 border border-gray-200 py-1.5 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600" placeholder="Opsional..."></td>
                             
-                            <td class="px-6 py-4 text-right print-hidden"><button class="status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded" onclick="toggleStatus(this)">HADIR</button></td>
+                            <!-- DESKRIPSI -->
+                            <td class="px-4 py-4 print-hidden">
+                                {% if not s.status_siswa or s.status_siswa == 'Aktif' %}
+                                <input type="text" class="deskripsi-input w-full bg-gray-50 border border-gray-200 py-1.5 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600" placeholder="Opsional...">
+                                {% else %}
+                                <input type="text" class="w-full bg-gray-100 border border-gray-200 py-1.5 px-3 text-xs rounded text-gray-400 cursor-not-allowed" value="Siswa Nonaktif" disabled>
+                                {% endif %}
+                            </td>
+                            
+                            <!-- TOMBOL STATUS -->
+                            <td class="px-6 py-4 text-right print-hidden">
+                                {% if not s.status_siswa or s.status_siswa == 'Aktif' %}
+                                <button class="status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded border border-emerald-200" onclick="toggleStatus(this)">HADIR</button>
+                                {% else %}
+                                <button class="bg-gray-200 text-gray-400 border border-gray-300 font-bold px-4 py-1.5 text-[10px] rounded cursor-not-allowed" disabled>NONAKTIF</button>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -136,12 +154,9 @@
         function filterDropdownKelasByHak() {
             const selectKelas = document.getElementById('selectKelasAbsensi');
             if (role === 'admin' || role === 'superadmin' || hakKelas === 'Semua') return;
-
             const allowedClasses = hakKelas.split(',').map(item => item.trim());
             Array.from(selectKelas.options).forEach(opt => {
-                if (opt.value !== "" && !allowedClasses.includes(opt.value)) {
-                    opt.style.display = 'none';
-                }
+                if (opt.value !== "" && !allowedClasses.includes(opt.value)) opt.style.display = 'none';
             });
         }
 
@@ -149,11 +164,7 @@
             const kelasVal = document.getElementById('selectKelasAbsensi').value;
             const mapelSelect = document.getElementById('selectMapel');
             mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-            
-            if(!kelasVal) {
-                document.getElementById('totalSiswaKelas').innerText = "0";
-                return;
-            }
+            if(!kelasVal) { document.getElementById('totalSiswaKelas').innerText = "0"; return; }
 
             let kategori = "";
             if(kelasVal.startsWith("X ")) kategori = "X";
@@ -166,20 +177,19 @@
                 const allowedMapel = hakMapel === 'Semua' ? masterMapel[kategori] : hakMapel.split(',').map(m => m.trim());
                 masterMapel[kategori].forEach(mapel => {
                     if (role === 'admin' || role === 'superadmin' || hakMapel === 'Semua' || allowedMapel.includes(mapel)) {
-                        const opt = document.createElement('option');
-                        opt.value = mapel; opt.textContent = mapel;
+                        const opt = document.createElement('option'); opt.value = mapel; opt.textContent = mapel;
                         mapelSelect.appendChild(opt);
                     }
                 });
             }
 
-            // Hitung dan tampilkan jumlah siswa
             let countSiswa = 0;
             const rows = document.querySelectorAll('.absensi-row');
             rows.forEach(row => { 
                 if (kelasVal === row.getAttribute('data-kelas')) {
                     row.classList.remove('hidden');
-                    countSiswa++;
+                    // Hitung total HANYA untuk siswa Aktif
+                    if(!row.getAttribute('data-status') || row.getAttribute('data-status') === 'Aktif') countSiswa++;
                 } else {
                     row.classList.add('hidden');
                 }
@@ -199,11 +209,10 @@
             let currentIndex = statusList.findIndex(s => s.label === currentLabel);
             let nextIndex = (currentIndex + 1) % statusList.length;
             let nextStatus = statusList[nextIndex];
-            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} font-bold px-4 py-1.5 text-[10px] rounded w-24`;
+            btn.className = `status-btn ${nextStatus.bg} ${nextStatus.text} font-bold px-4 py-1.5 text-[10px] rounded border border-gray-200 w-24`;
             btn.textContent = nextStatus.label;
         }
 
-        // FUNGSI BARU: Melihat Presensi yang Sudah Disimpan Sebelumnya
         async function lihatPresensi() {
             const tanggal = document.getElementById('tanggalAbsen').value;
             const mapel = document.getElementById('selectMapel').value;
@@ -218,30 +227,32 @@
                 
                 const res = await response.json();
                 if(res.status === 'success') {
-                    // Reset status ke HADIR & kosongkan deskripsi sebelum memuat
                     document.querySelectorAll('.absensi-row:not(.hidden)').forEach(row => {
                         const btn = row.querySelector('.status-btn');
-                        btn.className = `status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded w-24`;
-                        btn.textContent = 'HADIR';
-                        row.querySelector('.deskripsi-input').value = '';
+                        if(btn && !btn.disabled) {
+                            btn.className = `status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] border border-emerald-200 rounded w-24`;
+                            btn.textContent = 'HADIR';
+                            row.querySelector('.deskripsi-input').value = '';
+                        }
                     });
                     
-                    // Isi dengan data dari database
                     res.data.forEach(record => {
                         const row = Array.from(document.querySelectorAll('.absensi-row')).find(r => r.querySelector('.nisn-cell').innerText.trim() === record.nisn);
                         if(row && !row.classList.contains('hidden')) {
                             const btn = row.querySelector('.status-btn');
-                            const statusObj = statusList.find(s => s.label === record.status);
-                            if(statusObj) {
-                                btn.className = `status-btn ${statusObj.bg} ${statusObj.text} font-bold px-4 py-1.5 text-[10px] rounded w-24`;
-                                btn.textContent = statusObj.label;
+                            if(btn && !btn.disabled) {
+                                const statusObj = statusList.find(s => s.label === record.status);
+                                if(statusObj) {
+                                    btn.className = `status-btn ${statusObj.bg} ${statusObj.text} font-bold px-4 py-1.5 text-[10px] rounded border border-gray-200 w-24`;
+                                    btn.textContent = statusObj.label;
+                                }
+                                row.querySelector('.deskripsi-input').value = record.deskripsi || '';
                             }
-                            row.querySelector('.deskripsi-input').value = record.deskripsi || '';
                         }
                     });
-                    alert('Berhasil memuat data presensi yang ada pada tanggal tersebut.');
+                    alert('Data pada tanggal tersebut berhasil dimuat!');
                 }
-            } catch(e) { console.error(e); alert('Gagal memuat presensi dari server.'); }
+            } catch(e) { console.error(e); alert('Gagal memuat presensi.'); }
         }
 
         async function simpanPresensi() {
@@ -254,10 +265,14 @@
             if(!mapel) { alert('Harap pilih Mata Pelajaran terlebih dahulu!'); return; }
 
             rows.forEach(row => {
-                const nisn = row.querySelector('.nisn-cell').innerText.trim();
-                const status = row.querySelector('.status-btn').innerText.trim();
-                const deskripsi = row.querySelector('.deskripsi-input').value.trim();
-                records.push({nisn: nisn, status: status, deskripsi: deskripsi});
+                const btn = row.querySelector('.status-btn');
+                // HANYA ambil data jika tombol tidak disable (siswa Aktif)
+                if(btn && !btn.disabled) {
+                    const nisn = row.querySelector('.nisn-cell').innerText.trim();
+                    const status = btn.innerText.trim();
+                    const deskripsi = row.querySelector('.deskripsi-input').value.trim();
+                    records.push({nisn: nisn, status: status, deskripsi: deskripsi});
+                }
             });
             
             if(records.length === 0) return;

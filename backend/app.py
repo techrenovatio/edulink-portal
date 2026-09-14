@@ -47,7 +47,7 @@ def is_admin_or_super():
 @app.route('/')
 def home():
     conn = get_db_connection()
-    try: total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
+    try: total_siswa = conn.execute("SELECT COUNT(*) FROM siswa WHERE status_siswa='Aktif'").fetchone()[0]
     except: total_siswa = 0
     finally: conn.close()
     return render_template('index.html', total_siswa=total_siswa)
@@ -86,10 +86,12 @@ def logout():
 def dashboard_overview():
     if 'user_id' not in session: return redirect(url_for('login'))
     conn = get_db_connection()
-    total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
-    kelas_x = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'X %'").fetchone()[0]
-    kelas_xi = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XI %'").fetchone()[0]
-    kelas_xii = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XII %'").fetchone()[0]
+    # Hanya hitung siswa yang statusnya 'Aktif'
+    total_siswa = conn.execute("SELECT COUNT(*) FROM siswa WHERE status_siswa='Aktif'").fetchone()[0]
+    kelas_x = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'X %' AND status_siswa='Aktif'").fetchone()[0]
+    kelas_xi = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XI %' AND status_siswa='Aktif'").fetchone()[0]
+    kelas_xii = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XII %' AND status_siswa='Aktif'").fetchone()[0]
+    
     total_pelanggaran = conn.execute("SELECT COUNT(*) FROM pelanggaran").fetchone()[0]
     sp_aktif = len(conn.execute("SELECT nisn, SUM(poin) as total_poin FROM pelanggaran GROUP BY nisn HAVING total_poin >= 50").fetchall())
     recent_logs = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 5").fetchall()
@@ -201,14 +203,17 @@ def siswa():
         kelas = request.form.get('kelas', '').strip()
         nama_wali = request.form.get('nama_wali', '').strip()
         no_hp_wali = request.form.get('no_hp_wali', '').strip()
+        status_siswa = request.form.get('status_siswa', 'Aktif').strip()
         if nisn and nama_siswa and kelas:
             try:
-                conn.execute("INSERT INTO siswa (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali) VALUES (?, ?, ?, ?, ?, ?)", (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali))
+                conn.execute("INSERT INTO siswa (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali, status_siswa) VALUES (?, ?, ?, ?, ?, ?, ?)", (nisn, nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali, status_siswa))
                 conn.commit()
             except: pass
         conn.close()
         return redirect(url_for('siswa'))
-    daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
+    
+    # Sortir aktif di atas, disusul kelas dan nama
+    daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY CASE WHEN status_siswa='Aktif' THEN 1 ELSE 2 END, kelas ASC, nama_siswa ASC").fetchall()
     conn.close()
     return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa)
 
@@ -220,9 +225,10 @@ def edit_siswa(nisn):
     kelas = request.form.get('edit_kelas', '').strip()
     nama_wali = request.form.get('edit_nama_wali', '').strip()
     no_hp_wali = request.form.get('edit_no_hp_wali', '').strip()
+    status_siswa = request.form.get('edit_status_siswa', 'Aktif').strip()
     conn = get_db_connection()
     try:
-        conn.execute("UPDATE siswa SET nama_siswa=?, jenis_kelamin=?, kelas=?, nama_wali=?, no_hp_wali=? WHERE nisn=?", (nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali, nisn))
+        conn.execute("UPDATE siswa SET nama_siswa=?, jenis_kelamin=?, kelas=?, nama_wali=?, no_hp_wali=?, status_siswa=? WHERE nisn=?", (nama_siswa, jenis_kelamin, kelas, nama_wali, no_hp_wali, status_siswa, nisn))
         conn.commit()
     except: pass
     finally: conn.close()
@@ -306,20 +312,15 @@ def laporan():
     conn.close()
     return render_template('dashboard/laporan.html', nama_user=session['nama'], siswa=siswa_data, pelanggaran=pelanggaran_data, total_poin=total_poin, kehadiran=kehadiran, search_query=search_query)
 
-# --- FITUR BARU: Endpoint API Memuat Data Presensi ---
 @app.route('/api/get_presensi', methods=['POST'])
 def get_presensi():
-    if 'user_id' not in session: 
-        return jsonify({"status": "error", "message": "Unauthorized"}), 401
-    
+    if 'user_id' not in session: return jsonify({"status": "error", "message": "Unauthorized"}), 401
     data = request.json
     tanggal = data.get('tanggal')
     mapel = data.get('mata_pelajaran')
-    
     conn = get_db_connection()
     records = conn.execute("SELECT nisn, status, deskripsi FROM presensi_harian WHERE tanggal=? AND mata_pelajaran=?", (tanggal, mapel)).fetchall()
     conn.close()
-    
     result = [dict(r) for r in records]
     return jsonify({"status": "success", "data": result})
 
@@ -358,7 +359,7 @@ def presensi():
         finally: 
             conn.close()
 
-    daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY kelas ASC, nama_siswa ASC").fetchall()
+    daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY CASE WHEN status_siswa='Aktif' THEN 1 ELSE 2 END, kelas ASC, nama_siswa ASC").fetchall()
     akumulasi_raw = conn.execute("SELECT nisn, status, COUNT(*) as count FROM presensi_harian GROUP BY nisn, status").fetchall()
     akumulasi = {}
     for row in akumulasi_raw:

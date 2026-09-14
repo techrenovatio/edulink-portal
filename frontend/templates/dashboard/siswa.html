@@ -4,32 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Siswa - SMA Syekh Yusuf</title>
-    
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
-                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
-                        syekhDark: { 900: '#0F172A', 800: '#1E293B', 700: '#334155' },
-                        syekhPaper: '#F8FAFC',
-                    }
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] },
+                    colors: { syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' }, syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' } }
                 }
             }
         }
     </script>
     <style>
-        /* CSS Khusus untuk Mode Cetak (Print) */
         @media print {
             aside, header { display: none !important; }
             main { margin: 0 !important; padding: 0 !important; }
@@ -38,177 +27,111 @@
         }
     </style>
 </head>
-<body class="bg-syekhPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
 
-    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden print-hidden"></div>
-
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40 print-hidden">
-        <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
-            <div class="flex items-center gap-3">
-                <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
-                <div>
-                    <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
-                    <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
-                </div>
-            </div>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform print-hidden">
+        <div class="h-24 flex items-center px-6 border-b border-syekhGreen-800">
+            <span class="text-sm font-serif font-bold text-white">SMA SYEKH YUSUF</span>
         </div>
-
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
-            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-line text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Overview</span></a>
-            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Kelola Pengguna</span></a>
-            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white rounded-lg transition border-l-4 border-syekhGold-500"><i class="fa-solid fa-users text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Data Siswa</span></a>
-            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
-            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
-            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Presensi Harian</span></a>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-chart-line w-5"></i><span class="text-xs font-semibold">OVERVIEW</span></a>
+            <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-user-gear w-5"></i><span class="text-xs font-semibold">KELOLA PENGGUNA</span></a>
+            <a href="/siswa" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white border-l-4 border-syekhGold-500 rounded-lg"><i class="fa-solid fa-users w-5 text-syekhGold-400"></i><span class="text-xs font-bold">DATA SISWA</span></a>
+            <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-scale-balanced w-5"></i><span class="text-xs font-semibold">POIN PELANGGARAN</span></a>
+            <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-file-invoice w-5"></i><span class="text-xs font-semibold">LAPORAN & REKAP</span></a>
+            <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-clipboard-user w-5"></i><span class="text-xs font-semibold">PRESENSI HARIAN</span></a>
         </nav>
-
-        <div class="p-5 border-t border-syekhGreen-800">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
-                <div class="overflow-hidden">
-                    <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">Administrator</p>
-                </div>
-            </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
-        </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
-                <div>
-                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-syekhGreen-900 leading-tight">Pengelolaan Data Siswa</h1>
-                    <p class="text-[10px] sm:text-xs text-syekhGold-600 font-bold uppercase tracking-wider hidden sm:block">Input Manual & Direktori Siswa Sekolah</p>
-                </div>
-            </div>
+    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0 print:m-0 print:h-auto overflow-y-auto">
+        <header class="h-24 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
+            <div><h1 class="text-xl font-serif font-bold text-syekhGreen-900">Pengelolaan Data Siswa</h1></div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
+        <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <!-- KOLOM KIRI: INPUT DATA SISWA -->
-                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
-                    <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Input Data Siswa</h3>
-                    <p class="text-xs text-gray-500 mb-5">Tambahkan identitas siswa baru secara manual.</p>
-                    
+                <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
+                    <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Input Data Siswa</h3>
                     <form action="/siswa" method="POST" autocomplete="off" class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN (Nomor Induk)</label>
-                            <input type="text" name="nisn" required placeholder="Contoh: 0051231001" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Lengkap Siswa</label>
-                            <input type="text" name="nama_siswa" required placeholder="Masukkan nama sesuai ijazah" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Jenis Kelamin</label>
-                            <select name="jenis_kelamin" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                                <option value="L">Laki-laki</option>
-                                <option value="P">Perempuan</option>
+                        <input type="text" name="nisn" required placeholder="NISN Siswa" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                        <input type="text" name="nama_siswa" required placeholder="Nama Lengkap" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                        <select name="jenis_kelamin" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+                        <select name="kelas" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                            <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
+                            <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
+                            <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                        </select>
+                        <input type="text" name="nama_wali" placeholder="Nama Wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                        <input type="text" name="no_hp_wali" placeholder="No WA Wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                        
+                        <!-- FITUR BARU: STATUS SISWA -->
+                        <div class="border-t border-gray-200 pt-3 mt-3">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Status Akademik</label>
+                            <select name="status_siswa" required class="w-full bg-white border py-2 px-3 text-xs rounded mt-1">
+                                <option value="Aktif">Aktif</option>
+                                <option value="Lulus">Sudah Lulus</option>
+                                <option value="Keluar">Keluar / Pindah</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Tingkat & Rombel Kelas</label>
-                            <select name="kelas" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                                <option value="X IPA 1">X IPA 1</option>
-                                <option value="X IPS 1">X IPS 1</option>
-                                <option value="XI IPA 1">XI IPA 1</option>
-                                <option value="XI IPA 2">XI IPA 2</option>
-                                <option value="XI IPS 1">XI IPS 1</option>
-                                <option value="XII IPA 1">XII IPA 1</option>
-                                <option value="XII IPA 2">XII IPA 2</option>
-                                <option value="XII IPS 1">XII IPS 1</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Wali / Orang Tua</label>
-                            <input type="text" name="nama_wali" placeholder="Nama penanggung jawab" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">No. WhatsApp Wali</label>
-                            <input type="text" name="no_hp_wali" placeholder="08xxxxxxxxxx" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        </div>
-                        <button type="submit" class="w-full bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded">
-                            <i class="fa-solid fa-user-plus mr-1"></i> Simpan Data Siswa
-                        </button>
+
+                        <button type="submit" class="w-full bg-syekhGreen-800 text-white font-bold py-3 text-xs rounded">Simpan Data Siswa</button>
                     </form>
                 </div>
 
-                <!-- KOLOM KANAN: Tabel Direktori Siswa -->
-                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGold-500 print:shadow-none print:border-none print:m-0 w-full">
-                    <div class="p-4 sm:p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3 print:px-0">
-                        <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Direktori Siswa Aktif</h3>
-                        
-                        <div class="flex items-center gap-2 w-full sm:w-auto print-hidden">
-                            <input type="text" id="searchSiswa" onkeyup="filterTable()" placeholder="Cari NISN / Nama..." class="w-full sm:w-auto bg-syekhPaper border border-gray-200 text-xs py-2 px-3 focus:outline-none rounded">
-                            <select id="selectKelasFilter" onchange="filterTable()" class="bg-syekhPaper border border-gray-200 text-xs py-2 px-2 focus:outline-none rounded">
+                <div class="lg:col-span-2 bg-white rounded-xl border shadow-sm border-t-4 border-t-syekhGold-500 w-full print:border-none print:shadow-none print:m-0">
+                    <div class="p-4 border-b border-gray-100 flex justify-between items-center print:px-0">
+                        <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Direktori Siswa</h3>
+                        <div class="flex items-center gap-2 print-hidden">
+                            <input type="text" id="searchSiswa" onkeyup="filterTable()" placeholder="Cari..." class="w-full sm:w-auto bg-gray-50 border py-2 px-3 text-xs rounded">
+                            <select id="selectKelasFilter" onchange="filterTable()" class="bg-gray-50 border py-2 px-2 text-xs rounded">
                                 <option value="">Semua Kelas</option>
-                                <option value="X IPA 1">X IPA 1</option>
-                                <option value="X IPS 1">X IPS 1</option>
-                                <option value="XI IPA 1">XI IPA 1</option>
-                                <option value="XI IPA 2">XI IPA 2</option>
-                                <option value="XI IPS 1">XI IPS 1</option>
-                                <option value="XII IPA 1">XII IPA 1</option>
-                                <option value="XII IPA 2">XII IPA 2</option>
-                                <option value="XII IPS 1">XII IPS 1</option>
+                                <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
+                                <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
+                                <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
                             </select>
-                            
-                            <!-- TOMBOL CETAK -->
                             {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
-                            <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-4 py-2 transition flex items-center justify-center gap-2 rounded shadow-sm shrink-0">
-                                <i class="fa-solid fa-print"></i> Cetak
-                            </button>
+                            <button onclick="window.print()" class="bg-syekhGold-500 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm"><i class="fa-solid fa-print"></i> Cetak</button>
                             {% endif %}
                         </div>
                     </div>
-                    
                     <div class="overflow-x-auto max-h-[600px] overflow-y-auto print:max-h-full print:overflow-visible">
-                        <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[550px]">
-                            <thead class="bg-syekhPaper text-[10px] sm:text-[11px] uppercase font-bold text-gray-500 tracking-wider sticky top-0 z-10 print:bg-gray-100">
+                        <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
+                            <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider sticky top-0 z-10 print:bg-gray-100">
                                 <tr>
-                                    <th class="pl-6 py-3.5 border-b border-gray-200">NISN / Nama</th>
-                                    <th class="px-3 py-3.5 border-b border-gray-200">JK</th>
-                                    <th class="px-3 py-3.5 border-b border-gray-200">Kelas</th>
-                                    <th class="px-3 py-3.5 border-b border-gray-200">Kontak Wali</th>
-                                    <th class="pr-6 py-3.5 text-right border-b border-gray-200 print-hidden">Aksi</th>
+                                    <th class="pl-6 py-3">NISN / Nama</th>
+                                    <th class="px-3 py-3">Kelas</th>
+                                    <th class="px-3 py-3">Wali</th>
+                                    <th class="px-3 py-3">Status</th>
+                                    <th class="px-4 py-3 text-right print-hidden">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="studentTableBody" class="divide-y divide-gray-100">
+                            <tbody id="studentTableBody">
                                 {% for s in siswa_list %}
-                                <tr class="hover:bg-emerald-50/50 transition student-row" data-kelas="{{ s.kelas }}">
-                                    <td class="pl-6 py-3.5">
-                                        <p class="font-bold text-syekhGreen-900 student-name">{{ s.nama_siswa }}</p>
-                                        <p class="text-[10px] font-mono text-gray-400 student-nisn">{{ s.nisn }}</p>
+                                <tr class="border-b border-gray-50 hover:bg-emerald-50/50 transition student-row" data-kelas="{{ s.kelas }}">
+                                    <td class="pl-6 py-3"><p class="font-bold text-syekhGreen-900 student-name">{{ s.nama_siswa }}</p><p class="text-[10px] text-gray-400 student-nisn">{{ s.nisn }}</p></td>
+                                    <td class="px-3 py-3 font-mono">{{ s.kelas }}</td>
+                                    <td class="px-3 py-3"><p>{{ s.nama_wali }}</p><p class="text-[10px] text-gray-400 font-mono">{{ s.no_hp_wali }}</p></td>
+                                    
+                                    <!-- BADGE STATUS -->
+                                    <td class="px-3 py-3">
+                                        {% if not s.status_siswa or s.status_siswa == 'Aktif' %}
+                                            <span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Aktif</span>
+                                        {% elif s.status_siswa == 'Lulus' %}
+                                            <span class="bg-blue-100 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Lulus</span>
+                                        {% else %}
+                                            <span class="bg-red-100 text-red-700 border border-red-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Keluar</span>
+                                        {% endif %}
                                     </td>
-                                    <td class="px-3 py-3.5 font-bold">{{ s.jenis_kelamin }}</td>
-                                    <td class="px-3 py-3.5 font-mono text-xs text-gray-500">{{ s.kelas }}</td>
-                                    <td class="px-3 py-3.5">
-                                        <p class="text-xs">{{ s.nama_wali }}</p>
-                                        <p class="text-[10px] text-gray-400 font-mono">{{ s.no_hp_wali }}</p>
+
+                                    <td class="px-4 py-3 text-right print-hidden">
+                                        <button onclick="openEditModal('{{ s.nisn }}', '{{ s.nama_siswa }}', '{{ s.jenis_kelamin }}', '{{ s.kelas }}', '{{ s.nama_wali }}', '{{ s.no_hp_wali }}', '{{ s.status_siswa }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                        <button onclick="deleteSiswa('{{ s.nisn }}', '{{ s.nama_siswa }}')" class="p-1.5 text-gray-400 hover:text-red-600" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
                                     </td>
-                                    <td class="pr-6 py-3.5 text-right whitespace-nowrap print-hidden">
-                                        <button onclick="openEditModal('{{ s.nisn }}', '{{ s.nama_siswa }}', '{{ s.jenis_kelamin }}', '{{ s.kelas }}', '{{ s.nama_wali }}', '{{ s.no_hp_wali }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Siswa">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                        <button onclick="deleteSiswa('{{ s.nisn }}', '{{ s.nama_siswa }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Siswa">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-8 text-gray-400 italic">Belum ada data siswa tersimpan.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                        
                         <form id="deleteSiswaForm" method="POST" class="hidden"></form>
                     </div>
                 </div>
@@ -216,107 +139,68 @@
         </div>
     </main>
 
-    <!-- MODAL EDIT SISWA -->
+    <!-- MODAL EDIT -->
     <div id="modalEditSiswa" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
         <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl border-t-4 border-syekhGold-500 mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Ubah Data Siswa</h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <form id="editSiswaForm" method="POST" autocomplete="off" class="space-y-4">
+                <input type="text" id="edit_nisn" required readonly class="w-full bg-gray-100 border py-2 px-3 text-xs rounded text-gray-500">
+                <input type="text" id="edit_nama_siswa" name="edit_nama_siswa" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                <select id="edit_jenis_kelamin" name="edit_jenis_kelamin" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+                <select id="edit_kelas" name="edit_kelas" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                    <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
+                    <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
+                    <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                </select>
+                <input type="text" id="edit_nama_wali" name="edit_nama_wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                <input type="text" id="edit_no_hp_wali" name="edit_no_hp_wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN (Tidak bisa diubah)</label>
-                    <input type="text" id="edit_nisn" required readonly class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-gray-500 focus:outline-none rounded">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Lengkap Siswa</label>
-                    <input type="text" id="edit_nama_siswa" name="edit_nama_siswa" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Jenis Kelamin</label>
-                    <select id="edit_jenis_kelamin" name="edit_jenis_kelamin" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        <option value="L">Laki-laki</option>
-                        <option value="P">Perempuan</option>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Status Akademik</label>
+                    <select id="edit_status_siswa" name="edit_status_siswa" required class="w-full bg-white border py-2 px-3 text-xs rounded mt-1">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Lulus">Sudah Lulus</option>
+                        <option value="Keluar">Keluar / Pindah</option>
                     </select>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Tingkat & Rombel Kelas</label>
-                    <select id="edit_kelas" name="edit_kelas" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                        <option value="X IPA 1">X IPA 1</option>
-                        <option value="X IPS 1">X IPS 1</option>
-                        <option value="XI IPA 1">XI IPA 1</option>
-                        <option value="XI IPA 2">XI IPA 2</option>
-                        <option value="XI IPS 1">XI IPS 1</option>
-                        <option value="XII IPA 1">XII IPA 1</option>
-                        <option value="XII IPA 2">XII IPA 2</option>
-                        <option value="XII IPS 1">XII IPS 1</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Wali / Orang Tua</label>
-                    <input type="text" id="edit_nama_wali" name="edit_nama_wali" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">No. WhatsApp Wali</label>
-                    <input type="text" id="edit_no_hp_wali" name="edit_no_hp_wali" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
-                </div>
-                <button type="submit" class="w-full bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-sm">
-                    Simpan Perubahan
-                </button>
+
+                <button type="submit" class="w-full bg-syekhGold-500 text-syekhGreen-900 font-bold py-3 text-xs rounded">Simpan Perubahan</button>
             </form>
         </div>
     </div>
 
     <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-            document.getElementById('sidebarBackdrop').classList.toggle('hidden');
-        }
-
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('sidebarBackdrop').classList.toggle('hidden'); }
         function filterTable() {
-            const searchVal = document.getElementById('searchSiswa').value.toLowerCase();
-            const kelasVal = document.getElementById('selectKelasFilter').value;
-            const rows = document.querySelectorAll('.student-row');
-
-            rows.forEach(row => {
-                const name = row.querySelector('.student-name').textContent.toLowerCase();
-                const nisn = row.querySelector('.student-nisn').textContent.toLowerCase();
-                const rowKelas = row.getAttribute('data-kelas');
-
-                const matchSearch = name.includes(searchVal) || nisn.includes(searchVal);
-                const matchKelas = kelasVal === '' || rowKelas === kelasVal;
-
-                row.style.display = (matchSearch && matchKelas) ? '' : 'none';
+            const s = document.getElementById('searchSiswa').value.toLowerCase();
+            const k = document.getElementById('selectKelasFilter').value;
+            document.querySelectorAll('.student-row').forEach(r => {
+                const text = r.innerText.toLowerCase();
+                const cls = r.getAttribute('data-kelas');
+                r.style.display = (text.includes(s) && (k === '' || cls === k)) ? '' : 'none';
             });
         }
-
         function deleteSiswa(nisn, nama) {
-            if (confirm(`Yakin ingin menghapus data siswa ${nama} (${nisn}) secara permanen?`)) {
-                const form = document.getElementById('deleteSiswaForm');
-                form.action = `/siswa/delete/${nisn}`;
-                form.submit();
+            if (confirm(`Yakin ingin menghapus data siswa ${nama}?`)) {
+                const f = document.getElementById('deleteSiswaForm');
+                f.action = `/siswa/delete/${nisn}`; f.submit();
             }
         }
-
-        // LOGIKA MODAL EDIT
-        function openEditModal(nisn, nama, jk, kelas, wali, no_hp) {
+        function openEditModal(nisn, nama, jk, kelas, wali, hp, status) {
             document.getElementById('edit_nisn').value = nisn;
             document.getElementById('edit_nama_siswa').value = nama;
             document.getElementById('edit_jenis_kelamin').value = jk;
             document.getElementById('edit_kelas').value = kelas;
             document.getElementById('edit_nama_wali').value = wali;
-            document.getElementById('edit_no_hp_wali').value = no_hp;
-            
-            // Set form action dynamic
+            document.getElementById('edit_no_hp_wali').value = hp;
+            document.getElementById('edit_status_siswa').value = status || 'Aktif';
             document.getElementById('editSiswaForm').action = `/siswa/edit/${nisn}`;
-            
             document.getElementById('modalEditSiswa').classList.remove('hidden');
         }
-
-        function closeEditModal() {
-            document.getElementById('modalEditSiswa').classList.add('hidden');
-        }
+        function closeEditModal() { document.getElementById('modalEditSiswa').classList.add('hidden'); }
     </script>
 </body>
 </html>

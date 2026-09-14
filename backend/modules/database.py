@@ -58,6 +58,12 @@ def init_db():
         )
     ''')
 
+    # FITUR BARU: Status Akademik Siswa
+    cursor.execute("PRAGMA table_info(siswa)")
+    siswa_cols = [col['name'] for col in cursor.fetchall()]
+    if 'status_siswa' not in siswa_cols:
+        cursor.execute("ALTER TABLE siswa ADD COLUMN status_siswa TEXT DEFAULT 'Aktif'")
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS master_pelanggaran (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,7 +85,6 @@ def init_db():
         )
     ''')
     
-    # FITUR BARU: Menambahkan kolom deskripsi pada tabel presensi_harian
     cursor.execute("PRAGMA table_info(presensi_harian)")
     presensi_cols = [col['name'] for col in cursor.fetchall()]
     if 'deskripsi' not in presensi_cols:
