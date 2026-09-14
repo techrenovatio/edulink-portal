@@ -28,15 +28,21 @@
             }
         }
     </script>
+    <style>
+        @media print {
+            aside, header { display: none !important; }
+            main { margin: 0 !important; padding: 0 !important; }
+            .print-hidden { display: none !important; }
+        }
+    </style>
 </head>
 <body class="bg-syekhPaper text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
 
-    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden print-hidden"></div>
 
-    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
+    <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40 print-hidden">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <!-- LOGO TRANSPARAN RESPONSIF -->
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
                 <div>
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
@@ -71,7 +77,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0">
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
                 <div>
@@ -83,7 +89,7 @@
 
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             
-            <form action="/laporan" method="GET" class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <form action="/laporan" method="GET" class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 print-hidden">
                 <div class="flex-1 flex flex-col sm:flex-row items-center gap-3">
                     <div class="relative w-full">
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
@@ -120,7 +126,7 @@
                     {% set badge_class = 'bg-yellow-100 text-yellow-800 border-yellow-200' %}
                 {% endif %}
 
-                <div class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 items-center border-l-4 border-l-syekhGold-500">
+                <div class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 items-center border-l-4 border-l-syekhGold-500 print:shadow-none print:border-none print:p-0 print:mb-6">
                     <div class="md:col-span-2 flex items-center gap-4">
                         <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-syekhGreen-900 font-serif font-bold text-xl shrink-0 uppercase">
                             {{ siswa.nama_siswa[0:2] }}
@@ -141,19 +147,20 @@
                     </div>
                     <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Tingkat Kehadiran</span>
-                        <h3 class="text-3xl font-serif font-bold text-syekhGreen-900">95.0%</h3>
-                        <p class="text-[10px] text-gray-500 font-semibold mt-1">Data Presensi Aktif</p>
+                        <!-- MENAMPILKAN DATA KEHADIRAN AKTUAL -->
+                        <h3 class="text-3xl font-serif font-bold text-syekhGreen-900">{{ kehadiran.Persentase }}%</h3>
+                        <p class="text-[10px] text-gray-500 font-semibold mt-1">{{ kehadiran.Sakit }} Sakit • {{ kehadiran.Izin }} Izin • {{ kehadiran.Alfa }} Alfa</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden">
-                    <div class="p-5 sm:p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden print:border-none print:shadow-none">
+                    <div class="p-5 sm:p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50 print:px-0">
                         <h3 class="font-serif font-bold text-base sm:text-lg text-syekhGreen-900">Kronologi Pelanggaran Siswa</h3>
                         <span class="text-xs text-gray-500 font-bold bg-white px-3 py-1 rounded border border-gray-200">{{ pelanggaran|length }} Catatan Ditemukan</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs sm:text-sm text-gray-600 min-w-[600px]">
-                            <thead class="bg-white border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+                            <thead class="bg-white border-b border-gray-200 text-[10px] uppercase font-bold text-gray-500 tracking-wider print:bg-gray-100">
                                 <tr>
                                     <th class="pl-6 py-3.5">Tanggal Sistem</th>
                                     <th class="px-4 py-3.5">Jenis Pelanggaran</th>
@@ -163,7 +170,7 @@
                             <tbody class="divide-y divide-gray-100">
                                 {% for p in pelanggaran %}
                                 <tr class="hover:bg-emerald-50/50 transition">
-                                    <td class="pl-6 py-4 font-mono text-xs text-gray-500">{{ p.tanggal }}</td>
+                                    <td class="pl-6 py-4 font-mono text-xs text-gray-500">{{ p.tanggal[:10] }}</td>
                                     <td class="px-4 py-4 font-bold text-syekhGreen-900">{{ p.jenis_pelanggaran }}</td>
                                     <td class="px-4 py-4 text-center font-bold text-red-600">+{{ p.poin }}</td>
                                 </tr>
@@ -179,14 +186,14 @@
 
             {% elif search_query %}
                 
-                <div class="bg-white p-8 rounded-xl border border-red-200 shadow-sm text-center">
+                <div class="bg-white p-8 rounded-xl border border-red-200 shadow-sm text-center print-hidden">
                     <h3 class="text-red-600 font-bold">Data tidak ditemukan!</h3>
                     <p class="text-sm text-gray-500 mt-2">Siswa dengan NISN atau Nama "<span class="font-bold text-gray-800">{{ search_query }}</span>" tidak terdaftar di sistem database.</p>
                 </div>
 
             {% else %}
                 
-                <div class="bg-white p-12 rounded-xl border border-gray-200/80 shadow-sm text-center flex flex-col items-center justify-center">
+                <div class="bg-white p-12 rounded-xl border border-gray-200/80 shadow-sm text-center flex flex-col items-center justify-center print-hidden">
                     <i class="fa-solid fa-file-invoice text-5xl text-gray-300 mb-4"></i>
                     <h3 class="text-gray-500 font-bold text-lg">Pencarian Rekapitulasi</h3>
                     <p class="text-sm text-gray-400 mt-2 max-w-md">Silakan masukkan <span class="font-bold">NISN</span> atau <span class="font-bold">Nama Lengkap</span> siswa pada kolom pencarian di atas untuk memuat identitas dan track record kedisiplinan secara otomatis.</p>

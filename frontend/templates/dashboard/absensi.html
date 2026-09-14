@@ -36,7 +36,6 @@
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
-                <!-- LOGO TRANSPARAN & RESPONSIF DI SIDEBAR (Kotak putih dihapus) -->
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain drop-shadow-md transition-all duration-300">
                 <div>
                     <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
@@ -124,7 +123,7 @@
                         <tbody id="absensiTableBody" class="divide-y divide-gray-100">
                             {% for s in siswa_list %}
                             <tr class="hover:bg-emerald-50/50 transition absensi-row" data-kelas="{{ s.kelas }}">
-                                <td class="px-6 py-4 font-mono text-gray-500">{{ s.nisn }}</td>
+                                <td class="px-6 py-4 font-mono text-gray-500 nisn-cell">{{ s.nisn }}</td>
                                 <td class="px-6 py-4 font-bold text-syekhGreen-900">{{ s.nama_siswa }}</td>
                                 <td class="px-6 py-4 text-xs font-mono font-bold text-gray-500">{{ s.kelas }}</td>
                                 <td class="px-6 py-4 text-center">
@@ -186,8 +185,49 @@
             btn.textContent = nextStatus.label;
         }
 
-        function simpanAbsensi() {
-            alert('Presensi harian berhasil disimpan!');
+        // LOGIKA PENYIMPANAN ABSENSI (AJAX)
+        async function simpanAbsensi() {
+            const tanggal = document.getElementById('tanggalAbsen').value;
+            const rows = document.querySelectorAll('.absensi-row');
+            let records = [];
+            
+            rows.forEach(row => {
+                // Hanya proses baris siswa yang sedang tampil (tidak di-hide oleh filter)
+                if (row.style.display !== 'none') {
+                    const nisn = row.querySelector('.nisn-cell').innerText.trim();
+                    const statusBtn = row.querySelector('.status-btn');
+                    const status = statusBtn.innerText.trim();
+                    records.push({nisn: nisn, status: status});
+                }
+            });
+            
+            if(records.length === 0) {
+                alert('Tidak ada data siswa pada kelas ini untuk disimpan.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/absensi', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tanggal: tanggal,
+                        records: records
+                    })
+                });
+                
+                const result = await response.json();
+                if(result.status === 'success') {
+                    alert(result.message);
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Terjadi kesalahan pada server saat menyimpan absensi.');
+            }
         }
     </script>
 </body>

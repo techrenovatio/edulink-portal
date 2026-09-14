@@ -83,7 +83,6 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
                 
-                <!-- Form Input Manual (Action ditambahkan ke /siswa) -->
                 <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm border-t-4 border-t-syekhGreen-700">
                     <h3 class="font-serif font-bold text-lg sm:text-xl text-syekhGreen-900 mb-1">Input Data Siswa</h3>
                     <p class="text-xs text-gray-500 mb-5">Tambahkan identitas siswa baru secara manual.</p>
@@ -175,7 +174,11 @@
                                         <p class="text-xs">{{ s.nama_wali }}</p>
                                         <p class="text-[10px] text-gray-400 font-mono">{{ s.no_hp_wali }}</p>
                                     </td>
-                                    <td class="pr-6 py-3.5 text-right">
+                                    <td class="pr-6 py-3.5 text-right whitespace-nowrap">
+                                        <!-- TOMBOL EDIT BARU -->
+                                        <button onclick="openEditModal('{{ s.nisn }}', '{{ s.nama_siswa }}', '{{ s.jenis_kelamin }}', '{{ s.kelas }}', '{{ s.nama_wali }}', '{{ s.no_hp_wali }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Siswa">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
                                         <button onclick="deleteSiswa('{{ s.nisn }}', '{{ s.nama_siswa }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Siswa">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </button>
@@ -189,13 +192,64 @@
                             </tbody>
                         </table>
                         
-                        <!-- Form tersembunyi untuk menghapus siswa -->
                         <form id="deleteSiswaForm" method="POST" class="hidden"></form>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- MODAL EDIT SISWA -->
+    <div id="modalEditSiswa" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl border-t-4 border-syekhGold-500 mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Ubah Data Siswa</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="editSiswaForm" method="POST" autocomplete="off" class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">NISN (Tidak bisa diubah)</label>
+                    <input type="text" id="edit_nisn" required readonly class="w-full bg-gray-100 border border-gray-200 text-xs sm:text-sm py-2.5 px-3 font-semibold text-gray-500 focus:outline-none rounded">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" id="edit_nama_siswa" name="edit_nama_siswa" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Jenis Kelamin</label>
+                    <select id="edit_jenis_kelamin" name="edit_jenis_kelamin" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Tingkat & Rombel Kelas</label>
+                    <select id="edit_kelas" name="edit_kelas" required class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                        <option value="X IPA 1">X IPA 1</option>
+                        <option value="X IPS 1">X IPS 1</option>
+                        <option value="XI IPA 1">XI IPA 1</option>
+                        <option value="XI IPA 2">XI IPA 2</option>
+                        <option value="XI IPS 1">XI IPS 1</option>
+                        <option value="XII IPA 1">XII IPA 1</option>
+                        <option value="XII IPA 2">XII IPA 2</option>
+                        <option value="XII IPS 1">XII IPS 1</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Wali / Orang Tua</label>
+                    <input type="text" id="edit_nama_wali" name="edit_nama_wali" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">No. WhatsApp Wali</label>
+                    <input type="text" id="edit_no_hp_wali" name="edit_no_hp_wali" class="w-full bg-syekhPaper border border-gray-200 text-xs sm:text-sm py-2.5 px-3 focus:outline-none focus:border-syekhGreen-600 rounded">
+                </div>
+                <button type="submit" class="w-full bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 font-bold py-3 transition text-[11px] uppercase tracking-widest mt-2 rounded shadow-sm">
+                    Simpan Perubahan
+                </button>
+            </form>
+        </div>
+    </div>
 
     <script>
         function toggleSidebar() {
@@ -226,6 +280,25 @@
                 form.action = `/siswa/delete/${nisn}`;
                 form.submit();
             }
+        }
+
+        // LOGIKA MODAL EDIT
+        function openEditModal(nisn, nama, jk, kelas, wali, no_hp) {
+            document.getElementById('edit_nisn').value = nisn;
+            document.getElementById('edit_nama_siswa').value = nama;
+            document.getElementById('edit_jenis_kelamin').value = jk;
+            document.getElementById('edit_kelas').value = kelas;
+            document.getElementById('edit_nama_wali').value = wali;
+            document.getElementById('edit_no_hp_wali').value = no_hp;
+            
+            // Set form action dynamic
+            document.getElementById('editSiswaForm').action = `/siswa/edit/${nisn}`;
+            
+            document.getElementById('modalEditSiswa').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('modalEditSiswa').classList.add('hidden');
         }
     </script>
 </body>
