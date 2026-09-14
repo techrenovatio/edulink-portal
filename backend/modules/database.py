@@ -24,7 +24,6 @@ def init_db():
         )
     ''')
     
-    # Update kolom tabel users
     cursor.execute("PRAGMA table_info(users)")
     columns = [col['name'] for col in cursor.fetchall()]
     
@@ -33,8 +32,6 @@ def init_db():
     if 'status_walikelas' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN status_walikelas TEXT DEFAULT 'Bukan'")
     if 'mengajar_kelas' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN mengajar_kelas TEXT DEFAULT 'Semua'")
     if 'mengajar_mapel' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN mengajar_mapel TEXT DEFAULT 'Semua'")
-    
-    # FITUR BARU: Hak Akses Cetak Laporan (1 = Ya, 0 = Tidak)
     if 'can_print' not in columns: cursor.execute("ALTER TABLE users ADD COLUMN can_print INTEGER DEFAULT 0")
         
     cursor.execute('''
@@ -81,6 +78,12 @@ def init_db():
             UNIQUE(tanggal, nisn, mata_pelajaran)
         )
     ''')
+    
+    # FITUR BARU: Menambahkan kolom deskripsi pada tabel presensi_harian
+    cursor.execute("PRAGMA table_info(presensi_harian)")
+    presensi_cols = [col['name'] for col in cursor.fetchall()]
+    if 'deskripsi' not in presensi_cols:
+        cursor.execute("ALTER TABLE presensi_harian ADD COLUMN deskripsi TEXT DEFAULT ''")
 
     cursor.execute("SELECT COUNT(*) FROM master_pelanggaran")
     if cursor.fetchone()[0] == 0:
@@ -92,7 +95,6 @@ def init_db():
         ]
         cursor.executemany("INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", default_data)
     
-    # Reset Akun Super Administrator
     cursor.execute("DELETE FROM users WHERE username = 'admin123'")
     hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
     cursor.execute(

@@ -22,8 +22,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 init_db()
 
-# --- FITUR BARU: MENCEGAH BROWSER MENYIMPAN CACHE ---
-# Ini akan mengatasi masalah tombol "Back" yang memunculkan halaman role sebelumnya
 @app.after_request
 def add_header(response):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -49,24 +47,18 @@ def is_admin_or_super():
 @app.route('/')
 def home():
     conn = get_db_connection()
-    try:
-        total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
-    except:
-        total_siswa = 0
-    finally:
-        conn.close()
+    try: total_siswa = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
+    except: total_siswa = 0
+    finally: conn.close()
     return render_template('index.html', total_siswa=total_siswa)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if 'user_id' in session: 
-        return redirect(url_for('dashboard_overview'))
-
+    if 'user_id' in session: return redirect(url_for('dashboard_overview'))
     if request.method == 'POST':
         form_role = request.form.get('role', '').strip().lower()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
-
         conn = get_db_connection()
         user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
         conn.close()
@@ -81,11 +73,8 @@ def login():
                 session['mengajar_kelas'] = user['mengajar_kelas'] if 'mengajar_kelas' in user.keys() else 'Semua'
                 session['mengajar_mapel'] = user['mengajar_mapel'] if 'mengajar_mapel' in user.keys() else 'Semua'
                 session['can_print'] = user['can_print'] if 'can_print' in user.keys() else 0
-                
                 return redirect(url_for('dashboard_overview'))
-        
         return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
-        
     return render_template('login.html')
 
 @app.route('/logout')
@@ -122,7 +111,6 @@ def add_user():
     username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '')
     role = request.form.get('role', '').strip().lower()
-    
     can_print = int(request.form.get('can_print', 0))
     nip = request.form.get('nip', '-').strip()
     bidang_pelajaran = request.form.get('bidang_pelajaran', '-').strip()
@@ -154,15 +142,12 @@ def edit_user(user_id):
     nama = request.form.get('edit_nama', '').strip()
     role = request.form.get('edit_role', '').strip().lower()
     password = request.form.get('edit_password', '')
-    
     can_print = int(request.form.get('edit_can_print', 0))
     nip = request.form.get('edit_nip', '-').strip()
     bidang_pelajaran = request.form.get('edit_bidang_pelajaran', '-').strip()
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
-    
     mengajar_kelas_list = request.form.getlist('edit_mengajar_kelas')
     mengajar_kelas = ", ".join(mengajar_kelas_list) if mengajar_kelas_list else "Semua"
-    
     mengajar_mapel_list = request.form.getlist('edit_mengajar_mapel')
     mengajar_mapel = ", ".join(mengajar_mapel_list) if mengajar_mapel_list else "Semua"
 
@@ -321,6 +306,23 @@ def laporan():
     conn.close()
     return render_template('dashboard/laporan.html', nama_user=session['nama'], siswa=siswa_data, pelanggaran=pelanggaran_data, total_poin=total_poin, kehadiran=kehadiran, search_query=search_query)
 
+# --- FITUR BARU: Endpoint API Memuat Data Presensi ---
+@app.route('/api/get_presensi', methods=['POST'])
+def get_presensi():
+    if 'user_id' not in session: 
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    data = request.json
+    tanggal = data.get('tanggal')
+    mapel = data.get('mata_pelajaran')
+    
+    conn = get_db_connection()
+    records = conn.execute("SELECT nisn, status, deskripsi FROM presensi_harian WHERE tanggal=? AND mata_pelajaran=?", (tanggal, mapel)).fetchall()
+    conn.close()
+    
+    result = [dict(r) for r in records]
+    return jsonify({"status": "success", "data": result})
+
 @app.route('/presensi', methods=['GET', 'POST'])
 def presensi():
     if 'user_id' not in session: 
@@ -342,11 +344,13 @@ def presensi():
             for record in records:
                 nisn = record.get('nisn')
                 status = record.get('status')
+                deskripsi = record.get('deskripsi', '')
+                
                 existing = conn.execute("SELECT id FROM presensi_harian WHERE tanggal=? AND nisn=? AND mata_pelajaran=?", (tanggal, nisn, mapel)).fetchone()
                 if existing: 
-                    conn.execute("UPDATE presensi_harian SET status=?, pertemuan=?, guru_id=? WHERE id=?", (status, pertemuan, guru_id, existing['id']))
+                    conn.execute("UPDATE presensi_harian SET status=?, pertemuan=?, guru_id=?, deskripsi=? WHERE id=?", (status, pertemuan, guru_id, deskripsi, existing['id']))
                 else: 
-                    conn.execute("INSERT INTO presensi_harian (tanggal, nisn, mata_pelajaran, pertemuan, status, guru_id) VALUES (?, ?, ?, ?, ?, ?)", (tanggal, nisn, mapel, pertemuan, status, guru_id))
+                    conn.execute("INSERT INTO presensi_harian (tanggal, nisn, mata_pelajaran, pertemuan, status, guru_id, deskripsi) VALUES (?, ?, ?, ?, ?, ?, ?)", (tanggal, nisn, mapel, pertemuan, status, guru_id, deskripsi))
             conn.commit()
             return jsonify({"status": "success", "message": "Presensi kelas berhasil disimpan!"})
         except Exception as e: 

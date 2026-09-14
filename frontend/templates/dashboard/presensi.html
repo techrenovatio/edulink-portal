@@ -49,22 +49,38 @@
         </header>
 
         <div class="p-4 sm:p-8 space-y-6">
-            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-end border-t-4 border-t-syekhGreen-700 print-hidden">
-                <div><label class="text-xs font-bold text-gray-500 uppercase">Tanggal</label><input type="date" id="tanggalAbsen" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase">Kelas</label>
-                    <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
-                        <option value="">-- Pilih Kelas --</option>
-                        <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
-                        <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
-                        <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
-                    </select>
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
+                
+                <!-- FITUR BARU: INFO GURU & SISWA -->
+                <div class="flex flex-wrap items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                    <div class="flex items-center gap-6">
+                        <span class="text-xs font-bold text-gray-600"><i class="fa-solid fa-user-tie text-syekhGold-500 mr-2 text-sm"></i> Guru Pengampu: <span class="text-syekhGreen-900">{{ nama_user }}</span></span>
+                        <span class="text-xs font-bold text-gray-600"><i class="fa-solid fa-users text-emerald-500 mr-2 text-sm"></i> Total Siswa Kelas: <span id="totalSiswaKelas" class="text-syekhGreen-900">0</span></span>
+                    </div>
                 </div>
-                <div><label class="text-xs font-bold text-gray-500 uppercase">Mata Pelajaran</label><select id="selectMapel" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="">-- Pilih Mapel --</option></select></div>
-                <div><label class="text-xs font-bold text-gray-500 uppercase">Pertemuan Ke-</label><input type="number" id="inputPertemuan" value="1" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div><label class="text-[10px] font-bold text-gray-500 uppercase">Tanggal</label><input type="date" id="tanggalAbsen" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Kelas</label>
+                        <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                            <option value="">-- Pilih Kelas --</option>
+                            <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
+                            <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
+                            <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                        </select>
+                    </div>
+                    <div><label class="text-[10px] font-bold text-gray-500 uppercase">Mata Pelajaran</label><select id="selectMapel" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="">-- Pilih Mapel --</option></select></div>
+                    <div><label class="text-[10px] font-bold text-gray-500 uppercase">Pertemuan Ke-</label><input type="number" id="inputPertemuan" value="1" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
+                </div>
             </div>
 
             <div class="flex justify-end gap-3 print-hidden">
+                <!-- FITUR BARU: TOMBOL LIHAT PRESENSI -->
+                <button onclick="lihatPresensi()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold uppercase tracking-widest px-6 py-3 transition flex items-center gap-2 rounded shadow-md">
+                    <i class="fa-solid fa-magnifying-glass"></i> Lihat Presensi
+                </button>
+                
                 {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                 <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-[11px] font-bold uppercase tracking-widest px-6 py-3 transition flex items-center gap-2 rounded shadow-md">
                     <i class="fa-solid fa-print"></i> Cetak Presensi
@@ -79,6 +95,8 @@
                         <tr>
                             <th class="px-6 py-4">NISN / Nama Siswa</th>
                             <th class="px-4 py-4 text-center">Akumulasi (H/I/S/A)</th>
+                            <!-- FITUR BARU: KOLOM DESKRIPSI -->
+                            <th class="px-4 py-4 print-hidden w-64">Deskripsi / Catatan</th>
                             <th class="px-6 py-4 text-right print-hidden">Status Kehadiran Hari Ini</th>
                         </tr>
                     </thead>
@@ -97,6 +115,9 @@
                                 <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200" title="Sakit">{{ S }}</span>
                                 <span class="text-[10px] font-bold bg-red-50 text-red-700 px-1.5 py-0.5 rounded border border-red-200" title="Alfa">{{ A }}</span>
                             </td>
+                            <!-- INPUT DESKRIPSI -->
+                            <td class="px-4 py-4 print-hidden"><input type="text" class="deskripsi-input w-full bg-gray-50 border border-gray-200 py-1.5 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600" placeholder="Opsional..."></td>
+                            
                             <td class="px-6 py-4 text-right print-hidden"><button class="status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded" onclick="toggleStatus(this)">HADIR</button></td>
                         </tr>
                         {% endfor %}
@@ -129,7 +150,10 @@
             const mapelSelect = document.getElementById('selectMapel');
             mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
             
-            if(!kelasVal) return;
+            if(!kelasVal) {
+                document.getElementById('totalSiswaKelas').innerText = "0";
+                return;
+            }
 
             let kategori = "";
             if(kelasVal.startsWith("X ")) kategori = "X";
@@ -149,8 +173,18 @@
                 });
             }
 
+            // Hitung dan tampilkan jumlah siswa
+            let countSiswa = 0;
             const rows = document.querySelectorAll('.absensi-row');
-            rows.forEach(row => { row.classList.toggle('hidden', kelasVal !== row.getAttribute('data-kelas')); });
+            rows.forEach(row => { 
+                if (kelasVal === row.getAttribute('data-kelas')) {
+                    row.classList.remove('hidden');
+                    countSiswa++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+            document.getElementById('totalSiswaKelas').innerText = countSiswa;
         }
 
         const statusList = [
@@ -169,6 +203,47 @@
             btn.textContent = nextStatus.label;
         }
 
+        // FUNGSI BARU: Melihat Presensi yang Sudah Disimpan Sebelumnya
+        async function lihatPresensi() {
+            const tanggal = document.getElementById('tanggalAbsen').value;
+            const mapel = document.getElementById('selectMapel').value;
+            if(!mapel) { alert('Harap pilih Mata Pelajaran terlebih dahulu!'); return; }
+            
+            try {
+                const response = await fetch('/api/get_presensi', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ tanggal: tanggal, mata_pelajaran: mapel })
+                });
+                
+                const res = await response.json();
+                if(res.status === 'success') {
+                    // Reset status ke HADIR & kosongkan deskripsi sebelum memuat
+                    document.querySelectorAll('.absensi-row:not(.hidden)').forEach(row => {
+                        const btn = row.querySelector('.status-btn');
+                        btn.className = `status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded w-24`;
+                        btn.textContent = 'HADIR';
+                        row.querySelector('.deskripsi-input').value = '';
+                    });
+                    
+                    // Isi dengan data dari database
+                    res.data.forEach(record => {
+                        const row = Array.from(document.querySelectorAll('.absensi-row')).find(r => r.querySelector('.nisn-cell').innerText.trim() === record.nisn);
+                        if(row && !row.classList.contains('hidden')) {
+                            const btn = row.querySelector('.status-btn');
+                            const statusObj = statusList.find(s => s.label === record.status);
+                            if(statusObj) {
+                                btn.className = `status-btn ${statusObj.bg} ${statusObj.text} font-bold px-4 py-1.5 text-[10px] rounded w-24`;
+                                btn.textContent = statusObj.label;
+                            }
+                            row.querySelector('.deskripsi-input').value = record.deskripsi || '';
+                        }
+                    });
+                    alert('Berhasil memuat data presensi yang ada pada tanggal tersebut.');
+                }
+            } catch(e) { console.error(e); alert('Gagal memuat presensi dari server.'); }
+        }
+
         async function simpanPresensi() {
             const tanggal = document.getElementById('tanggalAbsen').value;
             const mapel = document.getElementById('selectMapel').value;
@@ -181,7 +256,8 @@
             rows.forEach(row => {
                 const nisn = row.querySelector('.nisn-cell').innerText.trim();
                 const status = row.querySelector('.status-btn').innerText.trim();
-                records.push({nisn: nisn, status: status});
+                const deskripsi = row.querySelector('.deskripsi-input').value.trim();
+                records.push({nisn: nisn, status: status, deskripsi: deskripsi});
             });
             
             if(records.length === 0) return;
