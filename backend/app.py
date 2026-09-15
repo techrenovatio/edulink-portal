@@ -21,7 +21,6 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 # --- SUPER AUTO-PATCH DATABASE ---
-# Fungsi sakti ini akan memastikan SEMUA tabel & kolom yang hilang akan dibuat otomatis
 def force_patch_database():
     try:
         conn = get_db_connection()
@@ -29,6 +28,10 @@ def force_patch_database():
         
         cursor.execute("CREATE TABLE IF NOT EXISTS prestasi (id INTEGER PRIMARY KEY AUTOINCREMENT, nisn TEXT, nama_siswa TEXT, kelas TEXT, jenis_prestasi TEXT, poin INTEGER, tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
         cursor.execute("CREATE TABLE IF NOT EXISTS master_prestasi (id INTEGER PRIMARY KEY AUTOINCREMENT, nama_prestasi TEXT UNIQUE, poin INTEGER)")
+        
+        # FITUR BARU: Tabel Dinamis Kelas dan Mata Pelajaran
+        cursor.execute("CREATE TABLE IF NOT EXISTS master_kelas (id INTEGER PRIMARY KEY AUTOINCREMENT, nama_kelas TEXT UNIQUE)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS master_mapel (id INTEGER PRIMARY KEY AUTOINCREMENT, nama_mapel TEXT UNIQUE)")
         
         def add_col(table, col_name, col_type_default):
             cursor.execute(f"PRAGMA table_info({table})")
@@ -54,6 +57,17 @@ def force_patch_database():
                 ('Juara 1 Lomba Tingkat Provinsi', 75),
                 ('Juara 1 Lomba Tingkat Nasional', 100)
             ])
+            
+        cursor.execute("SELECT COUNT(*) FROM master_kelas")
+        if cursor.fetchone()[0] == 0:
+            default_kelas = [('X IPA 1',), ('X IPS 1',), ('XI IPA 1',), ('XI IPA 2',), ('XI IPS 1',), ('XII IPA 1',), ('XII IPA 2',), ('XII IPS 1',)]
+            cursor.executemany("INSERT OR IGNORE INTO master_kelas (nama_kelas) VALUES (?)", default_kelas)
+
+        cursor.execute("SELECT COUNT(*) FROM master_mapel")
+        if cursor.fetchone()[0] == 0:
+            default_mapel = [('Matematika',), ('Bahasa Indonesia',), ('Bahasa Inggris',), ('Pendidikan Kewarganegaraan',), ('Teknologi Informasi dan Komputer',), ('Literasi Digital',), ('Bahasa Arab',), ('Geografi',), ('Penjaskes',), ('Fisika',), ('Biologi',), ('Budi Pekerti',), ('Sosiologi',), ('Ekonomi',)]
+            cursor.executemany("INSERT OR IGNORE INTO master_mapel (nama_mapel) VALUES (?)", default_mapel)
+
         conn.commit()
     except Exception as e:
         print("Database Patch Error:", e)
@@ -70,6 +84,8 @@ def add_header(response):
     response.headers['Expires'] = '0'
     return response
 
+# Variabel ini dibiarkan untuk backward compatibility di route lain jika diperlukan,
+# namun untuk Users akan menggunakan data dari DB langsung.
 MAPEL_MASTER = {
     'X': ['Matematika Dasar', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti', 'Sosiologi', 'Ekonomi'],
     'XI IPA': ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Pendidikan Kewarganegaraan', 'Teknologi Informasi dan Komputer', 'Literasi Digital', 'Bahasa Arab', 'Geografi', 'Penjaskes', 'Fisika', 'Biologi', 'Budi Pekerti'],
@@ -164,8 +180,56 @@ def manage_users():
     if not is_admin_or_super(): return redirect(url_for('login'))
     conn = get_db_connection()
     users = conn.execute("SELECT * FROM users ORDER BY id DESC").fetchall()
+    
+    # Ambil data dinamis kelas & mapel
+    m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
+    m_mapel = conn.execute("SELECT * FROM master_mapel ORDER BY nama_mapel ASC").fetchall()
+    
     conn.close()
-    return render_template('dashboard/users.html', nama_user=session['nama'], users=users, current_role=session.get('role', '').lower())
+    return render_template('dashboard/users.html', nama_user=session['nama'], users=users, current_role=session.get('role', '').lower(), m_kelas=m_kelas, m_mapel=m_mapel)
+
+# --- RUTING BARU: KELOLA MASTER KELAS & MAPEL ---
+@app.route('/users/add_master', methods=['POST'])
+def add_master_data():
+    if not is_superadmin(): return redirect(url_for('manage_users'))
+    tipe = request.form.get('tipe')
+    nama = request.form.get('nama', '').strip()
+    
+    if nama:
+        conn = get_db_connection()
+        try:
+            if tipe == 'kelas':
+                conn.execute("INSERT INTO master_kelas (nama_kelas) VALUES (?)", (nama,))
+            elif tipe == 'mapel':
+                conn.execute("INSERT INTO master_mapel (nama_mapel) VALUES (?)", (nama,))
+            conn.commit()
+            flash(f"Data {tipe} '{nama}' berhasil ditambahkan!", "success")
+        except sqlite3.IntegrityError:
+            flash(f"GAGAL: Data '{nama}' sudah ada di database!", "error")
+        finally:
+            conn.close()
+    return redirect(url_for('manage_users'))
+
+@app.route('/users/delete_master', methods=['POST'])
+def delete_master_data():
+    if not is_superadmin(): return redirect(url_for('manage_users'))
+    tipe = request.form.get('tipe')
+    id_master = request.form.get('id_master')
+    
+    if id_master:
+        conn = get_db_connection()
+        try:
+            if tipe == 'kelas':
+                conn.execute("DELETE FROM master_kelas WHERE id = ?", (id_master,))
+            elif tipe == 'mapel':
+                conn.execute("DELETE FROM master_mapel WHERE id = ?", (id_master,))
+            conn.commit()
+            flash(f"Data master {tipe} berhasil dihapus!", "success")
+        except:
+            flash("Gagal menghapus data master.", "error")
+        finally:
+            conn.close()
+    return redirect(url_for('manage_users'))
 
 @app.route('/users/add', methods=['POST'])
 def add_user():
@@ -209,7 +273,7 @@ def edit_user(user_id):
     can_print = int(request.form.get('edit_can_print', 0))
     nip = request.form.get('edit_nip', '-').strip()
     bidang_pelajaran = request.form.get('edit_bidang_pelajaran', '-').strip()
-    status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
+    status_walikelas = request.form.get('status_walikelas', 'Bukan')
     
     m_kelas = request.form.getlist('edit_mengajar_kelas')
     m_mapel = request.form.getlist('edit_mengajar_mapel')
@@ -340,8 +404,6 @@ def poin():
     
     try:
         daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa WHERE status_siswa='Aktif'").fetchall()
-        
-        # PERBAIKAN KRUSIAL: Kolom 'kelas' ditiadakan agar kompatibel dengan versi tabel pelanggaran lama milik Anda
         riwayat_gabungan = conn.execute("""
             SELECT tanggal, nisn, nama_siswa, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran
             UNION ALL
