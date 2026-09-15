@@ -94,6 +94,8 @@
             {% endwith %}
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+                
+                <!-- KOLOM KIRI: FORM INPUT -->
                 <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Catat Aktivitas Siswa</h3>
                     
@@ -112,8 +114,11 @@
                         </div>
 
                         <input type="date" id="inputTanggal" name="tanggal" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
-                        <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="NISN Siswa" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
-                        <span id="nisnStatus" class="text-[10px] font-bold mt-1 block"></span>
+                        
+                        <div>
+                            <input type="text" id="inputNisn" name="nisn" oninput="autoSearchSiswa()" required placeholder="Ketik NISN Siswa..." class="w-full bg-gray-50 border py-2 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600">
+                            <span id="nisnStatus" class="text-[10px] font-bold mt-1 block"></span>
+                        </div>
                         
                         <input type="text" id="inputNamaSiswa" name="nama_siswa" required readonly placeholder="Nama Siswa Otomatis" class="w-full bg-gray-100 border py-2 px-3 text-xs rounded text-syekhGreen-900 font-semibold">
                         <input type="text" id="inputKelas" name="kelas" required readonly placeholder="Kelas Otomatis" class="w-full bg-gray-100 border py-2 px-3 text-xs rounded text-syekhGreen-900 font-semibold">
@@ -135,38 +140,54 @@
                     </form>
                 </div>
 
+                <!-- KOLOM KANAN: TABEL RIWAYAT & PENCARIAN -->
                 <div class="lg:col-span-2 bg-white rounded-xl border shadow-sm border-t-4 border-t-syekhGold-500 w-full print:border-none print:shadow-none print:m-0">
-                    <div class="p-4 border-b border-gray-100 flex justify-between items-center print:px-0">
+                    <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4 print:px-0">
                         <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Riwayat Aktivitas Terakhir</h3>
-                        {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
-                        <button onclick="window.print()" class="bg-syekhGold-500 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm print-hidden"><i class="fa-solid fa-print"></i> Cetak</button>
-                        {% endif %}
+                        
+                        <!-- FITUR BARU: Kolom Search & Tombol Cetak -->
+                        <div class="flex items-center gap-2 print-hidden w-full sm:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+                                <input type="text" id="searchRiwayat" onkeyup="filterRiwayat()" placeholder="Cari Siswa atau Aktivitas..." class="w-full bg-gray-50 border border-gray-200 py-2 pl-8 pr-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600 transition">
+                            </div>
+                            {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
+                            <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm whitespace-nowrap transition"><i class="fa-solid fa-print"></i> Cetak</button>
+                            {% endif %}
+                        </div>
                     </div>
-                    <table class="w-full text-left text-xs text-gray-600">
-                        <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider">
-                            <tr>
-                                <th class="pl-6 py-3">Tanggal</th>
-                                <th class="px-3 py-3">Siswa</th>
-                                <th class="px-3 py-3">Catatan / Aktivitas</th>
-                                <th class="px-3 py-3 text-center">Poin</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in riwayat_list %}
-                            <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
-                                <td class="pl-6 py-3 font-mono">{{ p.tanggal[:10] if p.tanggal else '-' }}</td>
-                                <td class="px-3 py-3"><p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p><p class="text-[10px] text-gray-400 font-mono">{{ p.nisn }}</p></td>
-                                <td class="px-3 py-3">
-                                    <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border {% if p.tipe == 'Prestasi' %}bg-emerald-50 text-emerald-600 border-emerald-200{% else %}bg-red-50 text-red-600 border-red-200{% endif %}">
-                                        {{ p.tipe }}
-                                    </span>
-                                    <br><span class="mt-1 block">{{ p.aktivitas }}</span>
-                                </td>
-                                <td class="px-3 py-3 text-center text-sm font-bold {% if p.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %}">+{{ p.poin }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    
+                    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-gray-600">
+                            <thead class="bg-gray-100 border-b border-gray-200 uppercase font-bold tracking-wider sticky top-0 z-10">
+                                <tr>
+                                    <th class="pl-6 py-3">Tanggal</th>
+                                    <th class="px-3 py-3">Siswa</th>
+                                    <th class="px-3 py-3">Catatan / Aktivitas</th>
+                                    <th class="px-3 py-3 text-center">Poin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in riwayat_list %}
+                                <!-- FITUR BARU: Class 'riwayat-row' ditambahkan untuk javascript search -->
+                                <tr class="border-b border-gray-50 hover:bg-gray-50 transition riwayat-row">
+                                    <td class="pl-6 py-3 font-mono">{{ p.tanggal[:10] if p.tanggal else '-' }}</td>
+                                    <td class="px-3 py-3">
+                                        <p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p>
+                                        <p class="text-[10px] text-gray-400 font-mono">{{ p.nisn }}</p>
+                                    </td>
+                                    <td class="px-3 py-3">
+                                        <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border {% if p.tipe == 'Prestasi' %}bg-emerald-50 text-emerald-600 border-emerald-200{% else %}bg-red-50 text-red-600 border-red-200{% endif %}">
+                                            {{ p.tipe }}
+                                        </span>
+                                        <br><span class="mt-1 block">{{ p.aktivitas }}</span>
+                                    </td>
+                                    <td class="px-3 py-3 text-center text-sm font-bold {% if p.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %}">+{{ p.poin }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -201,9 +222,6 @@
     </div>
 
     <script>
-        // PERBAIKAN: Menghindari Error "Object of type Row is not JSON serializable"
-        // Dengan mengonversi data secara manual menggunakan perulangan Jinja.
-        
         const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
         
         const mPelanggaran = [
@@ -222,7 +240,7 @@
             const dateInput = document.getElementById('inputTanggal');
             const today = new Date().toISOString().split('T')[0];
             dateInput.value = today;
-            changeTipeCatatan(); // Load Dropdown Awal
+            changeTipeCatatan();
         });
 
         function toggleSidebar() {
@@ -232,6 +250,22 @@
 
         function openModal() { document.getElementById('modalMaster').classList.remove('hidden'); }
         function closeModal() { document.getElementById('modalMaster').classList.add('hidden'); }
+
+        // FITUR BARU: Pencarian Riwayat pada Tabel
+        function filterRiwayat() {
+            const keyword = document.getElementById('searchRiwayat').value.toLowerCase();
+            const rows = document.querySelectorAll('.riwayat-row');
+            
+            rows.forEach(row => {
+                // Mencari kecocokan text di seluruh isi baris tersebut (Bisa by Nama, NISN, atau Pelanggaran)
+                const rowData = row.innerText.toLowerCase();
+                if (rowData.includes(keyword)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
 
         function autoSearchSiswa() {
             const nisnInput = document.getElementById('inputNisn').value.trim();
@@ -256,7 +290,6 @@
             }
         }
 
-        // MENGUBAH ISI DROPDOWN DINAMIS BERDASARKAN TOMBOL RADIO (PELANGGARAN/PRESTASI)
         function changeTipeCatatan() {
             const radioVal = document.querySelector('input[name="tipe_catatan"]:checked').value;
             const selectEl = document.getElementById('selectCatatan');
