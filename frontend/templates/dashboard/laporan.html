@@ -83,7 +83,7 @@
 
         <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
             
-            <!-- PANEL FILTER KOMPREHENSIF (FITUR 4 & 2) -->
+            <!-- PANEL FILTER KOMPREHENSIF -->
             <form action="/laporan" method="GET" class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 print-hidden items-end border-t-4 border-t-syekhGreen-700">
                 <div class="flex-1 w-full relative">
                     <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Cari Siswa</label>
@@ -119,14 +119,15 @@
             {% if view_mode == 'individual' and siswa %}
                 
                 <div class="flex justify-end gap-2 print-hidden">
-                    <!-- Tombol Cetak SP Otomatis (Muncul Jika Pelanggaran >= 50) -->
-                    {% if total_poin_pelanggaran >= 50 %}
-                    <button onclick="cetakSP()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded shadow-sm animate-pulse flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Cetak Surat Peringatan (SP)
-                    </button>
-                    {% endif %}
+                    <!-- PERBAIKAN: Seluruh opsi eksport/cetak di Individu wajib lulus cek wewenang can_print -->
                     {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
-                    <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-xs font-bold px-5 py-2.5 flex items-center gap-2 rounded shadow-sm"><i class="fa-solid fa-print"></i> Cetak Laporan Ini</button>
+                        <!-- Tombol Cetak SP Otomatis -->
+                        {% if total_poin_pelanggaran >= 50 %}
+                        <button onclick="cetakSP()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded shadow-sm animate-pulse flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Cetak Surat Peringatan (SP)
+                        </button>
+                        {% endif %}
+                        <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-xs font-bold px-5 py-2.5 flex items-center gap-2 rounded shadow-sm"><i class="fa-solid fa-print"></i> Cetak Laporan Ini</button>
                     {% endif %}
                 </div>
 
@@ -207,9 +208,11 @@
             {% elif view_mode == 'class' %}
                 <div class="flex justify-between items-center mb-4 print-hidden">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Rekapitulasi Kolektif: Kelas {{ kelas_query }}</h3>
+                    
+                    <!-- PERBAIKAN: Tombol Unduh CSV & Cetak Kolektif dilindungi secara ketat -->
                     <div class="flex gap-2">
-                        <button onclick="exportTableToCSV('Rekap_Kelas_{{ kelas_query }}.csv')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded shadow-sm flex items-center gap-2"><i class="fa-solid fa-file-csv"></i> Unduh CSV</button>
                         {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
+                        <button onclick="exportTableToCSV('Rekap_Kelas_{{ kelas_query }}.csv')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded shadow-sm flex items-center gap-2"><i class="fa-solid fa-file-csv"></i> Unduh CSV</button>
                         <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 text-xs font-bold px-4 py-2 rounded shadow-sm flex items-center gap-2"><i class="fa-solid fa-print"></i> Cetak</button>
                         {% endif %}
                     </div>
@@ -235,7 +238,10 @@
                                 {% for s in class_data %}
                                 <tr class="border-b border-gray-50 hover:bg-emerald-50/50">
                                     <td class="pl-6 py-3 text-center text-gray-400 font-mono">{{ loop.index }}</td>
-                                    <td class="px-4 py-3"><p class="font-bold text-syekhGreen-900">{{ s.nama_siswa }}</p><p class="text-[10px] text-gray-400">{{ s.nisn }}</p></td>
+                                    <td class="px-4 py-3">
+                                        <p class="font-bold text-syekhGreen-900"><a href="/laporan?q={{ s.nisn }}" class="hover:underline hover:text-syekhGold-600">{{ s.nama_siswa }}</a></p>
+                                        <p class="text-[10px] text-gray-400">{{ s.nisn }}</p>
+                                    </td>
                                     <td class="px-3 py-3 text-center font-bold {% if s.pelanggaran > 0 %}text-red-600{% endif %}">{{ s.pelanggaran }}</td>
                                     <td class="px-3 py-3 text-center font-bold {% if s.prestasi > 0 %}text-emerald-600{% endif %}">{{ s.prestasi }}</td>
                                     <td class="px-2 py-3 text-center">{{ s.h }}</td>
@@ -270,7 +276,7 @@
                                 {% for top in default_data.top_prestasi %}
                                 <tr class="border-b border-gray-50">
                                     <td class="pl-4 py-3 w-8 text-center text-gray-400 font-bold">{{ loop.index }}</td>
-                                    <td class="px-2 py-3"><p class="font-bold text-syekhGreen-900">{{ top.nama_siswa }}</p><p class="text-[9px]">{{ top.kelas }}</p></td>
+                                    <td class="px-2 py-3"><p class="font-bold text-syekhGreen-900"><a href="/laporan?q={{ top.nisn }}" class="hover:underline hover:text-syekhGold-600">{{ top.nama_siswa }}</a></p><p class="text-[9px]">{{ top.kelas }}</p></td>
                                     <td class="pr-4 py-3 text-right text-emerald-600 font-bold">+{{ top.total }} Pt</td>
                                 </tr>
                                 {% endfor %}
