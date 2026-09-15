@@ -173,11 +173,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- PERBAIKAN: Menyesuaikan log.aktivitas dan Badge -->
                         {% for log in recent_logs %}
                         <tr class="border-b border-gray-50">
                             <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">{{ log.tanggal[:10] }}</td>
-                            <td class="px-4 py-4 font-bold text-syekhGreen-900">{{ log.nama_siswa }}</td>
+                            
+                            <!-- PERBAIKAN: Menambahkan link dinamis yang mengarah ke halaman Laporan berdasarkan NISN -->
+                            <td class="px-4 py-4 font-bold text-syekhGreen-900">
+                                <a href="/laporan?q={{ log.nisn }}" class="hover:text-syekhGold-600 hover:underline transition-colors cursor-pointer" title="Lihat Rekap Siswa">
+                                    {{ log.nama_siswa }}
+                                </a>
+                            </td>
+                            
                             <td class="px-4 py-4">
                                 {% if log.tipe == 'Prestasi' %}
                                 <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Prestasi</span>
