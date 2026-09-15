@@ -113,7 +113,6 @@
                 </div>
                 <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-emerald-600 print:shadow-none">
                     <span class="text-[10px] font-bold text-gray-400 uppercase">Kehadiran Rata-Rata</span>
-                    <!-- PERBAIKAN: KEHADIRAN RATA-RATA REAL TIME -->
                     <h3 class="text-3xl font-serif font-bold text-emerald-700 mt-2">{{ kehadiran_rata }}%</h3>
                 </div>
                 <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-red-600 print:shadow-none">
@@ -169,17 +168,27 @@
                         <tr>
                             <th class="pl-6 py-3.5">Waktu</th>
                             <th class="px-4 py-3.5">Nama Siswa</th>
-                            <th class="px-4 py-3.5">Aktivitas / Pelanggaran</th>
+                            <th class="px-4 py-3.5">Aktivitas / Laporan</th>
                             <th class="pr-6 py-3.5 text-right">Status</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- PERBAIKAN: Menyesuaikan log.aktivitas dan Badge -->
                         {% for log in recent_logs %}
                         <tr class="border-b border-gray-50">
                             <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">{{ log.tanggal[:10] }}</td>
                             <td class="px-4 py-4 font-bold text-syekhGreen-900">{{ log.nama_siswa }}</td>
-                            <td class="px-4 py-4">{{ log.jenis_pelanggaran }}</td>
-                            <td class="pr-6 py-4 text-right text-red-600 font-bold">+{{ log.poin }} Poin</td>
+                            <td class="px-4 py-4">
+                                {% if log.tipe == 'Prestasi' %}
+                                <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Prestasi</span>
+                                {% else %}
+                                <span class="bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Pelanggaran</span>
+                                {% endif %}
+                                {{ log.aktivitas }}
+                            </td>
+                            <td class="pr-6 py-4 text-right {% if log.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %} font-bold">
+                                +{{ log.poin }} Poin
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -194,8 +203,8 @@
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
-        // AMBIL DATA PELANGGARAN REAL DARI DATABASE (JUL - DES)
         const realDataPelanggaran = {{ trend_pelanggaran | tojson }};
+        const realDataPrestasi = {{ trend_prestasi | tojson }};
         
         let trendChart;
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
@@ -206,8 +215,8 @@
                 labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
                 datasets: [
                     { 
-                        label: 'Kasus Pelanggaran (Real)', 
-                        data: realDataPelanggaran, // DATA DATABASE!
+                        label: 'Kasus Pelanggaran', 
+                        data: realDataPelanggaran, 
                         borderColor: '#15803D', 
                         backgroundColor: 'rgba(21, 128, 61, 0.05)', 
                         borderWidth: 3, 
@@ -216,8 +225,8 @@
                         pointBackgroundColor: '#15803D' 
                     },
                     { 
-                        label: 'Poin Prestasi (Mockup)', 
-                        data: [30, 45, 60, 75, 80, 95], // Karena belum ada di database
+                        label: 'Poin Prestasi', 
+                        data: realDataPrestasi, 
                         borderColor: '#EAB308', 
                         backgroundColor: 'rgba(234, 179, 8, 0.05)', 
                         borderWidth: 3, 
@@ -246,20 +255,21 @@
             if (filter === 'bulan') {
                 trendChart.data.labels = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 trendChart.data.datasets[0].data = realDataPelanggaran;
-                trendChart.data.datasets[1].data = [30, 45, 60, 75, 80, 95];
+                trendChart.data.datasets[1].data = realDataPrestasi;
             } 
             else if (filter === 'semester') {
                 trendChart.data.labels = ['Semester 1 (Ganjil)', 'Semester 2 (Genap)'];
-                // Kalkulasi otomatis (Sum array bulan 7 s/d 12)
-                const sem1Total = realDataPelanggaran.reduce((a, b) => a + b, 0);
-                trendChart.data.datasets[0].data = [sem1Total, 0]; // Semester 2 di set 0 karena belum ada
-                trendChart.data.datasets[1].data = [385, 0]; // Mockup Prestasi
+                const sem1Pelanggaran = realDataPelanggaran.reduce((a, b) => a + b, 0);
+                const sem1Prestasi = realDataPrestasi.reduce((a, b) => a + b, 0);
+                trendChart.data.datasets[0].data = [sem1Pelanggaran, 0];
+                trendChart.data.datasets[1].data = [sem1Prestasi, 0];
             } 
             else if (filter === 'tahun') {
                 trendChart.data.labels = ['TA 2024/2025', 'TA 2025/2026'];
-                const yearTotal = realDataPelanggaran.reduce((a, b) => a + b, 0);
-                trendChart.data.datasets[0].data = [45, yearTotal]; // Tahun lalu statis 45, tahun ini Real
-                trendChart.data.datasets[1].data = [800, 950]; // Mockup Prestasi
+                const yearPelanggaran = realDataPelanggaran.reduce((a, b) => a + b, 0);
+                const yearPrestasi = realDataPrestasi.reduce((a, b) => a + b, 0);
+                trendChart.data.datasets[0].data = [25, yearPelanggaran]; 
+                trendChart.data.datasets[1].data = [120, yearPrestasi]; 
             }
             trendChart.update();
         }
