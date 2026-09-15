@@ -20,19 +20,57 @@ app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
-# Menginjeksi Kolom Baru ke Database Tanpa Menghapus Data Lama
-def check_and_update_db():
+# --- PERBAIKAN KRUSIAL: AUTO-PATCH DATABASE ---
+# Fungsi ini memastikan tabel prestasi dan master_prestasi 100% ada sebelum aplikasi berjalan
+def force_patch_database():
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # 1. Pastikan tabel 'prestasi' ada
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS prestasi (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nisn TEXT NOT NULL,
+            nama_siswa TEXT NOT NULL,
+            kelas TEXT NOT NULL,
+            jenis_prestasi TEXT NOT NULL,
+            poin INTEGER NOT NULL,
+            tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # 2. Pastikan tabel 'master_prestasi' ada
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS master_prestasi (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nama_prestasi TEXT UNIQUE NOT NULL,
+            poin INTEGER NOT NULL
+        )
+    ''')
+
+    # 3. Pastikan kolom jurnal_kelas ada di presensi_harian
     cursor.execute("PRAGMA table_info(presensi_harian)")
     presensi_cols = [col['name'] for col in cursor.fetchall()]
     if 'jurnal_kelas' not in presensi_cols:
         cursor.execute("ALTER TABLE presensi_harian ADD COLUMN jurnal_kelas TEXT DEFAULT ''")
+
+    # 4. Insert data default master prestasi jika masih kosong
+    cursor.execute("SELECT COUNT(*) FROM master_prestasi")
+    if cursor.fetchone()[0] == 0:
+        default_prestasi = [
+            ('Mewakili Sekolah di Olimpiade', 30),
+            ('Juara 1 Lomba Tingkat Kota/Kabupaten', 50),
+            ('Juara 1 Lomba Tingkat Provinsi', 75),
+            ('Juara 1 Lomba Tingkat Nasional', 100)
+        ]
+        cursor.executemany("INSERT INTO master_prestasi (nama_prestasi, poin) VALUES (?, ?)", default_prestasi)
+
     conn.commit()
     conn.close()
 
+# Panggil inisialisasi normal, lalu paksa Auto-Patch
 init_db()
-check_and_update_db()
+force_patch_database()
 
 @app.after_request
 def add_header(response):
@@ -374,7 +412,6 @@ def laporan():
     conn.close()
     return render_template('dashboard/laporan.html', nama_user=session['nama'], siswa=siswa_data, pelanggaran=pelanggaran_data, total_poin=total_poin, kehadiran=kehadiran, search_query=search_query)
 
-# --- PERBAIKAN API: Memuat Jurnal Kelas ---
 @app.route('/api/get_presensi', methods=['POST'])
 def get_presensi():
     if 'user_id' not in session: return jsonify({"status": "error", "message": "Unauthorized"}), 401
@@ -387,7 +424,6 @@ def get_presensi():
     result = [dict(r) for r in records]
     return jsonify({"status": "success", "data": result})
 
-# --- PERBAIKAN PRESENSI: Menyimpan Jurnal Kelas ---
 @app.route('/presensi', methods=['GET', 'POST'])
 def presensi():
     if 'user_id' not in session: 
