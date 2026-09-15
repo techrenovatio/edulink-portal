@@ -120,7 +120,7 @@
                         
                         <div class="flex justify-between items-end mb-1 mt-2">
                             <label class="text-[10px] font-bold text-gray-500 uppercase" id="labelPilihanCatatan">Jenis Pelanggaran</label>
-                            {% if session['role'] in ['admin', 'superadmin'] %}
+                            {% if session.get('role') in ['admin', 'superadmin'] %}
                             <button type="button" onclick="openModal()" class="text-[10px] font-bold text-syekhGold-600 hover:text-syekhGreen-800"><i class="fa-solid fa-plus"></i> Tambah Master</button>
                             {% endif %}
                         </div>
@@ -154,7 +154,7 @@
                         <tbody>
                             {% for p in riwayat_list %}
                             <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
-                                <td class="pl-6 py-3 font-mono">{{ p.tanggal[:10] }}</td>
+                                <td class="pl-6 py-3 font-mono">{{ p.tanggal[:10] if p.tanggal else '-' }}</td>
                                 <td class="px-3 py-3"><p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p><p class="text-[10px] text-gray-400 font-mono">{{ p.nisn }}</p></td>
                                 <td class="px-3 py-3">
                                     <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border {% if p.tipe == 'Prestasi' %}bg-emerald-50 text-emerald-600 border-emerald-200{% else %}bg-red-50 text-red-600 border-red-200{% endif %}">
@@ -201,9 +201,22 @@
     </div>
 
     <script>
+        // PERBAIKAN: Menghindari Error "Object of type Row is not JSON serializable"
+        // Dengan mengonversi data secara manual menggunakan perulangan Jinja.
+        
         const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
-        const mPelanggaran = {{ master_pelanggaran | tojson | safe if master_pelanggaran else '[]' }};
-        const mPrestasi = {{ master_prestasi | tojson | safe if master_prestasi else '[]' }};
+        
+        const mPelanggaran = [
+            {% for mp in master_pelanggaran %}
+            { nama_pelanggaran: "{{ mp.nama_pelanggaran }}", poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        const mPrestasi = [
+            {% for mp in master_prestasi %}
+            { nama_prestasi: "{{ mp.nama_prestasi }}", poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
         
         document.addEventListener('DOMContentLoaded', () => {
             const dateInput = document.getElementById('inputTanggal');
