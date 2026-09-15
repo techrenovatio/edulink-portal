@@ -136,22 +136,29 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 print:block">
                 <!-- Line Chart -->
                 <div class="lg:col-span-2 bg-white p-5 rounded-xl border shadow-sm print:mb-6 print:shadow-none">
-                    <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-6">Tren Kedisiplinan vs Prestasi</h3>
+                    
+                    <!-- PERBAIKAN: Header Chart dan Dropdown Filter -->
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Tren Kedisiplinan vs Prestasi</h3>
+                        <select id="chartFilter" onchange="updateChartData()" class="bg-gray-50 border border-gray-200 text-xs py-1.5 px-3 rounded focus:outline-none focus:border-syekhGreen-600 font-semibold text-syekhGreen-900 cursor-pointer print-hidden">
+                            <option value="bulan">Per Bulan</option>
+                            <option value="semester">Per Semester</option>
+                            <option value="tahun">Per Tahun</option>
+                        </select>
+                    </div>
+
                     <div class="h-[280px]"><canvas id="disciplineTrendChart"></canvas></div>
                 </div>
                 
-                <!-- Doughnut Chart Dinamis -->
+                <!-- Doughnut Chart -->
                 <div class="bg-white p-5 rounded-xl border shadow-sm print:shadow-none print:page-break-before">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-6">Distribusi Kelas</h3>
-                    <div class="h-[220px] flex justify-center items-center relative">
-                        <canvas id="classDistributionChart"></canvas>
-                        <!-- Teks Total Siswa di tengah lingkaran -->
+                    <div class="h-[220px] flex justify-center items-center relative"><canvas id="classDistributionChart"></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <span class="text-2xl font-serif font-bold text-syekhGreen-900 mt-4">{{ total_siswa }}</span>
                             <span class="text-[9px] text-gray-400 uppercase tracking-widest">Total Siswa</span>
                         </div>
                     </div>
-                    <!-- Legenda Custom untuk Diagram -->
                     <div class="mt-6 flex flex-col gap-2">
                         <div class="flex justify-between items-center text-xs">
                             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-syekhGreen-700"></span><span class="text-gray-600">Kelas X (Sepuluh)</span></div>
@@ -203,33 +210,17 @@
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
-        // Script Chart.js yang Diperbaiki
+        // PERBAIKAN: Menambahkan Logika Update Interaktif Chart
+        let trendChart;
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
-        new Chart(ctxLine, {
+        
+        trendChart = new Chart(ctxLine, {
             type: 'line',
             data: {
                 labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
                 datasets: [
-                    { 
-                        label: 'Kasus Pelanggaran', 
-                        data: [15, 20, 25, 18, 12, 10], 
-                        borderColor: '#15803D', 
-                        backgroundColor: 'rgba(21, 128, 61, 0.05)', 
-                        borderWidth: 3, 
-                        tension: 0.4, 
-                        fill: true, 
-                        pointBackgroundColor: '#15803D' 
-                    },
-                    { 
-                        label: 'Poin Prestasi', 
-                        data: [30, 45, 60, 75, 80, 95], 
-                        borderColor: '#EAB308', 
-                        backgroundColor: 'rgba(234, 179, 8, 0.05)', 
-                        borderWidth: 3, 
-                        tension: 0.4, 
-                        fill: true, 
-                        pointBackgroundColor: '#EAB308' 
-                    }
+                    { label: 'Kasus Pelanggaran', data: [15, 20, 25, 18, 12, 10], borderColor: '#15803D', backgroundColor: 'rgba(21, 128, 61, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#15803D' },
+                    { label: 'Poin Prestasi', data: [30, 45, 60, 75, 80, 95], borderColor: '#EAB308', backgroundColor: 'rgba(234, 179, 8, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#EAB308' }
                 ]
             },
             options: { 
@@ -244,6 +235,25 @@
                 }
             }
         });
+
+        // FUNGSI BARU: Mengubah Data Sesuai Filter
+        function updateChartData() {
+            const filter = document.getElementById('chartFilter').value;
+            if (filter === 'bulan') {
+                trendChart.data.labels = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                trendChart.data.datasets[0].data = [15, 20, 25, 18, 12, 10];
+                trendChart.data.datasets[1].data = [30, 45, 60, 75, 80, 95];
+            } else if (filter === 'semester') {
+                trendChart.data.labels = ['Semester 1 (Ganjil)', 'Semester 2 (Genap)'];
+                trendChart.data.datasets[0].data = [100, 85]; // Mockup data
+                trendChart.data.datasets[1].data = [320, 410]; // Mockup data
+            } else if (filter === 'tahun') {
+                trendChart.data.labels = ['TA 2023/2024', 'TA 2024/2025', 'TA 2025/2026'];
+                trendChart.data.datasets[0].data = [450, 310, 185]; // Mockup data
+                trendChart.data.datasets[1].data = [800, 950, 1200]; // Mockup data
+            }
+            trendChart.update();
+        }
 
         const ctxDoughnut = document.getElementById('classDistributionChart').getContext('2d');
         new Chart(ctxDoughnut, {
@@ -260,9 +270,9 @@
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false,
-                cutout: '75%', // Ini yang membuat chart bolong di tengah
+                cutout: '75%', 
                 plugins: {
-                    legend: { display: false }, // Sembunyikan legend default
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function(context) { return ' ' + context.label + ': ' + context.raw + ' Siswa'; }
