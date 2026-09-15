@@ -112,9 +112,6 @@
                 </div>
             </form>
 
-            <!-- ============================================== -->
-            <!-- MODE 1: DETAIL INDIVIDU & VISUALISASI          -->
-            <!-- ============================================== -->
             {% if view_mode == 'individual' and siswa %}
                 
                 <div class="flex justify-end gap-2 print-hidden">
@@ -132,11 +129,17 @@
                     <div class="lg:col-span-3 bg-white p-6 rounded-xl border shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6 border-l-4 border-l-syekhGreen-700 print:shadow-none print:border-none print:p-0">
                         <div class="md:col-span-1">
                             <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Profil Siswa</span>
-                            <h2 class="text-2xl font-serif font-bold text-syekhGreen-900 mt-1 leading-tight">{{ siswa.nama_siswa }}</h2>
+                            <h2 class="text-2xl font-serif font-bold text-syekhGreen-900 mt-1 leading-tight flex items-center flex-wrap gap-2">
+                                {{ siswa.nama_siswa }}
+                                {% if total_poin_pelanggaran >= 75 %}
+                                <span class="bg-red-600 text-white text-[10px] font-sans font-bold px-2 py-1 rounded shadow-sm animate-pulse uppercase tracking-widest flex items-center gap-1">
+                                    <i class="fa-solid fa-skull-crossbones"></i> DO / Kritis
+                                </span>
+                                {% endif %}
+                            </h2>
                             <p class="text-xs text-gray-500 font-mono mt-2 bg-gray-100 inline-block px-2 py-1 rounded border border-gray-200">{{ siswa.nisn }} • Kelas {{ siswa.kelas }}</p>
                         </div>
                         
-                        <!-- FITUR BARU: Indikator Poin Pelanggaran Spesifik Individu -->
                         <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6 relative">
                             <span class="text-[10px] font-bold text-gray-400 uppercase">Total Poin Pelanggaran</span>
                             <div class="flex items-center gap-3 mt-1">
@@ -158,7 +161,6 @@
                         </div>
                     </div>
 
-                    <!-- PIE CHART KEHADIRAN -->
                     <div class="bg-white p-5 rounded-xl border shadow-sm print-hidden relative flex flex-col justify-center items-center h-40 lg:h-auto">
                         <span class="text-[10px] font-bold text-gray-400 uppercase absolute top-4 left-5">Rasio Kehadiran</span>
                         <div class="h-28 w-28 mt-4"><canvas id="attendancePieChart"></canvas></div>
@@ -166,14 +168,12 @@
                     </div>
                 </div>
 
-                <!-- PEMISAH TABEL PRESTASI DAN PELANGGARAN -->
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden print:border-none print:shadow-none">
                     <div class="flex gap-1 border-b border-gray-200 bg-gray-50 print-hidden p-2">
                         <button onclick="switchTab('pelanggaran')" id="btn-pelanggaran" class="flex-1 py-2 rounded font-bold text-red-600 bg-red-50 border border-red-200 text-xs transition">Riwayat Pelanggaran ({{ pelanggaran|length }})</button>
                         <button onclick="switchTab('prestasi')" id="btn-prestasi" class="flex-1 py-2 rounded font-bold text-gray-500 hover:bg-gray-100 text-xs transition">Riwayat Prestasi ({{ prestasi|length }})</button>
                     </div>
 
-                    <!-- TAB PELANGGARAN -->
                     <div id="tab-pelanggaran" class="block">
                         <div class="p-4 border-b border-gray-100 bg-red-50/50 hidden print:block"><h3 class="font-bold text-sm text-red-800">Riwayat Pelanggaran</h3></div>
                         <table class="w-full text-left text-xs text-gray-600">
@@ -191,7 +191,6 @@
                         </table>
                     </div>
 
-                    <!-- TAB PRESTASI -->
                     <div id="tab-prestasi" class="hidden print:block print:mt-8">
                         <div class="p-4 border-b border-gray-100 bg-emerald-50/50 hidden print:block"><h3 class="font-bold text-sm text-emerald-800">Riwayat Prestasi</h3></div>
                         <table class="w-full text-left text-xs text-gray-600">
@@ -210,12 +209,10 @@
                     </div>
                 </div>
             
-            <!-- ============================================== -->
-            <!-- MODE 2: REKAP KOLEKTIF PER KELAS               -->
-            <!-- ============================================== -->
             {% elif view_mode == 'class' %}
                 <div class="flex justify-between items-center mb-4 print-hidden">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Rekapitulasi Kolektif: Kelas {{ kelas_query }}</h3>
+                    
                     <div class="flex gap-2">
                         {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                         <button onclick="exportTableToCSV('Rekap_Kelas_{{ kelas_query }}.csv')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded shadow-sm flex items-center gap-2"><i class="fa-solid fa-file-csv"></i> Unduh CSV</button>
@@ -245,11 +242,15 @@
                                 <tr class="border-b border-gray-50 hover:bg-emerald-50/50">
                                     <td class="pl-6 py-3 text-center text-gray-400 font-mono">{{ loop.index }}</td>
                                     <td class="px-4 py-3">
-                                        <p class="font-bold text-syekhGreen-900"><a href="/laporan?q={{ s.nisn }}" class="hover:underline hover:text-syekhGold-600">{{ s.nama_siswa }}</a></p>
+                                        <p class="font-bold text-syekhGreen-900 flex items-center gap-2">
+                                            <a href="/laporan?q={{ s.nisn }}" class="hover:underline hover:text-syekhGold-600">{{ s.nama_siswa }}</a>
+                                            {% if s.pelanggaran >= 75 %}
+                                            <span class="bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded animate-pulse" title="Terancam Drop Out">KRITIS</span>
+                                            {% endif %}
+                                        </p>
                                         <p class="text-[10px] text-gray-400">{{ s.nisn }}</p>
                                     </td>
                                     
-                                    <!-- FITUR BARU: Efek Visual Poin Tabel (Kritis DO) -->
                                     <td class="px-3 py-3 text-center font-bold">
                                         {% if s.pelanggaran >= 100 %}
                                             <span class="text-white bg-red-600 px-1.5 py-0.5 rounded animate-pulse">{{ s.pelanggaran }}</span>
@@ -276,13 +277,9 @@
                     </div>
                 </div>
 
-            <!-- ============================================== -->
-            <!-- MODE 3: DEFAULT (LEADERBOARD, SP, JURNAL)      -->
-            <!-- ============================================== -->
             {% else %}
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 print-hidden">
                     
-                    <!-- LEADERBOARD PRESTASI -->
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden border-t-4 border-t-emerald-500">
                         <div class="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                             <h3 class="font-serif font-bold text-syekhGreen-900"><i class="fa-solid fa-trophy text-syekhGold-500 mr-2"></i> Puncak Prestasi</h3>
@@ -304,7 +301,6 @@
                         </table>
                     </div>
 
-                    <!-- RADAR PANTAUAN SP -->
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden border-t-4 border-t-red-600">
                         <div class="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                             <h3 class="font-serif font-bold text-syekhGreen-900"><i class="fa-solid fa-triangle-exclamation text-red-600 mr-2"></i> Radar Pantauan (SP)</h3>
@@ -313,14 +309,17 @@
                         <table class="w-full text-left text-xs text-gray-600">
                             <tbody>
                                 {% for sp in default_data.radar_sp %}
-                                <!-- FITUR BARU: Background berubah jadi merah tajam bila poin >= 100 -->
                                 <tr class="border-b border-gray-50 {% if sp.total >= 100 %}bg-red-100{% else %}bg-red-50/30{% endif %}">
                                     <td class="pl-4 py-3">
-                                        <p class="font-bold text-red-800"><a href="/laporan?q={{ sp.nisn }}" class="hover:underline">{{ sp.nama_siswa }}</a></p>
+                                        <p class="font-bold text-red-800 flex items-center gap-2">
+                                            <a href="/laporan?q={{ sp.nisn }}" class="hover:underline">{{ sp.nama_siswa }}</a>
+                                            {% if sp.total >= 75 %}
+                                            <span class="bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded animate-pulse">DO / KRITIS</span>
+                                            {% endif %}
+                                        </p>
                                         <p class="text-[9px]">{{ sp.kelas }}</p>
                                     </td>
                                     <td class="pr-4 py-3 text-right">
-                                        <!-- FITUR BARU: Badge dinamis berdasarkan total poin -->
                                         {% if sp.total >= 100 %}
                                             <span class="inline-block bg-red-600 text-white px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest mr-1 align-middle animate-pulse">DO / Kritis</span>
                                         {% elif sp.total >= 75 %}
@@ -340,7 +339,6 @@
                         </table>
                     </div>
 
-                    <!-- JURNAL KELAS TERBARU -->
                     <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden border-t-4 border-t-syekhGold-500">
                         <div class="p-4 border-b border-gray-100 bg-gray-50/50">
                             <h3 class="font-serif font-bold text-syekhGreen-900"><i class="fa-solid fa-book-open text-syekhGold-600 mr-2"></i> Jurnal Mengajar Terbaru</h3>
@@ -372,7 +370,6 @@
         </div>
     </main>
 
-    <!-- HIDDEN DIV UNTUK FORMAT PRINT SURAT PERINGATAN -->
     <div id="sp-document" class="hidden">
         {% if siswa %}
         <div style="text-align: center; border-bottom: 3px solid #166534; padding-bottom: 20px; margin-bottom: 30px;">
