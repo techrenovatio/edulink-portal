@@ -93,20 +93,28 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div><label class="text-[10px] font-bold text-gray-500 uppercase">Tanggal</label><input type="date" id="tanggalAbsen" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
+                    
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase">Kelas</label>
                         <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                             <option value="">-- Pilih Kelas --</option>
-                            <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
-                            <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
-                            <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                            <!-- KELAS DINAMIS DARI DATABASE -->
+                            {% for k in list_kelas %}
+                            <option value="{{ k }}">{{ k }}</option>
+                            {% endfor %}
                         </select>
                     </div>
-                    <div><label class="text-[10px] font-bold text-gray-500 uppercase">Mata Pelajaran</label><select id="selectMapel" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="">-- Pilih Mapel --</option></select></div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Mata Pelajaran</label>
+                        <select id="selectMapel" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
+                            <option value="">-- Pilih Mapel --</option>
+                        </select>
+                    </div>
+                    
                     <div><label class="text-[10px] font-bold text-gray-500 uppercase">Pertemuan Ke-</label><input type="number" id="inputPertemuan" value="1" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"></div>
                 </div>
 
-                <!-- FITUR BARU: KOTAK DESKRIPSI JURNAL KELAS -->
                 <div class="mt-4 pt-4 border-t border-gray-100">
                     <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Deskripsi / Jurnal Kelas (Opsional)</label>
                     <textarea id="inputJurnalKelas" rows="2" placeholder="Tuliskan catatan materi yang diajarkan, atau jurnal umum pertemuan kelas hari ini..." class="w-full bg-gray-50 border border-gray-200 py-2 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600"></textarea>
@@ -123,6 +131,7 @@
                     <i class="fa-solid fa-print"></i> Cetak Presensi
                 </button>
                 {% endif %}
+                
                 <button onclick="simpanPresensi()" class="bg-syekhGreen-800 text-white text-[11px] font-bold uppercase px-6 py-3 rounded shadow-md"><i class="fa-solid fa-floppy-disk"></i> Simpan Presensi</button>
             </div>
 
@@ -133,7 +142,6 @@
                             <th class="px-6 py-4">NISN / Nama Siswa</th>
                             <th class="px-4 py-4 text-center">Akumulasi (H/I/S/A)</th>
                             <th class="px-4 py-4 print-hidden w-64">Deskripsi / Catatan</th>
-                            <!-- FITUR BARU: POSISI KOLOM STATUS SISWA DIUBAH -->
                             <th class="px-4 py-4 text-center">Status Akademik</th>
                             <th class="px-6 py-4 text-right print-hidden">Status Kehadiran Hari Ini</th>
                         </tr>
@@ -163,8 +171,6 @@
                                 <input type="text" class="w-full bg-gray-100 border border-gray-200 py-1.5 px-3 text-xs rounded text-gray-400 cursor-not-allowed" value="-" disabled>
                                 {% endif %}
                             </td>
-                            
-                            <!-- POSISI BARU BADGE STATUS -->
                             <td class="px-4 py-4 text-center">
                                 {% if not s.status_siswa or s.status_siswa == 'Aktif' %}
                                     <span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Aktif</span>
@@ -174,7 +180,6 @@
                                     <span class="bg-red-100 text-red-700 border border-red-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Keluar</span>
                                 {% endif %}
                             </td>
-
                             <td class="px-6 py-4 text-right print-hidden">
                                 {% if not s.status_siswa or s.status_siswa == 'Aktif' %}
                                 <button class="status-btn bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 text-[10px] rounded border border-emerald-200" onclick="toggleStatus(this)">HADIR</button>
@@ -191,10 +196,16 @@
     </main>
 
     <script>
-        const masterMapel = {{ mapel_master | tojson | safe }};
-        const hakKelas = "{{ hak_kelas }}"; const hakMapel = "{{ hak_mapel }}"; const role = "{{ role }}";
+        // PERBAIKAN: Mengambil seluruh list mapel dari DB
+        const allMapel = {{ list_mapel | tojson | safe if list_mapel else '[]' }};
+        const hakKelas = "{{ hak_kelas }}"; 
+        const hakMapel = "{{ hak_mapel }}"; 
+        const role = "{{ role }}";
         
-        document.addEventListener('DOMContentLoaded', () => { document.getElementById('tanggalAbsen').value = new Date().toISOString().split('T')[0]; filterDropdownKelasByHak(); });
+        document.addEventListener('DOMContentLoaded', () => { 
+            document.getElementById('tanggalAbsen').value = new Date().toISOString().split('T')[0]; 
+            filterDropdownKelasByHak(); 
+        });
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
@@ -210,28 +221,24 @@
             });
         }
 
+        // PERBAIKAN: Fungsi pemuatan Mapel tidak lagi bergantung pada Dictionary Rumpun Kelas
         function updateMapelDropdown() {
             const kelasVal = document.getElementById('selectKelasAbsensi').value;
             const mapelSelect = document.getElementById('selectMapel');
             mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+            
             if(!kelasVal) { document.getElementById('totalSiswaKelas').innerText = "0"; return; }
 
-            let kategori = "";
-            if(kelasVal.startsWith("X ")) kategori = "X";
-            else if(kelasVal.includes("XI IPA")) kategori = "XI IPA";
-            else if(kelasVal.includes("XI IPS")) kategori = "XI IPS";
-            else if(kelasVal.includes("XII IPA")) kategori = "XII IPA";
-            else if(kelasVal.includes("XII IPS")) kategori = "XII IPS";
-
-            if(masterMapel[kategori]) {
-                const allowedMapel = hakMapel === 'Semua' ? masterMapel[kategori] : hakMapel.split(',').map(m => m.trim());
-                masterMapel[kategori].forEach(mapel => {
-                    if (role === 'admin' || role === 'superadmin' || hakMapel === 'Semua' || allowedMapel.includes(mapel)) {
-                        const opt = document.createElement('option'); opt.value = mapel; opt.textContent = mapel;
-                        mapelSelect.appendChild(opt);
-                    }
-                });
-            }
+            const allowedMapel = hakMapel === 'Semua' ? allMapel : hakMapel.split(',').map(m => m.trim());
+            
+            allMapel.forEach(mapel => {
+                if (role === 'admin' || role === 'superadmin' || hakMapel === 'Semua' || allowedMapel.includes(mapel)) {
+                    const opt = document.createElement('option'); 
+                    opt.value = mapel; 
+                    opt.textContent = mapel;
+                    mapelSelect.appendChild(opt);
+                }
+            });
 
             let countSiswa = 0;
             const rows = document.querySelectorAll('.absensi-row');
@@ -277,7 +284,6 @@
                 const res = await response.json();
                 if(res.status === 'success') {
                     
-                    // Reset isi jurnal kelas terlebih dahulu
                     document.getElementById('inputJurnalKelas').value = '';
                     
                     document.querySelectorAll('.absensi-row:not(.hidden)').forEach(row => {
@@ -290,7 +296,6 @@
                     });
                     
                     if (res.data.length > 0) {
-                        // Ambil Jurnal Kelas Global dari record pertama
                         document.getElementById('inputJurnalKelas').value = res.data[0].jurnal_kelas || '';
                     }
 

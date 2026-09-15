@@ -72,8 +72,6 @@ def add_header(response):
     response.headers['Expires'] = '0'
     return response
 
-MAPEL_MASTER = {'X': ['Matematika Dasar', 'Bahasa Indonesia'], 'XI IPA': ['Matematika']}
-
 def is_superadmin(): return 'user_id' in session and str(session.get('role', '')).strip().lower() == 'superadmin'
 def is_admin_or_super(): return 'user_id' in session and str(session.get('role', '')).strip().lower() in ['admin', 'superadmin']
 
@@ -284,7 +282,6 @@ def delete_siswa(nisn):
     conn.close()
     return redirect(url_for('siswa'))
 
-# --- PERBAIKAN FITUR POIN: EDIT & DELETE RIWAYAT ---
 @app.route('/poin', methods=['GET', 'POST'])
 def poin():
     if 'user_id' not in session: return redirect(url_for('login'))
@@ -303,13 +300,7 @@ def poin():
     
     try:
         daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa WHERE status_siswa='Aktif'").fetchall()
-        # Query UNION diperbarui agar memasukkan 'id' untuk diedit/dihapus
-        riwayat_gabungan = conn.execute("""
-            SELECT id, tanggal, nisn, nama_siswa, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran 
-            UNION ALL 
-            SELECT id, tanggal, nisn, nama_siswa, jenis_prestasi as aktivitas, poin, 'Prestasi' as tipe FROM prestasi 
-            ORDER BY tanggal DESC LIMIT 40
-        """).fetchall()
+        riwayat_gabungan = conn.execute("SELECT id, tanggal, nisn, nama_siswa, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran UNION ALL SELECT id, tanggal, nisn, nama_siswa, jenis_prestasi as aktivitas, poin, 'Prestasi' as tipe FROM prestasi ORDER BY tanggal DESC LIMIT 40").fetchall()
         master_pelanggaran = conn.execute("SELECT * FROM master_pelanggaran ORDER BY poin ASC").fetchall()
         master_prestasi = conn.execute("SELECT * FROM master_prestasi ORDER BY poin ASC").fetchall()
     except Exception as e:
@@ -322,12 +313,7 @@ def poin():
 @app.route('/poin/edit_riwayat', methods=['POST'])
 def edit_riwayat():
     if 'user_id' not in session: return redirect(url_for('login'))
-    r_id = request.form.get('edit_id')
-    tipe = request.form.get('edit_tipe')
-    tanggal = request.form.get('edit_tanggal')
-    jenis = request.form.get('edit_jenis_catatan')
-    poin_val = request.form.get('edit_poin', 0)
-    
+    r_id, tipe, tanggal, jenis, poin_val = request.form.get('edit_id'), request.form.get('edit_tipe'), request.form.get('edit_tanggal'), request.form.get('edit_jenis_catatan'), request.form.get('edit_poin', 0)
     if r_id and tipe and jenis and tanggal:
         conn = get_db_connection()
         try:
@@ -335,7 +321,7 @@ def edit_riwayat():
             col = 'jenis_prestasi' if tipe == 'Prestasi' else 'jenis_pelanggaran'
             conn.execute(f"UPDATE {table} SET tanggal=?, {col}=?, poin=? WHERE id=?", (tanggal, jenis, int(poin_val), r_id))
             conn.commit()
-            flash("Catatan riwayat berhasil diperbarui!", "success")
+            flash("Catatan riwayat diperbarui!", "success")
         except Exception as e: flash(f"Gagal memperbarui: {e}", "error")
         finally: conn.close()
     return redirect(url_for('poin'))
@@ -343,15 +329,14 @@ def edit_riwayat():
 @app.route('/poin/delete_riwayat', methods=['POST'])
 def delete_riwayat():
     if 'user_id' not in session: return redirect(url_for('login'))
-    r_id = request.form.get('id')
-    tipe = request.form.get('tipe')
+    r_id, tipe = request.form.get('id'), request.form.get('tipe')
     if r_id and tipe:
         conn = get_db_connection()
         try:
             table = 'prestasi' if tipe == 'Prestasi' else 'pelanggaran'
             conn.execute(f"DELETE FROM {table} WHERE id=?", (r_id,))
             conn.commit()
-            flash("Catatan riwayat berhasil dihapus!", "success")
+            flash("Catatan riwayat dihapus!", "success")
         except Exception as e: flash("Gagal menghapus.", "error")
         finally: conn.close()
     return redirect(url_for('poin'))
@@ -375,24 +360,19 @@ def tambah_master_pelanggaran():
 @app.route('/laporan')
 def laporan():
     if 'user_id' not in session: return redirect(url_for('login'))
-    search_query = request.args.get('q', '').strip()
-    kelas_query = request.args.get('kelas', '').strip()
-    start_date = request.args.get('start_date', '').strip()
-    end_date = request.args.get('end_date', '').strip()
+    search_query, kelas_query, start_date, end_date = request.args.get('q', '').strip(), request.args.get('kelas', '').strip(), request.args.get('start_date', '').strip(), request.args.get('end_date', '').strip()
     
     conn = get_db_connection()
     try: m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
     except: m_kelas = []
 
     view_mode = 'default'
-    siswa_data, class_data = None, []
-    pelanggaran_data, prestasi_data = [], []
+    siswa_data, class_data, pelanggaran_data, prestasi_data = None, [], [], []
     total_poin_pelanggaran, total_poin_prestasi = 0, 0
     kehadiran = {'Hadir': 0, 'Sakit': 0, 'Izin': 0, 'Alfa': 0, 'Persentase': 100.0}
     default_data = {'top_prestasi': [], 'radar_sp': [], 'jurnal': []}
 
-    date_filter_query = ""
-    date_params = []
+    date_filter_query, date_params = "", []
     if start_date and end_date:
         date_filter_query = " AND tanggal BETWEEN ? AND ?"
         date_params = [start_date, end_date + " 23:59:59"]
@@ -457,6 +437,7 @@ def get_presensi():
     conn.close()
     return jsonify({"status": "success", "data": [dict(r) for r in records]})
 
+# --- PERBAIKAN FITUR PRESENSI: Injeksi Master Kelas dan Mapel Dinamis ---
 @app.route('/presensi', methods=['GET', 'POST'])
 def presensi():
     if 'user_id' not in session: 
@@ -481,8 +462,14 @@ def presensi():
         except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
         finally: conn.close()
 
+    # Get data untuk frontend
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY CASE WHEN status_siswa='Aktif' THEN 1 ELSE 2 END, kelas ASC, nama_siswa ASC").fetchall()
     akumulasi_raw = conn.execute("SELECT nisn, status, COUNT(*) as count FROM presensi_harian GROUP BY nisn, status").fetchall()
+    
+    # Ambil Daftar Kelas & Mapel langsung dari Database (Tabel Master)
+    m_kelas = conn.execute("SELECT nama_kelas FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
+    m_mapel = conn.execute("SELECT nama_mapel FROM master_mapel ORDER BY nama_mapel ASC").fetchall()
+    
     akumulasi = {}
     for row in akumulasi_raw:
         nisn = row['nisn']
@@ -491,7 +478,12 @@ def presensi():
         if status_key in akumulasi[nisn]: akumulasi[nisn][status_key] = row['count']
         
     conn.close()
-    return render_template('dashboard/presensi.html', nama_user=session['nama'], siswa_list=daftar_siswa, akumulasi=akumulasi, mapel_master=MAPEL_MASTER, hak_kelas=session.get('mengajar_kelas', 'Semua'), hak_mapel=session.get('mengajar_mapel', 'Semua'), role=session.get('role', 'guru'))
+    
+    # Ubah format mapel & kelas agar mudah dicerna Javascript di frontend
+    list_mapel = [m['nama_mapel'] for m in m_mapel]
+    list_kelas = [k['nama_kelas'] for k in m_kelas]
+    
+    return render_template('dashboard/presensi.html', nama_user=session['nama'], siswa_list=daftar_siswa, akumulasi=akumulasi, list_mapel=list_mapel, list_kelas=list_kelas, hak_kelas=session.get('mengajar_kelas', 'Semua'), hak_mapel=session.get('mengajar_mapel', 'Semua'), role=session.get('role', 'guru'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
