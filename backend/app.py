@@ -1,4 +1,7 @@
 import os
+import csv
+import io
+import datetime
 from datetime import timedelta
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
@@ -45,6 +48,11 @@ def force_patch_database():
         add_col('users', 'mengajar_kelas', "TEXT DEFAULT 'Semua'")
         add_col('users', 'mengajar_mapel', "TEXT DEFAULT 'Semua'")
         add_col('users', 'can_print', "INTEGER DEFAULT 0")
+        
+        # FITUR BARU: Kolom Status Akun, Wali Kelas Dinamis, dan Last Login
+        add_col('users', 'status_akun', "TEXT DEFAULT 'Aktif'")
+        add_col('users', 'walikelas_kelas', "TEXT DEFAULT '-'")
+        add_col('users', 'last_login', "TEXT DEFAULT '-'")
 
         cursor.execute("SELECT COUNT(*) FROM master_prestasi")
         if cursor.fetchone()[0] == 0:
@@ -92,11 +100,21 @@ def login():
         password = request.form.get('password', '')
         conn = get_db_connection()
         user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
-        conn.close()
-
+        
         if user and check_password_hash(user['password'], password):
+            # FITUR BARU: Blokir Akses Jika Akun Dinonaktifkan
+            if user['status_akun'] == 'Non-Aktif':
+                conn.close()
+                return render_template('login.html', error="Akses Ditolak! Akun Anda sedang dinonaktifkan.")
+
             db_role = str(user['role']).strip().lower()
             if db_role == form_role or (form_role == 'admin' and db_role == 'superadmin'):
+                # Update Last Login Time
+                now_str = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
+                conn.execute("UPDATE users SET last_login = ? WHERE id = ?", (now_str, user['id']))
+                conn.commit()
+                conn.close()
+
                 session.permanent = True
                 session['user_id'] = user['id']
                 session['nama'] = user['nama']
@@ -105,7 +123,8 @@ def login():
                 session['mengajar_mapel'] = user['mengajar_mapel'] if 'mengajar_mapel' in user.keys() else 'Semua'
                 session['can_print'] = user['can_print'] if 'can_print' in user.keys() else 0
                 return redirect(url_for('dashboard_overview'))
-        return render_template('login.html', error="Kredensial tidak sesuai!")
+        conn.close()
+        return render_template('login.html', error="Kredensial atau Peran tidak sesuai!")
     return render_template('login.html')
 
 @app.route('/logout')
@@ -156,6 +175,54 @@ def manage_users():
     conn.close()
     return render_template('dashboard/users.html', nama_user=session['nama'], users=users, current_role=session.get('role', '').lower(), m_kelas=m_kelas, m_mapel=m_mapel)
 
+# --- FITUR BARU: RESET PASSWORD 1-KLIK ---
+@app.route('/users/reset_password/<int:user_id>', methods=['POST'])
+def reset_password(user_id):
+    if not is_admin_or_super(): return redirect(url_for('login'))
+    conn = get_db_connection()
+    try:
+        new_pwd = generate_password_hash('12345678', method='pbkdf2:sha256')
+        conn.execute("UPDATE users SET password=? WHERE id=?", (new_pwd, user_id))
+        conn.commit()
+        flash("Password berhasil di-reset menjadi: 12345678", "success")
+    except: flash("Gagal melakukan reset password.", "error")
+    finally: conn.close()
+    return redirect(url_for('manage_users'))
+
+# --- FITUR BARU: IMPORT DATA MASSAL (CSV) ---
+@app.route('/users/import_csv', methods=['POST'])
+def import_csv():
+    if not is_superadmin(): return redirect(url_for('login'))
+    file = request.files.get('file')
+    if not file or file.filename == '':
+        flash("Silakan pilih file CSV terlebih dahulu.", "error")
+        return redirect(url_for('manage_users'))
+    
+    try:
+        stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+        csv_input = csv.reader(stream)
+        next(csv_input, None) # Skip Header row
+        
+        conn = get_db_connection()
+        default_pwd = generate_password_hash('12345678', method='pbkdf2:sha256')
+        count = 0
+        for row in csv_input:
+            if len(row) >= 3:
+                nama, username, role = row[0].strip(), row[1].strip().lower(), row[2].strip().lower()
+                nip = row[3].strip() if len(row) > 3 else '-'
+                bidang = row[4].strip() if len(row) > 4 else '-'
+                try:
+                    conn.execute("INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_akun, status_walikelas, walikelas_kelas, mengajar_kelas, mengajar_mapel, can_print, last_login) VALUES (?, ?, ?, ?, ?, ?, 'Aktif', 'Bukan', '-', 'Semua', 'Semua', 0, '-')", (username, default_pwd, role, nama, nip, bidang))
+                    count += 1
+                except sqlite3.IntegrityError: pass # Abaikan jika username duplicate
+        conn.commit()
+        conn.close()
+        flash(f"{count} Akun pengguna berhasil diimpor!", "success")
+    except Exception as e:
+        flash(f"Gagal membaca format CSV. Pastikan sesuai template. {e}", "error")
+    
+    return redirect(url_for('manage_users'))
+
 @app.route('/users/add_master', methods=['POST'])
 def add_master_data():
     if not is_superadmin(): return redirect(url_for('manage_users'))
@@ -190,6 +257,10 @@ def add_user():
     nama, username, password, role = request.form.get('nama', ''), request.form.get('username', '').lower(), request.form.get('password', ''), request.form.get('role', '').lower()
     can_print = int(request.form.get('can_print', 0))
     nip, bidang, status_walikelas = request.form.get('nip', '-'), request.form.get('bidang_pelajaran', '-'), request.form.get('status_walikelas', 'Bukan')
+    
+    # FITUR BARU: Menangkap Kelas Wali
+    walikelas_kelas = request.form.get('walikelas_kelas', '-') if status_walikelas == 'Wali Kelas' else '-'
+    
     m_kelas, m_mapel = request.form.getlist('mengajar_kelas'), request.form.getlist('mengajar_mapel')
     m_kelas_str = ", ".join(m_kelas) if m_kelas else "Semua"
     m_mapel_str = ", ".join(m_mapel) if m_mapel else "Semua"
@@ -198,10 +269,10 @@ def add_user():
     if nama and username and password:
         conn = get_db_connection()
         try:
-            conn.execute("INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (username, generate_password_hash(password, method='pbkdf2:sha256'), role, nama, nip, bidang, status_walikelas, m_kelas_str, m_mapel_str, can_print))
+            conn.execute("INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, walikelas_kelas, mengajar_kelas, mengajar_mapel, can_print, status_akun, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Aktif', '-')", (username, generate_password_hash(password, method='pbkdf2:sha256'), role, nama, nip, bidang, status_walikelas, walikelas_kelas, m_kelas_str, m_mapel_str, can_print))
             conn.commit()
             flash("Akun dibuat!", "success")
-        except: flash("Username terpakai!", "error")
+        except sqlite3.IntegrityError: flash("Username terpakai!", "error")
         finally: conn.close()
     return redirect(url_for('manage_users'))
 
@@ -211,17 +282,24 @@ def edit_user(user_id):
     nama, role, password = request.form.get('edit_nama', ''), request.form.get('edit_role', '').lower(), request.form.get('edit_password', '')
     can_print, nip, bidang = int(request.form.get('edit_can_print', 0)), request.form.get('edit_nip', '-'), request.form.get('edit_bidang_pelajaran', '-')
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
+    status_akun = request.form.get('edit_status_akun', 'Aktif')
+    
+    # FITUR BARU: Update Kelas Wali
+    walikelas_kelas = request.form.get('edit_walikelas_kelas', '-') if status_walikelas == 'Wali Kelas' else '-'
+    
     m_kelas = ", ".join(request.form.getlist('edit_mengajar_kelas')) or "Semua"
     m_mapel = ", ".join(request.form.getlist('edit_mengajar_mapel')) or "Semua"
 
     if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
     conn = get_db_connection()
     try:
-        if password: conn.execute("UPDATE users SET nama=?, role=?, password=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=? WHERE id=?", (nama, role, generate_password_hash(password, method='pbkdf2:sha256'), nip, bidang, status_walikelas, m_kelas, m_mapel, can_print, user_id))
-        else: conn.execute("UPDATE users SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=? WHERE id=?", (nama, role, nip, bidang, status_walikelas, m_kelas, m_mapel, can_print, user_id))
+        if password: 
+            conn.execute("UPDATE users SET nama=?, role=?, password=?, nip=?, bidang_pelajaran=?, status_walikelas=?, walikelas_kelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=?, status_akun=? WHERE id=?", (nama, role, generate_password_hash(password, method='pbkdf2:sha256'), nip, bidang, status_walikelas, walikelas_kelas, m_kelas, m_mapel, can_print, status_akun, user_id))
+        else: 
+            conn.execute("UPDATE users SET nama=?, role=?, nip=?, bidang_pelajaran=?, status_walikelas=?, walikelas_kelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=?, status_akun=? WHERE id=?", (nama, role, nip, bidang, status_walikelas, walikelas_kelas, m_kelas, m_mapel, can_print, status_akun, user_id))
         conn.commit()
         flash("Profil disimpan!", "success")
-    except: flash("Gagal edit.", "error")
+    except Exception as e: flash("Gagal edit.", "error")
     finally: conn.close()
     return redirect(url_for('manage_users'))
 
@@ -233,6 +311,7 @@ def delete_user(user_id):
         conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
         conn.commit()
         conn.close()
+        flash("Akun berhasil dihapus permanen.", "success")
     return redirect(url_for('manage_users'))
 
 @app.route('/users/delete-multiple', methods=['POST'])
@@ -246,6 +325,7 @@ def delete_multiple_users():
         conn.close()
     return redirect(url_for('manage_users'))
 
+# ... (Sisa Rute Siswa, Poin, Laporan, dan Presensi tetap sama seperti sebelumnya, tidak perlu diubah) ...
 @app.route('/siswa', methods=['GET', 'POST'])
 def siswa():
     if 'user_id' not in session: return redirect(url_for('login'))
@@ -437,7 +517,6 @@ def get_presensi():
     conn.close()
     return jsonify({"status": "success", "data": [dict(r) for r in records]})
 
-# --- PERBAIKAN FITUR PRESENSI: Injeksi Master Kelas dan Mapel Dinamis ---
 @app.route('/presensi', methods=['GET', 'POST'])
 def presensi():
     if 'user_id' not in session: 
@@ -462,11 +541,8 @@ def presensi():
         except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
         finally: conn.close()
 
-    # Get data untuk frontend
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY CASE WHEN status_siswa='Aktif' THEN 1 ELSE 2 END, kelas ASC, nama_siswa ASC").fetchall()
     akumulasi_raw = conn.execute("SELECT nisn, status, COUNT(*) as count FROM presensi_harian GROUP BY nisn, status").fetchall()
-    
-    # Ambil Daftar Kelas & Mapel langsung dari Database (Tabel Master)
     m_kelas = conn.execute("SELECT nama_kelas FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
     m_mapel = conn.execute("SELECT nama_mapel FROM master_mapel ORDER BY nama_mapel ASC").fetchall()
     
@@ -478,12 +554,7 @@ def presensi():
         if status_key in akumulasi[nisn]: akumulasi[nisn][status_key] = row['count']
         
     conn.close()
-    
-    # Ubah format mapel & kelas agar mudah dicerna Javascript di frontend
-    list_mapel = [m['nama_mapel'] for m in m_mapel]
-    list_kelas = [k['nama_kelas'] for k in m_kelas]
-    
-    return render_template('dashboard/presensi.html', nama_user=session['nama'], siswa_list=daftar_siswa, akumulasi=akumulasi, list_mapel=list_mapel, list_kelas=list_kelas, hak_kelas=session.get('mengajar_kelas', 'Semua'), hak_mapel=session.get('mengajar_mapel', 'Semua'), role=session.get('role', 'guru'))
+    return render_template('dashboard/presensi.html', nama_user=session['nama'], siswa_list=daftar_siswa, akumulasi=akumulasi, list_mapel=[m['nama_mapel'] for m in m_mapel], list_kelas=[k['nama_kelas'] for k in m_kelas], hak_kelas=session.get('mengajar_kelas', 'Semua'), hak_mapel=session.get('mengajar_mapel', 'Semua'), role=session.get('role', 'guru'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
