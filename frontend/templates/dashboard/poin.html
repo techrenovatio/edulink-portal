@@ -46,6 +46,7 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
+            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
             <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-chart-line w-5"></i><span class="text-xs font-semibold">OVERVIEW</span></a>
             <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-user-gear w-5"></i><span class="text-xs font-semibold">KELOLA PENGGUNA</span></a>
             <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-users w-5"></i><span class="text-xs font-semibold">DATA SISWA</span></a>
@@ -100,7 +101,6 @@
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Catat Aktivitas Siswa</h3>
                     
                     <form action="/poin" method="POST" autocomplete="off" class="space-y-4">
-                        
                         <!-- TAB PERPINDAHAN -->
                         <div class="flex bg-gray-100 rounded-lg p-1">
                             <label class="flex-1 text-center cursor-pointer">
@@ -145,7 +145,7 @@
                     <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4 print:px-0">
                         <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Riwayat Aktivitas Terakhir</h3>
                         
-                        <!-- FITUR BARU: Kolom Search & Tombol Cetak -->
+                        <!-- FITUR PENCARIAN & CETAK -->
                         <div class="flex items-center gap-2 print-hidden w-full sm:w-auto">
                             <div class="relative w-full sm:w-64">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
@@ -169,12 +169,12 @@
                             </thead>
                             <tbody>
                                 {% for p in riwayat_list %}
-                                <!-- FITUR BARU: Class 'riwayat-row' ditambahkan untuk javascript search -->
                                 <tr class="border-b border-gray-50 hover:bg-gray-50 transition riwayat-row">
                                     <td class="pl-6 py-3 font-mono">{{ p.tanggal[:10] if p.tanggal else '-' }}</td>
                                     <td class="px-3 py-3">
-                                        <p class="font-bold text-syekhGreen-900">{{ p.nama_siswa }}</p>
-                                        <p class="text-[10px] text-gray-400 font-mono">{{ p.nisn }}</p>
+                                        <!-- FITUR LINK: Nama Siswa dapat diklik menuju halaman Laporan -->
+                                        <a href="/laporan?q={{ p.nisn }}" class="font-bold text-syekhGreen-900 hover:text-syekhGold-600 hover:underline transition-colors" title="Lihat Rekap Siswa">{{ p.nama_siswa }}</a>
+                                        <p class="text-[10px] text-gray-400 font-mono mt-0.5">{{ p.nisn }}</p>
                                     </td>
                                     <td class="px-3 py-3">
                                         <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border {% if p.tipe == 'Prestasi' %}bg-emerald-50 text-emerald-600 border-emerald-200{% else %}bg-red-50 text-red-600 border-red-200{% endif %}">
@@ -240,7 +240,7 @@
             const dateInput = document.getElementById('inputTanggal');
             const today = new Date().toISOString().split('T')[0];
             dateInput.value = today;
-            changeTipeCatatan();
+            changeTipeCatatan(); // Load Dropdown Awal
         });
 
         function toggleSidebar() {
@@ -251,13 +251,12 @@
         function openModal() { document.getElementById('modalMaster').classList.remove('hidden'); }
         function closeModal() { document.getElementById('modalMaster').classList.add('hidden'); }
 
-        // FITUR BARU: Pencarian Riwayat pada Tabel
+        // FUNGSI PENCARIAN REAL-TIME
         function filterRiwayat() {
             const keyword = document.getElementById('searchRiwayat').value.toLowerCase();
             const rows = document.querySelectorAll('.riwayat-row');
             
             rows.forEach(row => {
-                // Mencari kecocokan text di seluruh isi baris tersebut (Bisa by Nama, NISN, atau Pelanggaran)
                 const rowData = row.innerText.toLowerCase();
                 if (rowData.includes(keyword)) {
                     row.style.display = '';
