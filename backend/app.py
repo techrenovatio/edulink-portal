@@ -20,7 +20,19 @@ app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
+# Menginjeksi Kolom Baru ke Database Tanpa Menghapus Data Lama
+def check_and_update_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(presensi_harian)")
+    presensi_cols = [col['name'] for col in cursor.fetchall()]
+    if 'jurnal_kelas' not in presensi_cols:
+        cursor.execute("ALTER TABLE presensi_harian ADD COLUMN jurnal_kelas TEXT DEFAULT ''")
+    conn.commit()
+    conn.close()
+
 init_db()
+check_and_update_db()
 
 @app.after_request
 def add_header(response):
@@ -94,7 +106,6 @@ def dashboard_overview():
     total_presensi = conn.execute("SELECT COUNT(*) FROM presensi_harian").fetchone()[0]
     kehadiran_rata = round((hadir_count / total_presensi * 100), 1) if total_presensi > 0 else 100.0
 
-    # DATA REAL: Gabungan Log Aktivitas (Pelanggaran & Prestasi)
     recent_logs = conn.execute("""
         SELECT tanggal, nisn, nama_siswa, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran
         UNION ALL
@@ -102,15 +113,13 @@ def dashboard_overview():
         ORDER BY tanggal DESC LIMIT 5
     """).fetchall()
 
-    # DATA REAL: Grafik Pelanggaran Per Bulan
-    trend_pelanggaran = [0, 0, 0, 0, 0, 0] # Index: 0=Jul, ..., 5=Des
+    trend_pelanggaran = [0, 0, 0, 0, 0, 0]
     bulan_counts_pelanggaran = conn.execute("SELECT strftime('%m', tanggal) as bulan, COUNT(*) as total FROM pelanggaran GROUP BY bulan").fetchall()
     for row in bulan_counts_pelanggaran:
         if row['bulan']:
             b = int(row['bulan'])
             if 7 <= b <= 12: trend_pelanggaran[b - 7] = row['total']
             
-    # DATA REAL: Grafik Prestasi Per Bulan (Sum of Points)
     trend_prestasi = [0, 0, 0, 0, 0, 0]
     bulan_counts_prestasi = conn.execute("SELECT strftime('%m', tanggal) as bulan, SUM(poin) as total FROM prestasi GROUP BY bulan").fetchall()
     for row in bulan_counts_prestasi:
@@ -275,7 +284,6 @@ def delete_siswa(nisn):
     finally: conn.close()
     return redirect(url_for('siswa'))
 
-# --- PERBAIKAN: Rute Poin Digabung dengan Prestasi ---
 @app.route('/poin', methods=['GET', 'POST'])
 def poin():
     if 'user_id' not in session: return redirect(url_for('login'))
@@ -303,7 +311,6 @@ def poin():
     
     daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa WHERE status_siswa='Aktif'").fetchall()
     
-    # Gabungkan (Union) Riwayat Pelanggaran dan Prestasi
     riwayat_gabungan = conn.execute("""
         SELECT tanggal, nisn, nama_siswa, kelas, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran
         UNION ALL
@@ -367,6 +374,7 @@ def laporan():
     conn.close()
     return render_template('dashboard/laporan.html', nama_user=session['nama'], siswa=siswa_data, pelanggaran=pelanggaran_data, total_poin=total_poin, kehadiran=kehadiran, search_query=search_query)
 
+# --- PERBAIKAN API: Memuat Jurnal Kelas ---
 @app.route('/api/get_presensi', methods=['POST'])
 def get_presensi():
     if 'user_id' not in session: return jsonify({"status": "error", "message": "Unauthorized"}), 401
@@ -374,11 +382,12 @@ def get_presensi():
     tanggal = data.get('tanggal')
     mapel = data.get('mata_pelajaran')
     conn = get_db_connection()
-    records = conn.execute("SELECT nisn, status, deskripsi FROM presensi_harian WHERE tanggal=? AND mata_pelajaran=?", (tanggal, mapel)).fetchall()
+    records = conn.execute("SELECT nisn, status, deskripsi, jurnal_kelas FROM presensi_harian WHERE tanggal=? AND mata_pelajaran=?", (tanggal, mapel)).fetchall()
     conn.close()
     result = [dict(r) for r in records]
     return jsonify({"status": "success", "data": result})
 
+# --- PERBAIKAN PRESENSI: Menyimpan Jurnal Kelas ---
 @app.route('/presensi', methods=['GET', 'POST'])
 def presensi():
     if 'user_id' not in session: 
@@ -391,6 +400,7 @@ def presensi():
         tanggal = data.get('tanggal')
         mapel = data.get('mata_pelajaran')
         pertemuan = data.get('pertemuan')
+        jurnal_kelas = data.get('jurnal_kelas', '')
         records = data.get('records', [])
         guru_id = session['user_id']
         
@@ -401,11 +411,12 @@ def presensi():
                 nisn = record.get('nisn')
                 status = record.get('status')
                 deskripsi = record.get('deskripsi', '')
+                
                 existing = conn.execute("SELECT id FROM presensi_harian WHERE tanggal=? AND nisn=? AND mata_pelajaran=?", (tanggal, nisn, mapel)).fetchone()
                 if existing: 
-                    conn.execute("UPDATE presensi_harian SET status=?, pertemuan=?, guru_id=?, deskripsi=? WHERE id=?", (status, pertemuan, guru_id, deskripsi, existing['id']))
+                    conn.execute("UPDATE presensi_harian SET status=?, pertemuan=?, guru_id=?, deskripsi=?, jurnal_kelas=? WHERE id=?", (status, pertemuan, guru_id, deskripsi, jurnal_kelas, existing['id']))
                 else: 
-                    conn.execute("INSERT INTO presensi_harian (tanggal, nisn, mata_pelajaran, pertemuan, status, guru_id, deskripsi) VALUES (?, ?, ?, ?, ?, ?, ?)", (tanggal, nisn, mapel, pertemuan, status, guru_id, deskripsi))
+                    conn.execute("INSERT INTO presensi_harian (tanggal, nisn, mata_pelajaran, pertemuan, status, guru_id, deskripsi, jurnal_kelas) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (tanggal, nisn, mapel, pertemuan, status, guru_id, deskripsi, jurnal_kelas))
             conn.commit()
             return jsonify({"status": "success", "message": "Presensi kelas berhasil disimpan!"})
         except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
