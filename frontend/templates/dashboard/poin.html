@@ -46,7 +46,6 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
-            <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
             <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-chart-line w-5"></i><span class="text-xs font-semibold">OVERVIEW</span></a>
             <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-user-gear w-5"></i><span class="text-xs font-semibold">KELOLA PENGGUNA</span></a>
             <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 rounded-lg"><i class="fa-solid fa-users w-5"></i><span class="text-xs font-semibold">DATA SISWA</span></a>
@@ -101,7 +100,6 @@
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Catat Aktivitas Siswa</h3>
                     
                     <form action="/poin" method="POST" autocomplete="off" class="space-y-4">
-                        <!-- TAB PERPINDAHAN -->
                         <div class="flex bg-gray-100 rounded-lg p-1">
                             <label class="flex-1 text-center cursor-pointer">
                                 <input type="radio" name="tipe_catatan" value="pelanggaran" checked class="peer hidden" onchange="changeTipeCatatan()">
@@ -130,7 +128,6 @@
                             {% endif %}
                         </div>
                         
-                        <!-- SELECT DINAMIS -->
                         <select id="selectCatatan" name="jenis_catatan" onchange="autoFillPoin(this)" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                             <option value="" data-poin="0" disabled selected>-- Pilih Data Terlebih Dahulu --</option>
                         </select>
@@ -145,7 +142,6 @@
                     <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4 print:px-0">
                         <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Riwayat Aktivitas Terakhir</h3>
                         
-                        <!-- FITUR PENCARIAN & CETAK -->
                         <div class="flex items-center gap-2 print-hidden w-full sm:w-auto">
                             <div class="relative w-full sm:w-64">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
@@ -165,6 +161,8 @@
                                     <th class="px-3 py-3">Siswa</th>
                                     <th class="px-3 py-3">Catatan / Aktivitas</th>
                                     <th class="px-3 py-3 text-center">Poin</th>
+                                    <!-- FITUR BARU: Kolom Aksi Edit/Delete -->
+                                    <th class="pr-6 py-3 text-right print-hidden">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -172,7 +170,6 @@
                                 <tr class="border-b border-gray-50 hover:bg-gray-50 transition riwayat-row">
                                     <td class="pl-6 py-3 font-mono">{{ p.tanggal[:10] if p.tanggal else '-' }}</td>
                                     <td class="px-3 py-3">
-                                        <!-- FITUR LINK: Nama Siswa dapat diklik menuju halaman Laporan -->
                                         <a href="/laporan?q={{ p.nisn }}" class="font-bold text-syekhGreen-900 hover:text-syekhGold-600 hover:underline transition-colors" title="Lihat Rekap Siswa">{{ p.nama_siswa }}</a>
                                         <p class="text-[10px] text-gray-400 font-mono mt-0.5">{{ p.nisn }}</p>
                                     </td>
@@ -183,6 +180,20 @@
                                         <br><span class="mt-1 block">{{ p.aktivitas }}</span>
                                     </td>
                                     <td class="px-3 py-3 text-center text-sm font-bold {% if p.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %}">+{{ p.poin }}</td>
+                                    
+                                    <!-- FITUR BARU: Tombol Edit dan Hapus -->
+                                    <td class="pr-6 py-3 text-right print-hidden">
+                                        <button type="button" onclick="openEditRiwayatModal('{{ p.id }}', '{{ p.tipe }}', '{{ p.tanggal[:10] }}', '{{ p.nisn }}', '{{ p.nama_siswa }}', '{{ p.aktivitas }}', '{{ p.poin }}')" class="p-1.5 text-gray-400 hover:text-syekhGold-600 transition" title="Edit Riwayat">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <form action="/poin/delete_riwayat" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus riwayat aktivitas ini secara permanen?');">
+                                            <input type="hidden" name="tipe" value="{{ p.tipe }}">
+                                            <input type="hidden" name="id" value="{{ p.id }}">
+                                            <button type="submit" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Riwayat">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -192,6 +203,52 @@
             </div>
         </div>
     </main>
+
+    <!-- MODAL EDIT RIWAYAT -->
+    <div id="modalEditRiwayat" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl border-t-4 border-syekhGold-500 mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Edit Riwayat Aktivitas</h3>
+                <button onclick="closeEditRiwayatModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form action="/poin/edit_riwayat" method="POST" autocomplete="off" class="space-y-4">
+                <input type="hidden" name="edit_id" id="edit_id">
+                <input type="hidden" name="edit_tipe" id="edit_tipe">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Tanggal</label>
+                        <input type="date" name="edit_tanggal" id="edit_tanggal" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Tipe Aktivitas</label>
+                        <input type="text" id="edit_tipe_display" disabled class="w-full bg-gray-100 border py-2 px-3 text-xs rounded text-gray-500 font-bold uppercase cursor-not-allowed">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Siswa</label>
+                    <input type="text" id="edit_siswa_display" disabled class="w-full bg-gray-100 border py-2 px-3 text-xs rounded text-syekhGreen-900 font-bold cursor-not-allowed">
+                </div>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1" id="edit_label_catatan">Jenis Aktivitas</label>
+                    <!-- Mengunci Opsi Hanya Pada Master yg Bersangkutan -->
+                    <select name="edit_jenis_catatan" id="edit_jenis_catatan" onchange="autoFillEditPoin(this)" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600">
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Bobot Poin (+)</label>
+                    <input type="number" name="edit_poin" id="edit_poin" required readonly class="w-full bg-gray-100 border py-2 px-3 text-xs font-bold text-gray-600 rounded">
+                </div>
+                
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 font-bold py-3 text-xs rounded transition shadow">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- MODAL POPUP TAMBAH MASTER -->
     <div id="modalMaster" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
@@ -240,7 +297,7 @@
             const dateInput = document.getElementById('inputTanggal');
             const today = new Date().toISOString().split('T')[0];
             dateInput.value = today;
-            changeTipeCatatan(); // Load Dropdown Awal
+            changeTipeCatatan();
         });
 
         function toggleSidebar() {
@@ -251,18 +308,62 @@
         function openModal() { document.getElementById('modalMaster').classList.remove('hidden'); }
         function closeModal() { document.getElementById('modalMaster').classList.add('hidden'); }
 
-        // FUNGSI PENCARIAN REAL-TIME
+        // MENGAKTIFKAN MODAL EDIT RIWAYAT
+        function openEditRiwayatModal(id, tipe, tanggal, nisn, nama, aktivitas, poin) {
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_tipe').value = tipe;
+            document.getElementById('edit_tipe_display').value = tipe;
+            document.getElementById('edit_tanggal').value = tanggal;
+            document.getElementById('edit_siswa_display').value = `${nama} (${nisn})`;
+            
+            const selectEl = document.getElementById('edit_jenis_catatan');
+            const labelEl = document.getElementById('edit_label_catatan');
+            const inputPoin = document.getElementById('edit_poin');
+            
+            selectEl.innerHTML = '';
+            
+            if(tipe === 'Pelanggaran') {
+                labelEl.textContent = 'Jenis Pelanggaran';
+                inputPoin.className = 'w-full bg-gray-100 border py-2 px-3 text-xs font-bold text-red-600 rounded cursor-not-allowed';
+                mPelanggaran.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.nama_pelanggaran;
+                    opt.setAttribute('data-poin', p.poin);
+                    opt.textContent = `${p.nama_pelanggaran} (+${p.poin})`;
+                    if(p.nama_pelanggaran === aktivitas) opt.selected = true;
+                    selectEl.appendChild(opt);
+                });
+            } else {
+                labelEl.textContent = 'Jenis Prestasi';
+                inputPoin.className = 'w-full bg-gray-100 border py-2 px-3 text-xs font-bold text-emerald-600 rounded cursor-not-allowed';
+                mPrestasi.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.nama_prestasi;
+                    opt.setAttribute('data-poin', p.poin);
+                    opt.textContent = `${p.nama_prestasi} (+${p.poin})`;
+                    if(p.nama_prestasi === aktivitas) opt.selected = true;
+                    selectEl.appendChild(opt);
+                });
+            }
+            
+            inputPoin.value = poin;
+            document.getElementById('modalEditRiwayat').classList.remove('hidden');
+        }
+
+        function closeEditRiwayatModal() { document.getElementById('modalEditRiwayat').classList.add('hidden'); }
+        function autoFillEditPoin(selectEl) {
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const poin = selectedOption.getAttribute('data-poin');
+            document.getElementById('edit_poin').value = poin;
+        }
+
         function filterRiwayat() {
             const keyword = document.getElementById('searchRiwayat').value.toLowerCase();
             const rows = document.querySelectorAll('.riwayat-row');
-            
             rows.forEach(row => {
                 const rowData = row.innerText.toLowerCase();
-                if (rowData.includes(keyword)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                if (rowData.includes(keyword)) row.style.display = '';
+                else row.style.display = 'none';
             });
         }
 

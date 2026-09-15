@@ -192,7 +192,6 @@ def add_user():
     nama, username, password, role = request.form.get('nama', ''), request.form.get('username', '').lower(), request.form.get('password', ''), request.form.get('role', '').lower()
     can_print = int(request.form.get('can_print', 0))
     nip, bidang, status_walikelas = request.form.get('nip', '-'), request.form.get('bidang_pelajaran', '-'), request.form.get('status_walikelas', 'Bukan')
-    
     m_kelas, m_mapel = request.form.getlist('mengajar_kelas'), request.form.getlist('mengajar_mapel')
     m_kelas_str = ", ".join(m_kelas) if m_kelas else "Semua"
     m_mapel_str = ", ".join(m_mapel) if m_mapel else "Semua"
@@ -214,7 +213,6 @@ def edit_user(user_id):
     nama, role, password = request.form.get('edit_nama', ''), request.form.get('edit_role', '').lower(), request.form.get('edit_password', '')
     can_print, nip, bidang = int(request.form.get('edit_can_print', 0)), request.form.get('edit_nip', '-'), request.form.get('edit_bidang_pelajaran', '-')
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
-    
     m_kelas = ", ".join(request.form.getlist('edit_mengajar_kelas')) or "Semua"
     m_mapel = ", ".join(request.form.getlist('edit_mengajar_mapel')) or "Semua"
 
@@ -286,6 +284,7 @@ def delete_siswa(nisn):
     conn.close()
     return redirect(url_for('siswa'))
 
+# --- PERBAIKAN FITUR POIN: EDIT & DELETE RIWAYAT ---
 @app.route('/poin', methods=['GET', 'POST'])
 def poin():
     if 'user_id' not in session: return redirect(url_for('login'))
@@ -304,7 +303,13 @@ def poin():
     
     try:
         daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa WHERE status_siswa='Aktif'").fetchall()
-        riwayat_gabungan = conn.execute("SELECT tanggal, nisn, nama_siswa, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran UNION ALL SELECT tanggal, nisn, nama_siswa, jenis_prestasi as aktivitas, poin, 'Prestasi' as tipe FROM prestasi ORDER BY tanggal DESC LIMIT 20").fetchall()
+        # Query UNION diperbarui agar memasukkan 'id' untuk diedit/dihapus
+        riwayat_gabungan = conn.execute("""
+            SELECT id, tanggal, nisn, nama_siswa, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran 
+            UNION ALL 
+            SELECT id, tanggal, nisn, nama_siswa, jenis_prestasi as aktivitas, poin, 'Prestasi' as tipe FROM prestasi 
+            ORDER BY tanggal DESC LIMIT 40
+        """).fetchall()
         master_pelanggaran = conn.execute("SELECT * FROM master_pelanggaran ORDER BY poin ASC").fetchall()
         master_prestasi = conn.execute("SELECT * FROM master_prestasi ORDER BY poin ASC").fetchall()
     except Exception as e:
@@ -313,6 +318,43 @@ def poin():
     
     siswa_dict = {s['nisn']: {'nama': s['nama_siswa'], 'kelas': s['kelas']} for s in daftar_siswa}
     return render_template('dashboard/poin.html', nama_user=session['nama'], siswa_map=siswa_dict, riwayat_list=riwayat_gabungan, master_pelanggaran=master_pelanggaran, master_prestasi=master_prestasi)
+
+@app.route('/poin/edit_riwayat', methods=['POST'])
+def edit_riwayat():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    r_id = request.form.get('edit_id')
+    tipe = request.form.get('edit_tipe')
+    tanggal = request.form.get('edit_tanggal')
+    jenis = request.form.get('edit_jenis_catatan')
+    poin_val = request.form.get('edit_poin', 0)
+    
+    if r_id and tipe and jenis and tanggal:
+        conn = get_db_connection()
+        try:
+            table = 'prestasi' if tipe == 'Prestasi' else 'pelanggaran'
+            col = 'jenis_prestasi' if tipe == 'Prestasi' else 'jenis_pelanggaran'
+            conn.execute(f"UPDATE {table} SET tanggal=?, {col}=?, poin=? WHERE id=?", (tanggal, jenis, int(poin_val), r_id))
+            conn.commit()
+            flash("Catatan riwayat berhasil diperbarui!", "success")
+        except Exception as e: flash(f"Gagal memperbarui: {e}", "error")
+        finally: conn.close()
+    return redirect(url_for('poin'))
+
+@app.route('/poin/delete_riwayat', methods=['POST'])
+def delete_riwayat():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    r_id = request.form.get('id')
+    tipe = request.form.get('tipe')
+    if r_id and tipe:
+        conn = get_db_connection()
+        try:
+            table = 'prestasi' if tipe == 'Prestasi' else 'pelanggaran'
+            conn.execute(f"DELETE FROM {table} WHERE id=?", (r_id,))
+            conn.commit()
+            flash("Catatan riwayat berhasil dihapus!", "success")
+        except Exception as e: flash("Gagal menghapus.", "error")
+        finally: conn.close()
+    return redirect(url_for('poin'))
 
 @app.route('/poin/tambah-master', methods=['POST'])
 def tambah_master_pelanggaran():
@@ -330,35 +372,9 @@ def tambah_master_pelanggaran():
         finally: conn.close()
     return redirect(url_for('poin'))
 
-# --- FITUR BARU: RUTE HAPUS RIWAYAT POIN/PRESTASI ---
-@app.route('/poin/delete/<tipe>/<int:record_id>', methods=['POST'])
-def delete_poin_record(tipe, record_id):
-    # Hanya Admin / Superadmin yang diizinkan menghapus riwayat
-    if not is_admin_or_super(): 
-        flash("Hanya Administrator yang berhak membatalkan riwayat poin.", "error")
-        return redirect(request.referrer or url_for('laporan'))
-    
-    nisn_redirect = request.form.get('nisn', '')
-    conn = get_db_connection()
-    try:
-        table = 'prestasi' if tipe == 'prestasi' else 'pelanggaran'
-        conn.execute(f"DELETE FROM {table} WHERE id = ?", (record_id,))
-        conn.commit()
-        flash("Catatan aktivitas berhasil dihapus/dibatalkan.", "success")
-    except Exception as e:
-        flash("Terjadi kesalahan saat menghapus data.", "error")
-    finally:
-        conn.close()
-        
-    if nisn_redirect:
-        return redirect(url_for('laporan', q=nisn_redirect))
-    return redirect(request.referrer or url_for('laporan'))
-
-
 @app.route('/laporan')
 def laporan():
     if 'user_id' not in session: return redirect(url_for('login'))
-    
     search_query = request.args.get('q', '').strip()
     kelas_query = request.args.get('kelas', '').strip()
     start_date = request.args.get('start_date', '').strip()
@@ -386,10 +402,8 @@ def laporan():
         siswa_data = conn.execute("SELECT * FROM siswa WHERE nisn = ? OR nama_siswa LIKE ?", (search_query, f"%{search_query}%")).fetchone()
         if siswa_data:
             nisn = siswa_data['nisn']
-            
             pelanggaran_data = conn.execute(f"SELECT * FROM pelanggaran WHERE nisn = ? {date_filter_query} ORDER BY tanggal DESC", [nisn] + date_params).fetchall()
             total_poin_pelanggaran = sum(p['poin'] for p in pelanggaran_data)
-            
             prestasi_data = conn.execute(f"SELECT * FROM prestasi WHERE nisn = ? {date_filter_query} ORDER BY tanggal DESC", [nisn] + date_params).fetchall()
             total_poin_prestasi = sum(p['poin'] for p in prestasi_data)
 
