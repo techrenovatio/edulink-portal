@@ -122,10 +122,11 @@
 
                         <div id="addGuruFields" class="space-y-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                             <p class="text-[10px] font-bold text-syekhGold-600 uppercase border-b border-gray-200 pb-2">Informasi Khusus Guru</p>
-                            <div><label class="text-[10px] font-bold text-gray-500 uppercase">NIP</label><input type="text" name="nip" class="w-full bg-white border py-2 px-3 text-xs"></div>
-                            <div><label class="text-[10px] font-bold text-gray-500 uppercase">Bidang Pelajaran</label><input type="text" name="bidang_pelajaran" class="w-full bg-white border py-2 px-3 text-xs"></div>
                             
-                            <!-- FITUR BARU: Pemilihan Kelas Spesifik Untuk Wali Kelas -->
+                            <div><label class="text-[10px] font-bold text-gray-500 uppercase">NIP</label><input type="text" name="nip" class="w-full bg-white border py-2 px-3 text-xs"></div>
+                            
+                            <!-- BIDANG PELAJARAN (Teks Manual) DIHAPUS DARI SINI -->
+                            
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 uppercase">Status Wali Kelas</label>
                                 <select id="selectAddWali" name="status_walikelas" onchange="toggleWaliKelasDropdown('add')" class="w-full bg-white border py-2 px-3 text-xs"><option value="Bukan">Bukan Wali Kelas</option><option value="Wali Kelas">Ya, Wali Kelas</option></select>
@@ -168,7 +169,6 @@
 
                 <div class="lg:col-span-2 bg-white rounded-xl border shadow-sm border-t-4 border-t-syekhGold-500 overflow-hidden w-full print:border-none print:shadow-none print:m-0">
                     
-                    <!-- HEADER TABEL & FITUR BARU -->
                     <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4 print:px-0">
                         <div class="flex items-center gap-3">
                             <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Daftar Pengguna</h3>
@@ -176,7 +176,6 @@
                         </div>
                         
                         <div class="flex flex-wrap items-center gap-2">
-                            <!-- SEARCH & FILTER BAR -->
                             <div class="relative w-40 sm:w-48">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
                                 <input type="text" id="searchUser" onkeyup="filterUsers()" placeholder="Cari Nama/NIP..." class="w-full bg-gray-50 border border-gray-200 py-1.5 pl-8 pr-3 text-[11px] rounded focus:outline-none focus:border-syekhGreen-600 transition">
@@ -217,7 +216,6 @@
                                 </thead>
                                 <tbody>
                                     {% for u in users %}
-                                    <!-- FITUR BARU: Identifier Class untuk Logic Pencarian -->
                                     <tr class="border-b border-gray-50 hover:bg-emerald-50/50 transition user-row" data-role="{{ u.role|lower }}">
                                         <td class="pl-4 py-3.5 print-hidden"><input type="checkbox" name="user_ids" value="{{ u.id }}" class="user-checkbox w-3.5 h-3.5"></td>
                                         
@@ -228,7 +226,11 @@
                                         
                                         <td class="px-3 py-3.5">
                                             {% if u.role|lower == 'guru' %}
-                                                <p class="font-bold text-gray-700">{{ u.bidang_pelajaran }}</p>
+                                                <!-- MENGGANTI TAMPILAN TABEL: Memunculkan Otoritas Mapel sebagai ganti Bidang Pelajaran -->
+                                                <p class="font-bold text-gray-700 truncate max-w-[200px]" title="{{ u.mengajar_mapel }}">
+                                                    {{ u.mengajar_mapel if u.mengajar_mapel and u.mengajar_mapel != 'Semua' else 'Semua Mata Pelajaran' }}
+                                                </p>
+                                                
                                                 <p class="text-[9px] text-gray-400 font-mono mb-1">NIP: {{ u.nip }}</p>
                                                 {% if u.status_walikelas == 'Wali Kelas' %}
                                                     <span class="bg-syekhGold-100 text-syekhGold-700 border border-syekhGold-200 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase"><i class="fa-solid fa-star mr-1"></i>Wali {{ u.walikelas_kelas }}</span>
@@ -236,7 +238,6 @@
                                             {% else %}
                                                 <p class="font-bold text-syekhGreen-700 uppercase tracking-widest text-[10px]">{{ u.role }}</p>
                                             {% endif %}
-                                            <!-- FITUR BARU: Last Login -->
                                             <p class="text-[8px] text-blue-500 uppercase font-bold mt-1.5"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Login: {{ u.last_login }}</p>
                                         </td>
                                         
@@ -262,10 +263,9 @@
                                             {% if u.role|lower == 'superadmin' and current_role == 'admin' %}
                                                 <span class="text-[10px] italic text-gray-300">Terkunci</span>
                                             {% else %}
-                                                <!-- FITUR BARU: Tombol Reset Password & Parsing Data Modal Edit yang Diperbarui -->
                                                 <button type="button" onclick="resetPassword('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-blue-600 transition" title="Reset Password ke 12345678"><i class="fa-solid fa-key"></i></button>
-                                                
-                                                <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.bidang_pelajaran }}', '{{ u.status_walikelas }}', '{{ u.walikelas_kelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}', '{{ u.can_print }}', '{{ u.status_akun }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <!-- Parameter openEditUserModal Diubah (Tanpa bidang pelajaran) -->
+                                                <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.status_walikelas }}', '{{ u.walikelas_kelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}', '{{ u.can_print }}', '{{ u.status_akun }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun"><i class="fa-solid fa-pen-to-square"></i></button>
                                                 
                                                 <button type="button" onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Permanen"><i class="fa-solid fa-trash-can"></i></button>
                                             {% endif %}
@@ -325,7 +325,8 @@
                 <div id="editGuruFields" class="space-y-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                     <p class="text-[10px] font-bold text-syekhGold-600 uppercase border-b border-gray-200 pb-2">Informasi Khusus Guru</p>
                     <div><label class="text-[10px] font-bold text-gray-500 uppercase">NIP</label><input type="text" id="edit_nip" name="edit_nip" class="w-full bg-white border py-2 px-3 text-xs"></div>
-                    <div><label class="text-[10px] font-bold text-gray-500 uppercase">Bidang Pelajaran</label><input type="text" id="edit_bidang_pelajaran" name="edit_bidang_pelajaran" class="w-full bg-white border py-2 px-3 text-xs"></div>
+                    
+                    <!-- BIDANG PELAJARAN DIHAPUS DARI FORM EDIT INI -->
                     
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase">Status Wali Kelas</label>
@@ -379,7 +380,8 @@
             
             <div class="bg-blue-50 text-blue-800 text-[10px] p-3 rounded mb-4 border border-blue-200 leading-relaxed">
                 <p class="font-bold mb-1"><i class="fa-solid fa-circle-info"></i> Format CSV Wajib (Pisahkan dengan koma):</p>
-                <p class="font-mono bg-white p-1 rounded border border-blue-100 mt-1">Nama, Username, Role, NIP, Bidang</p>
+                <!-- UPDATE PANDUAN FORMAT CSV: Tidak ada Bidang -->
+                <p class="font-mono bg-white p-1 rounded border border-blue-100 mt-1">Nama, Username, Role, NIP</p>
                 <p class="mt-2 text-[9px] text-gray-500 italic">*Password otomatis disetel ke: <b>12345678</b><br>*Role: 'guru' atau 'admin'</p>
             </div>
 
@@ -445,7 +447,6 @@
             </div>
         </div>
     </div>
-    {% endif %}
 
     <script>
         function toggleSidebar() {
@@ -453,7 +454,6 @@
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
-        // FITUR BARU: Pencarian dan Filter Dinamis
         function filterUsers() {
             const keyword = document.getElementById('searchUser').value.toLowerCase();
             const roleFilter = document.getElementById('filterRole').value.toLowerCase();
@@ -470,7 +470,6 @@
             });
         }
 
-        // FITUR BARU: Menampilkan/Menyembunyikan Dropdown Kelas Khusus Wali
         function toggleWaliKelasDropdown(mode) {
             const selWali = document.getElementById(mode === 'add' ? 'selectAddWali' : 'edit_status_walikelas');
             const boxWali = document.getElementById(mode === 'add' ? 'dropdownAddWali' : 'dropdownEditWali');
@@ -491,11 +490,11 @@
         function openMasterDataModal() { document.getElementById('modalMasterData').classList.remove('hidden'); }
         function closeMasterDataModal() { document.getElementById('modalMasterData').classList.add('hidden'); }
 
-        function openEditUserModal(id, nama, role, nip, bidang, status_wali, walikelas_kelas, mengajar_kelas, mengajar_mapel, can_print, status_akun) {
+        // MENGHAPUS PARAMETER BIDANG PELAJARAN DARI JAVASCRIPT
+        function openEditUserModal(id, nama, role, nip, status_wali, walikelas_kelas, mengajar_kelas, mengajar_mapel, can_print, status_akun) {
             document.getElementById('edit_nama').value = nama;
             document.getElementById('edit_role').value = role.toLowerCase();
             document.getElementById('edit_nip').value = nip;
-            document.getElementById('edit_bidang_pelajaran').value = bidang;
             document.getElementById('edit_status_walikelas').value = status_wali;
             document.getElementById('edit_walikelas_kelas').value = walikelas_kelas;
             document.getElementById('edit_status_akun').value = status_akun;
@@ -547,7 +546,6 @@
             }
         }
         
-        // FITUR BARU: Reset Password Cepat
         function resetPassword(userId, userName) {
             if (confirm(`Reset password untuk akun '${userName}' menjadi '12345678'?`)) {
                 const resetForm = document.getElementById('resetPasswordForm');
