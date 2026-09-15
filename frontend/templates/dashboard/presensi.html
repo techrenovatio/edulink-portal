@@ -98,7 +98,6 @@
                         <label class="text-[10px] font-bold text-gray-500 uppercase">Kelas</label>
                         <select id="selectKelasAbsensi" onchange="updateMapelDropdown()" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                             <option value="">-- Pilih Kelas --</option>
-                            <!-- KELAS DINAMIS DARI DATABASE -->
                             {% for k in list_kelas %}
                             <option value="{{ k }}">{{ k }}</option>
                             {% endfor %}
@@ -195,8 +194,23 @@
         </div>
     </main>
 
+    <!-- FITUR BARU: MODAL POPUP RINGKASAN PRESENSI -->
+    <div id="modalRingkasanPresensi" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
+        <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl border-t-4 border-blue-500 mx-4 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-serif font-bold text-lg text-syekhGreen-900"><i class="fa-solid fa-chart-pie mr-2 text-blue-500"></i>Ringkasan Presensi</h3>
+                <button onclick="closeRingkasanModal()" class="text-gray-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="ringkasanContent" class="space-y-3">
+                <!-- Konten dinamis akan diinjeksikan melalui Javascript -->
+            </div>
+            
+            <button onclick="closeRingkasanModal()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 text-xs rounded shadow-sm transition">Tutup Notifikasi</button>
+        </div>
+    </div>
+
     <script>
-        // PERBAIKAN: Mengambil seluruh list mapel dari DB
         const allMapel = {{ list_mapel | tojson | safe if list_mapel else '[]' }};
         const hakKelas = "{{ hak_kelas }}"; 
         const hakMapel = "{{ hak_mapel }}"; 
@@ -221,7 +235,6 @@
             });
         }
 
-        // PERBAIKAN: Fungsi pemuatan Mapel tidak lagi bergantung pada Dictionary Rumpun Kelas
         function updateMapelDropdown() {
             const kelasVal = document.getElementById('selectKelasAbsensi').value;
             const mapelSelect = document.getElementById('selectMapel');
@@ -269,6 +282,7 @@
             btn.textContent = nextStatus.label;
         }
 
+        // FITUR BARU: Modifikasi fungsi lihatPresensi agar memunculkan Modal Popup
         async function lihatPresensi() {
             const tanggal = document.getElementById('tanggalAbsen').value;
             const mapel = document.getElementById('selectMapel').value;
@@ -286,6 +300,7 @@
                     
                     document.getElementById('inputJurnalKelas').value = '';
                     
+                    // Reset UI
                     document.querySelectorAll('.absensi-row:not(.hidden)').forEach(row => {
                         const btn = row.querySelector('.status-btn');
                         if(btn && !btn.disabled) {
@@ -299,6 +314,9 @@
                         document.getElementById('inputJurnalKelas').value = res.data[0].jurnal_kelas || '';
                     }
 
+                    // Variabel Kalkulasi
+                    let countH = 0, countI = 0, countS = 0, countA = 0;
+
                     res.data.forEach(record => {
                         const row = Array.from(document.querySelectorAll('.absensi-row')).find(r => r.querySelector('.nisn-cell').innerText.trim() === record.nisn);
                         if(row && !row.classList.contains('hidden')) {
@@ -311,11 +329,67 @@
                                 }
                                 row.querySelector('.deskripsi-input').value = record.deskripsi || '';
                             }
+
+                            // Hitung untuk ringkasan Popup
+                            if(record.status === 'HADIR') countH++;
+                            else if(record.status === 'IZIN') countI++;
+                            else if(record.status === 'SAKIT') countS++;
+                            else if(record.status === 'ALFA') countA++;
                         }
                     });
-                    alert('Data pada tanggal tersebut berhasil dimuat!');
+                    
+                    // Eksekusi Pemanggilan Modal
+                    showRingkasanModal(res.data.length, countH, countI, countS, countA, tanggal, mapel);
                 }
             } catch(e) { console.error(e); alert('Gagal memuat presensi.'); }
+        }
+
+        // FUNGSI INJEKSI KONTEN KE MODAL RINGKASAN
+        function showRingkasanModal(totalData, h, i, s, a, tgl, mapel) {
+            const content = document.getElementById('ringkasanContent');
+            
+            if(totalData === 0) {
+                content.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fa-solid fa-circle-info text-blue-400 text-4xl mb-3"></i>
+                        <p class="text-sm font-bold text-gray-700">Belum Ada Presensi</p>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">Sistem tidak menemukan rekaman presensi pada hari <b>${tgl}</b> untuk mapel <b>${mapel}</b>.</p>
+                    </div>`;
+            } else {
+                let totalSiswa = h + i + s + a;
+                let persenHadir = totalSiswa > 0 ? Math.round((h / totalSiswa) * 100) : 0;
+                
+                content.innerHTML = `
+                    <p class="text-[11px] text-gray-500 mb-4 border-b border-gray-100 pb-3 leading-relaxed">Riwayat kehadiran pada hari <b>${tgl}</b> untuk mata pelajaran <b>${mapel}</b> berhasil ditarik.</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-lg text-center shadow-sm">
+                            <span class="block text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Hadir</span>
+                            <span class="text-3xl font-serif font-bold text-emerald-800 mt-1 block">${h}</span>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 p-3 rounded-lg text-center shadow-sm">
+                            <span class="block text-[10px] font-bold text-red-600 uppercase tracking-widest">Alfa</span>
+                            <span class="text-3xl font-serif font-bold text-red-800 mt-1 block">${a}</span>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-center shadow-sm">
+                            <span class="block text-[10px] font-bold text-amber-600 uppercase tracking-widest">Izin</span>
+                            <span class="text-3xl font-serif font-bold text-amber-800 mt-1 block">${i}</span>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg text-center shadow-sm">
+                            <span class="block text-[10px] font-bold text-blue-600 uppercase tracking-widest">Sakit</span>
+                            <span class="text-3xl font-serif font-bold text-blue-800 mt-1 block">${s}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center shadow-inner">
+                        <span class="text-xs font-bold text-gray-600">Rasio Kehadiran Kelas:</span>
+                        <span class="text-lg font-black ${persenHadir < 80 ? 'text-red-600' : 'text-syekhGreen-700'}">${persenHadir}%</span>
+                    </div>
+                `;
+            }
+            document.getElementById('modalRingkasanPresensi').classList.remove('hidden');
+        }
+
+        function closeRingkasanModal() {
+            document.getElementById('modalRingkasanPresensi').classList.add('hidden');
         }
 
         async function simpanPresensi() {
