@@ -330,32 +330,51 @@ def tambah_master_pelanggaran():
         finally: conn.close()
     return redirect(url_for('poin'))
 
-# --- PERBAIKAN FITUR: RUTE LAPORAN YANG DIPERKAYA ---
+# --- FITUR BARU: RUTE HAPUS RIWAYAT POIN/PRESTASI ---
+@app.route('/poin/delete/<tipe>/<int:record_id>', methods=['POST'])
+def delete_poin_record(tipe, record_id):
+    # Hanya Admin / Superadmin yang diizinkan menghapus riwayat
+    if not is_admin_or_super(): 
+        flash("Hanya Administrator yang berhak membatalkan riwayat poin.", "error")
+        return redirect(request.referrer or url_for('laporan'))
+    
+    nisn_redirect = request.form.get('nisn', '')
+    conn = get_db_connection()
+    try:
+        table = 'prestasi' if tipe == 'prestasi' else 'pelanggaran'
+        conn.execute(f"DELETE FROM {table} WHERE id = ?", (record_id,))
+        conn.commit()
+        flash("Catatan aktivitas berhasil dihapus/dibatalkan.", "success")
+    except Exception as e:
+        flash("Terjadi kesalahan saat menghapus data.", "error")
+    finally:
+        conn.close()
+        
+    if nisn_redirect:
+        return redirect(url_for('laporan', q=nisn_redirect))
+    return redirect(request.referrer or url_for('laporan'))
+
+
 @app.route('/laporan')
 def laporan():
     if 'user_id' not in session: return redirect(url_for('login'))
     
-    # Menangkap Parameter Form Filter
     search_query = request.args.get('q', '').strip()
     kelas_query = request.args.get('kelas', '').strip()
     start_date = request.args.get('start_date', '').strip()
     end_date = request.args.get('end_date', '').strip()
     
     conn = get_db_connection()
-    
-    # Ambil data Master Kelas untuk Dropdown Filter
     try: m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
     except: m_kelas = []
 
-    # State Container
-    view_mode = 'default' # (default | class | individual)
+    view_mode = 'default'
     siswa_data, class_data = None, []
     pelanggaran_data, prestasi_data = [], []
     total_poin_pelanggaran, total_poin_prestasi = 0, 0
     kehadiran = {'Hadir': 0, 'Sakit': 0, 'Izin': 0, 'Alfa': 0, 'Persentase': 100.0}
     default_data = {'top_prestasi': [], 'radar_sp': [], 'jurnal': []}
 
-    # Merangkai Query Filter Tanggal
     date_filter_query = ""
     date_params = []
     if start_date and end_date:
@@ -363,7 +382,6 @@ def laporan():
         date_params = [start_date, end_date + " 23:59:59"]
 
     if search_query:
-        # MODE 1: DETAIL INDIVIDU
         view_mode = 'individual'
         siswa_data = conn.execute("SELECT * FROM siswa WHERE nisn = ? OR nama_siswa LIKE ?", (search_query, f"%{search_query}%")).fetchone()
         if siswa_data:
@@ -387,7 +405,6 @@ def laporan():
             if total_hari > 0: kehadiran['Persentase'] = round((kehadiran['Hadir'] / total_hari) * 100, 1)
 
     elif kelas_query:
-        # MODE 2: REKAP KOLEKTIF PER KELAS
         view_mode = 'class'
         students = conn.execute("SELECT nisn, nama_siswa FROM siswa WHERE kelas = ? AND status_siswa = 'Aktif' ORDER BY nama_siswa ASC", (kelas_query,)).fetchall()
         for s in students:
@@ -407,7 +424,6 @@ def laporan():
             
             class_data.append({'nisn': nisn, 'nama_siswa': s['nama_siswa'], 'pelanggaran': pel, 'prestasi': pres, 'h': h, 'i': i, 's': sk, 'a': a, 'persentase': perc})
     else:
-        # MODE 3: DEFAULT WIDGETS
         view_mode = 'default'
         try:
             default_data['top_prestasi'] = conn.execute("SELECT nisn, nama_siswa, kelas, SUM(poin) as total FROM prestasi GROUP BY nisn ORDER BY total DESC LIMIT 5").fetchall()

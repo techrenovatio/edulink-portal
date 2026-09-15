@@ -26,7 +26,6 @@
             body:not(.print-sp-mode) .print-hidden { display: none !important; }
             body:not(.print-sp-mode) { background-color: white !important; }
             
-            /* Print Khusus Format Surat Peringatan */
             body.print-sp-mode * { display: none; }
             body.print-sp-mode #sp-document, body.print-sp-mode #sp-document * { display: block; }
             body.print-sp-mode #sp-document { position: absolute; left: 0; top: 0; width: 100%; padding: 2rem; background: white; color: black; }
@@ -46,9 +45,7 @@
                     <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
                 </div>
             </div>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
@@ -83,7 +80,18 @@
 
         <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
             
-            <!-- PANEL FILTER KOMPREHENSIF -->
+            <!-- ALERT FLASH MESSAGES (Untuk Notifikasi Hapus Berhasil) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="p-4 rounded-xl border shadow-sm flex items-center gap-3 {% if category == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-emerald-50 border-emerald-200 text-emerald-800{% endif %} print-hidden">
+                    <i class="fa-solid {% if category == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %} text-lg"></i>
+                    <span class="text-sm font-bold">{{ message }}</span>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
             <form action="/laporan" method="GET" class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 print-hidden items-end border-t-4 border-t-syekhGreen-700">
                 <div class="flex-1 w-full relative">
                     <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Cari Siswa</label>
@@ -114,14 +122,12 @@
             </form>
 
             <!-- ============================================== -->
-            <!-- MODE 1: DETAIL INDIVIDU & VISUALISASI PIE CHART -->
+            <!-- MODE 1: DETAIL INDIVIDU                        -->
             <!-- ============================================== -->
             {% if view_mode == 'individual' and siswa %}
                 
                 <div class="flex justify-end gap-2 print-hidden">
-                    <!-- PERBAIKAN: Seluruh opsi eksport/cetak di Individu wajib lulus cek wewenang can_print -->
                     {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
-                        <!-- Tombol Cetak SP Otomatis -->
                         {% if total_poin_pelanggaran >= 50 %}
                         <button onclick="cetakSP()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded shadow-sm animate-pulse flex items-center gap-2">
                             <i class="fa-solid fa-triangle-exclamation"></i> Cetak Surat Peringatan (SP)
@@ -132,7 +138,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    
                     <div class="lg:col-span-3 bg-white p-6 rounded-xl border shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6 border-l-4 border-l-syekhGreen-700 print:shadow-none print:border-none print:p-0">
                         <div class="md:col-span-1">
                             <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Profil Siswa</span>
@@ -149,16 +154,13 @@
                         </div>
                     </div>
 
-                    <!-- PIE CHART KEHADIRAN -->
                     <div class="bg-white p-5 rounded-xl border shadow-sm print-hidden relative flex flex-col justify-center items-center h-40 lg:h-auto">
                         <span class="text-[10px] font-bold text-gray-400 uppercase absolute top-4 left-5">Rasio Kehadiran</span>
                         <div class="h-28 w-28 mt-4"><canvas id="attendancePieChart"></canvas></div>
                         <span class="absolute font-bold text-syekhGreen-900 mt-6">{{ kehadiran.Persentase }}%</span>
                     </div>
-
                 </div>
 
-                <!-- PEMISAH TABEL PRESTASI DAN PELANGGARAN -->
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden print:border-none print:shadow-none">
                     <div class="flex gap-1 border-b border-gray-200 bg-gray-50 print-hidden p-2">
                         <button onclick="switchTab('pelanggaran')" id="btn-pelanggaran" class="flex-1 py-2 rounded font-bold text-red-600 bg-red-50 border border-red-200 text-xs transition">Riwayat Pelanggaran ({{ pelanggaran|length }})</button>
@@ -170,14 +172,34 @@
                         <div class="p-4 border-b border-gray-100 bg-red-50/50 hidden print:block"><h3 class="font-bold text-sm text-red-800">Riwayat Pelanggaran</h3></div>
                         <table class="w-full text-left text-xs text-gray-600">
                             <thead class="bg-white border-b border-gray-200 uppercase font-bold tracking-wider print:bg-gray-100">
-                                <tr><th class="pl-6 py-3">Tanggal</th><th class="px-4 py-3">Jenis Pelanggaran</th><th class="px-4 py-3 text-center">Poin</th></tr>
+                                <tr>
+                                    <th class="pl-6 py-3 w-1/4">Tanggal</th>
+                                    <th class="px-4 py-3">Jenis Pelanggaran</th>
+                                    <th class="px-4 py-3 text-center w-24">Poin</th>
+                                    <!-- FITUR BARU: Kolom Aksi Hapus -->
+                                    {% if session.get('role') in ['admin', 'superadmin'] %}
+                                    <th class="px-6 py-3 text-right print-hidden w-24">Aksi</th>
+                                    {% endif %}
+                                </tr>
                             </thead>
                             <tbody>
                                 {% if not pelanggaran %}
-                                <tr><td colspan="3" class="text-center py-6 italic text-gray-400">Tidak ada riwayat pelanggaran.</td></tr>
+                                <tr><td colspan="4" class="text-center py-6 italic text-gray-400">Tidak ada riwayat pelanggaran.</td></tr>
                                 {% endif %}
                                 {% for p in pelanggaran %}
-                                <tr class="border-b border-gray-50"><td class="pl-6 py-4 font-mono">{{ p.tanggal[:10] }}</td><td class="px-4 py-4">{{ p.jenis_pelanggaran }}</td><td class="px-4 py-4 text-center text-red-600 font-bold">+{{ p.poin }}</td></tr>
+                                <tr class="border-b border-gray-50 hover:bg-gray-50">
+                                    <td class="pl-6 py-4 font-mono">{{ p.tanggal[:10] }}</td>
+                                    <td class="px-4 py-4">{{ p.jenis_pelanggaran }}</td>
+                                    <td class="px-4 py-4 text-center text-red-600 font-bold">+{{ p.poin }}</td>
+                                    {% if session.get('role') in ['admin', 'superadmin'] %}
+                                    <td class="px-6 py-4 text-right print-hidden">
+                                        <form action="/poin/delete/pelanggaran/{{ p.id }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan/menghapus catatan pelanggaran ini?');">
+                                            <input type="hidden" name="nisn" value="{{ siswa.nisn }}">
+                                            <button type="submit" class="text-gray-400 hover:text-red-600 transition" title="Batalkan Catatan"><i class="fa-solid fa-trash-can"></i></button>
+                                        </form>
+                                    </td>
+                                    {% endif %}
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -188,28 +210,43 @@
                         <div class="p-4 border-b border-gray-100 bg-emerald-50/50 hidden print:block"><h3 class="font-bold text-sm text-emerald-800">Riwayat Prestasi</h3></div>
                         <table class="w-full text-left text-xs text-gray-600">
                             <thead class="bg-white border-b border-gray-200 uppercase font-bold tracking-wider print:bg-gray-100">
-                                <tr><th class="pl-6 py-3">Tanggal</th><th class="px-4 py-3">Jenis Prestasi</th><th class="px-4 py-3 text-center">Poin</th></tr>
+                                <tr>
+                                    <th class="pl-6 py-3 w-1/4">Tanggal</th>
+                                    <th class="px-4 py-3">Jenis Prestasi</th>
+                                    <th class="px-4 py-3 text-center w-24">Poin</th>
+                                    {% if session.get('role') in ['admin', 'superadmin'] %}
+                                    <th class="px-6 py-3 text-right print-hidden w-24">Aksi</th>
+                                    {% endif %}
+                                </tr>
                             </thead>
                             <tbody>
                                 {% if not prestasi %}
-                                <tr><td colspan="3" class="text-center py-6 italic text-gray-400">Belum ada riwayat prestasi.</td></tr>
+                                <tr><td colspan="4" class="text-center py-6 italic text-gray-400">Belum ada riwayat prestasi.</td></tr>
                                 {% endif %}
                                 {% for p in prestasi %}
-                                <tr class="border-b border-gray-50"><td class="pl-6 py-4 font-mono">{{ p.tanggal[:10] }}</td><td class="px-4 py-4">{{ p.jenis_prestasi }}</td><td class="px-4 py-4 text-center text-emerald-600 font-bold">+{{ p.poin }}</td></tr>
+                                <tr class="border-b border-gray-50 hover:bg-gray-50">
+                                    <td class="pl-6 py-4 font-mono">{{ p.tanggal[:10] }}</td>
+                                    <td class="px-4 py-4">{{ p.jenis_prestasi }}</td>
+                                    <td class="px-4 py-4 text-center text-emerald-600 font-bold">+{{ p.poin }}</td>
+                                    {% if session.get('role') in ['admin', 'superadmin'] %}
+                                    <td class="px-6 py-4 text-right print-hidden">
+                                        <form action="/poin/delete/prestasi/{{ p.id }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus catatan prestasi ini?');">
+                                            <input type="hidden" name="nisn" value="{{ siswa.nisn }}">
+                                            <button type="submit" class="text-gray-400 hover:text-red-600 transition" title="Hapus Catatan"><i class="fa-solid fa-trash-can"></i></button>
+                                        </form>
+                                    </td>
+                                    {% endif %}
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             
-            <!-- ============================================== -->
-            <!-- MODE 2: REKAP KOLEKTIF PER KELAS               -->
-            <!-- ============================================== -->
             {% elif view_mode == 'class' %}
                 <div class="flex justify-between items-center mb-4 print-hidden">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Rekapitulasi Kolektif: Kelas {{ kelas_query }}</h3>
                     
-                    <!-- PERBAIKAN: Tombol Unduh CSV & Cetak Kolektif dilindungi secara ketat -->
                     <div class="flex gap-2">
                         {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                         <button onclick="exportTableToCSV('Rekap_Kelas_{{ kelas_query }}.csv')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded shadow-sm flex items-center gap-2"><i class="fa-solid fa-file-csv"></i> Unduh CSV</button>
@@ -259,13 +296,8 @@
                     </div>
                 </div>
 
-            <!-- ============================================== -->
-            <!-- MODE 3: DEFAULT (LEADERBOARD, SP, JURNAL)      -->
-            <!-- ============================================== -->
             {% else %}
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 print-hidden">
-                    
-                    <!-- LEADERBOARD PRESTASI -->
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden border-t-4 border-t-emerald-500">
                         <div class="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                             <h3 class="font-serif font-bold text-syekhGreen-900"><i class="fa-solid fa-trophy text-syekhGold-500 mr-2"></i> Puncak Prestasi</h3>
@@ -287,7 +319,6 @@
                         </table>
                     </div>
 
-                    <!-- RADAR PANTAUAN SP -->
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden border-t-4 border-t-red-600">
                         <div class="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                             <h3 class="font-serif font-bold text-syekhGreen-900"><i class="fa-solid fa-triangle-exclamation text-red-600 mr-2"></i> Radar Pantauan (SP)</h3>
@@ -308,7 +339,6 @@
                         </table>
                     </div>
 
-                    <!-- JURNAL KELAS TERBARU -->
                     <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden border-t-4 border-t-syekhGold-500">
                         <div class="p-4 border-b border-gray-100 bg-gray-50/50">
                             <h3 class="font-serif font-bold text-syekhGreen-900"><i class="fa-solid fa-book-open text-syekhGold-600 mr-2"></i> Jurnal Mengajar Terbaru</h3>
@@ -333,14 +363,12 @@
                             {% endif %}
                         </div>
                     </div>
-
                 </div>
             {% endif %}
 
         </div>
     </main>
 
-    <!-- HIDDEN DIV UNTUK FORMAT PRINT SURAT PERINGATAN -->
     <div id="sp-document" class="hidden">
         {% if siswa %}
         <div style="text-align: center; border-bottom: 3px solid #166534; padding-bottom: 20px; margin-bottom: 30px;">
@@ -385,7 +413,6 @@
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
-        // TABS LOGIC
         function switchTab(tab) {
             if (tab === 'pelanggaran') {
                 document.getElementById('tab-pelanggaran').classList.replace('hidden', 'block');
@@ -400,7 +427,6 @@
             }
         }
 
-        // EXPORT TO CSV LOGIC
         function exportTableToCSV(filename) {
             let csv = [];
             let rows = document.querySelectorAll("#classTable tr");
@@ -418,14 +444,12 @@
             downloadLink.click();
         }
 
-        // CETAK SURAT PERINGATAN LOGIC
         function cetakSP() {
             document.body.classList.add('print-sp-mode');
             window.print();
             document.body.classList.remove('print-sp-mode');
         }
 
-        // PIE CHART ABSENSI
         {% if view_mode == 'individual' and siswa %}
         const ctxPie = document.getElementById('attendancePieChart');
         if (ctxPie) {
