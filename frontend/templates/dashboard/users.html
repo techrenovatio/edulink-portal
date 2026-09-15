@@ -61,13 +61,9 @@
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
                     <p class="text-[9px] font-mono text-syekhGold-400 uppercase">
-                        {% if session.get('role') == 'superadmin' %}
-                            Super Administrator
-                        {% elif session.get('role') == 'admin' %}
-                            Administrator
-                        {% else %}
-                            Guru / Staff
-                        {% endif %}
+                        {% if session.get('role') == 'superadmin' %} Super Administrator
+                        {% elif session.get('role') == 'admin' %} Administrator
+                        {% else %} Guru / Staff {% endif %}
                     </p>
                 </div>
             </div>
@@ -87,8 +83,6 @@
         </header>
 
         <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
-            
-            <!-- BLOK FLASH ALERT UNTUK MENAMPILKAN ERROR / SUKSES -->
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
                 {% for category, message in messages %}
@@ -101,6 +95,7 @@
             {% endwith %}
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+                
                 <div class="bg-white p-5 sm:p-8 rounded-xl border border-gray-200 shadow-sm border-t-4 border-t-syekhGreen-700 print-hidden">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-5">Tambah Akun</h3>
                     <form action="/users/add" method="POST" class="space-y-4">
@@ -136,30 +131,30 @@
                             <div class="border-t border-gray-200 pt-3 mt-3">
                                 <label class="text-[10px] font-bold text-gray-500 uppercase block">Otoritas Mengajar: Kelas</label>
                                 <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
+                                
+                                <!-- LOOPING KELAS DINAMIS DARI DATABASE -->
                                 <select name="mengajar_kelas" multiple class="w-full bg-white border py-2 px-3 text-xs h-24 shadow-inner">
                                     <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
-                                    <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
-                                    <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
-                                    <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                                    {% for k in m_kelas %}
+                                    <option value="{{ k.nama_kelas }}">{{ k.nama_kelas }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 uppercase block">Otoritas Mengajar: Mata Pelajaran</label>
                                 <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
+                                
+                                <!-- LOOPING MAPEL DINAMIS DARI DATABASE -->
                                 <select name="mengajar_mapel" multiple class="w-full bg-white border py-2 px-3 text-xs h-32 shadow-inner">
                                     <option value="Semua" selected class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
-                                    <option value="Matematika">Matematika / MatDas</option><option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                                    <option value="Bahasa Inggris">Bahasa Inggris</option><option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
-                                    <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option><option value="Literasi Digital">Literasi Digital</option>
-                                    <option value="Bahasa Arab">Bahasa Arab</option><option value="Geografi">Geografi</option>
-                                    <option value="Penjaskes">Penjaskes</option><option value="Fisika">Fisika</option>
-                                    <option value="Biologi">Biologi</option><option value="Sosiologi">Sosiologi</option>
-                                    <option value="Ekonomi">Ekonomi</option><option value="Budi Pekerti">Budi Pekerti</option>
+                                    {% for m in m_mapel %}
+                                    <option value="{{ m.nama_mapel }}">{{ m.nama_mapel }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-syekhGreen-800 text-white font-bold py-3 text-xs rounded">Simpan</button>
+                        <button type="submit" class="w-full bg-syekhGreen-800 text-white font-bold py-3 text-xs rounded">Simpan Akun</button>
                     </form>
                 </div>
 
@@ -170,7 +165,16 @@
                                 <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Daftar Pengguna</h3>
                                 <button type="submit" id="btnDeleteSelected" class="hidden text-[10px] font-bold text-white bg-red-600 px-2.5 py-1 uppercase rounded gap-1"><i class="fa-solid fa-trash-can"></i> Hapus (<span id="selectedCount">0</span>)</button>
                             </div>
-                            <span class="text-xs font-mono bg-emerald-50 text-syekhGreen-800 border px-2.5 py-1 font-bold rounded print-hidden">{{ users|length }} User</span>
+                            
+                            <div class="flex items-center gap-2">
+                                <!-- TOMBOL KHUSUS SUPERADMIN: KELOLA MASTER DATA -->
+                                {% if current_role == 'superadmin' %}
+                                <button type="button" onclick="openMasterDataModal()" class="text-[10px] font-bold bg-syekhGold-500 text-syekhGreen-900 border border-syekhGold-600 px-3 py-1.5 rounded hover:bg-syekhGold-600 transition print-hidden">
+                                    <i class="fa-solid fa-database mr-1"></i> Kelola Kelas & Mapel
+                                </button>
+                                {% endif %}
+                                <span class="text-xs font-mono bg-emerald-50 text-syekhGreen-800 border px-2.5 py-1.5 font-bold rounded print-hidden">{{ users|length }} User</span>
+                            </div>
                         </div>
                         <div class="overflow-x-auto max-h-[650px] overflow-y-auto">
                             <table class="w-full text-left text-xs text-gray-600 min-w-[700px]">
@@ -272,9 +276,9 @@
                         <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
                         <select id="edit_mengajar_kelas" name="edit_mengajar_kelas" multiple class="w-full bg-white border py-2 px-3 text-xs h-24 shadow-inner">
                             <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Kelas --</option>
-                            <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
-                            <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
-                            <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                            {% for k in m_kelas %}
+                            <option value="{{ k.nama_kelas }}">{{ k.nama_kelas }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div>
@@ -282,13 +286,9 @@
                         <p class="text-[9px] text-gray-400 mb-1">Tahan Ctrl/Cmd untuk pilih banyak</p>
                         <select id="edit_mengajar_mapel" name="edit_mengajar_mapel" multiple class="w-full bg-white border py-2 px-3 text-xs h-32 shadow-inner">
                             <option value="Semua" class="font-bold text-syekhGreen-700">-- Semua Mata Pelajaran --</option>
-                            <option value="Matematika">Matematika / MatDas</option><option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                            <option value="Bahasa Inggris">Bahasa Inggris</option><option value="Pendidikan Kewarganegaraan">Pendidikan Kewarganegaraan</option>
-                            <option value="Teknologi Informasi dan Komputer">Teknologi Informasi dan Komputer</option><option value="Literasi Digital">Literasi Digital</option>
-                            <option value="Bahasa Arab">Bahasa Arab</option><option value="Geografi">Geografi</option>
-                            <option value="Penjaskes">Penjaskes</option><option value="Fisika">Fisika</option>
-                            <option value="Biologi">Biologi</option><option value="Sosiologi">Sosiologi</option>
-                            <option value="Ekonomi">Ekonomi</option><option value="Budi Pekerti">Budi Pekerti</option>
+                            {% for m in m_mapel %}
+                            <option value="{{ m.nama_mapel }}">{{ m.nama_mapel }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -297,6 +297,73 @@
             </form>
         </div>
     </div>
+
+    <!-- MODAL MASTER KELAS & MAPEL (KHUSUS SUPERADMIN) -->
+    {% if current_role == 'superadmin' %}
+    <div id="modalMasterData" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
+        <div class="bg-white rounded-xl w-full max-w-4xl p-6 shadow-2xl border-t-4 border-syekhGold-500 mx-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-6 shrink-0">
+                <div>
+                    <h3 class="font-serif font-bold text-xl text-syekhGreen-900">Kelola Master Data</h3>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Daftar Kelas & Mata Pelajaran Sekolah</p>
+                </div>
+                <button onclick="closeMasterDataModal()" class="text-gray-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 overflow-y-auto pr-2 flex-1">
+                
+                <!-- KOLOM KIRI: MASTER KELAS -->
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-bold text-sm text-syekhGreen-800 border-b border-gray-200 pb-2 mb-4"><i class="fa-solid fa-door-open mr-1"></i> Data Kelas</h4>
+                    
+                    <form action="/users/add_master" method="POST" class="flex gap-2 mb-4">
+                        <input type="hidden" name="tipe" value="kelas">
+                        <input type="text" name="nama" required placeholder="Cth: X IPA 2" class="flex-1 border py-1.5 px-3 text-xs rounded">
+                        <button type="submit" class="bg-syekhGreen-800 text-white text-xs px-3 rounded font-bold hover:bg-syekhGreen-900"><i class="fa-solid fa-plus"></i> Tambah</button>
+                    </form>
+                    
+                    <ul class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                        {% for k in m_kelas %}
+                        <li class="flex justify-between items-center bg-white p-2 rounded border border-gray-200 text-xs shadow-sm">
+                            <span class="font-semibold text-gray-700">{{ k.nama_kelas }}</span>
+                            <form action="/users/delete_master" method="POST" onsubmit="return confirm('Hapus kelas ini?');">
+                                <input type="hidden" name="tipe" value="kelas">
+                                <input type="hidden" name="id_master" value="{{ k.id }}">
+                                <button type="submit" class="text-red-500 hover:text-red-700 px-2"><i class="fa-solid fa-trash-can"></i></button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- KOLOM KANAN: MASTER MAPEL -->
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-bold text-sm text-syekhGold-600 border-b border-gray-200 pb-2 mb-4"><i class="fa-solid fa-book mr-1"></i> Data Mata Pelajaran</h4>
+                    
+                    <form action="/users/add_master" method="POST" class="flex gap-2 mb-4">
+                        <input type="hidden" name="tipe" value="mapel">
+                        <input type="text" name="nama" required placeholder="Cth: Pendidikan Jasmani" class="flex-1 border py-1.5 px-3 text-xs rounded">
+                        <button type="submit" class="bg-syekhGold-500 text-syekhGreen-900 text-xs px-3 rounded font-bold hover:bg-syekhGold-600"><i class="fa-solid fa-plus"></i> Tambah</button>
+                    </form>
+                    
+                    <ul class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                        {% for m in m_mapel %}
+                        <li class="flex justify-between items-center bg-white p-2 rounded border border-gray-200 text-xs shadow-sm">
+                            <span class="font-semibold text-gray-700">{{ m.nama_mapel }}</span>
+                            <form action="/users/delete_master" method="POST" onsubmit="return confirm('Hapus mata pelajaran ini?');">
+                                <input type="hidden" name="tipe" value="mapel">
+                                <input type="hidden" name="id_master" value="{{ m.id }}">
+                                <button type="submit" class="text-red-500 hover:text-red-700 px-2"><i class="fa-solid fa-trash-can"></i></button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <script>
         function toggleSidebar() {
@@ -311,6 +378,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => { toggleGuruFields('add'); });
+
+        // FUNGSI BUKA TUTUP MODAL KELOLA MASTER
+        function openMasterDataModal() { document.getElementById('modalMasterData').classList.remove('hidden'); }
+        function closeMasterDataModal() { document.getElementById('modalMasterData').classList.add('hidden'); }
 
         function openEditUserModal(id, nama, role, nip, bidang, status_wali, mengajar_kelas, mengajar_mapel, can_print) {
             document.getElementById('edit_nama').value = nama;
