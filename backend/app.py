@@ -20,55 +20,46 @@ app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
-# --- PERBAIKAN KRUSIAL: AUTO-PATCH DATABASE ---
-# Fungsi ini memastikan tabel prestasi dan master_prestasi 100% ada sebelum aplikasi berjalan
+# --- SUPER AUTO-PATCH DATABASE ---
+# Fungsi sakti ini akan memastikan SEMUA tabel & kolom yang hilang akan dibuat otomatis
 def force_patch_database():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # 1. Pastikan tabel 'prestasi' ada
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS prestasi (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nisn TEXT NOT NULL,
-            nama_siswa TEXT NOT NULL,
-            kelas TEXT NOT NULL,
-            jenis_prestasi TEXT NOT NULL,
-            poin INTEGER NOT NULL,
-            tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    # 2. Pastikan tabel 'master_prestasi' ada
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS master_prestasi (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nama_prestasi TEXT UNIQUE NOT NULL,
-            poin INTEGER NOT NULL
-        )
-    ''')
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("CREATE TABLE IF NOT EXISTS prestasi (id INTEGER PRIMARY KEY AUTOINCREMENT, nisn TEXT, nama_siswa TEXT, kelas TEXT, jenis_prestasi TEXT, poin INTEGER, tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS master_prestasi (id INTEGER PRIMARY KEY AUTOINCREMENT, nama_prestasi TEXT UNIQUE, poin INTEGER)")
+        
+        def add_col(table, col_name, col_type_default):
+            cursor.execute(f"PRAGMA table_info({table})")
+            if col_name not in [c['name'] for c in cursor.fetchall()]:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type_default}")
 
-    # 3. Pastikan kolom jurnal_kelas ada di presensi_harian
-    cursor.execute("PRAGMA table_info(presensi_harian)")
-    presensi_cols = [col['name'] for col in cursor.fetchall()]
-    if 'jurnal_kelas' not in presensi_cols:
-        cursor.execute("ALTER TABLE presensi_harian ADD COLUMN jurnal_kelas TEXT DEFAULT ''")
+        add_col('siswa', 'status_siswa', "TEXT DEFAULT 'Aktif'")
+        add_col('pelanggaran', 'kelas', "TEXT DEFAULT '-'")
+        add_col('presensi_harian', 'deskripsi', "TEXT DEFAULT ''")
+        add_col('presensi_harian', 'jurnal_kelas', "TEXT DEFAULT ''")
+        add_col('users', 'nip', "TEXT DEFAULT '-'")
+        add_col('users', 'bidang_pelajaran', "TEXT DEFAULT '-'")
+        add_col('users', 'status_walikelas', "TEXT DEFAULT 'Bukan'")
+        add_col('users', 'mengajar_kelas', "TEXT DEFAULT 'Semua'")
+        add_col('users', 'mengajar_mapel', "TEXT DEFAULT 'Semua'")
+        add_col('users', 'can_print', "INTEGER DEFAULT 0")
 
-    # 4. Insert data default master prestasi jika masih kosong
-    cursor.execute("SELECT COUNT(*) FROM master_prestasi")
-    if cursor.fetchone()[0] == 0:
-        default_prestasi = [
-            ('Mewakili Sekolah di Olimpiade', 30),
-            ('Juara 1 Lomba Tingkat Kota/Kabupaten', 50),
-            ('Juara 1 Lomba Tingkat Provinsi', 75),
-            ('Juara 1 Lomba Tingkat Nasional', 100)
-        ]
-        cursor.executemany("INSERT INTO master_prestasi (nama_prestasi, poin) VALUES (?, ?)", default_prestasi)
+        cursor.execute("SELECT COUNT(*) FROM master_prestasi")
+        if cursor.fetchone()[0] == 0:
+            cursor.executemany("INSERT OR IGNORE INTO master_prestasi (nama_prestasi, poin) VALUES (?, ?)", [
+                ('Mewakili Sekolah di Olimpiade', 30),
+                ('Juara 1 Lomba Tingkat Kota/Kabupaten', 50),
+                ('Juara 1 Lomba Tingkat Provinsi', 75),
+                ('Juara 1 Lomba Tingkat Nasional', 100)
+            ])
+        conn.commit()
+    except Exception as e:
+        print("Database Patch Error:", e)
+    finally:
+        conn.close()
 
-    conn.commit()
-    conn.close()
-
-# Panggil inisialisasi normal, lalu paksa Auto-Patch
 init_db()
 force_patch_database()
 
@@ -330,7 +321,7 @@ def poin():
         tipe_catatan = request.form.get('tipe_catatan', 'pelanggaran')
         nisn = request.form.get('nisn', '').strip()
         nama_siswa = request.form.get('nama_siswa', '').strip()
-        kelas = request.form.get('kelas', '').strip()
+        kelas = request.form.get('kelas', '-').strip()
         jenis_catatan = request.form.get('jenis_catatan', '').strip()
         poin_val = request.form.get('poin', 0)
         tanggal = request.form.get('tanggal', '').strip()
@@ -344,21 +335,28 @@ def poin():
                 conn.commit()
                 flash("Catatan aktivitas siswa berhasil disimpan!", "success")
             except Exception as e: 
-                flash("Terjadi kesalahan saat menyimpan catatan.", "error")
+                flash(f"Terjadi kesalahan saat menyimpan: {e}", "error")
         return redirect(url_for('poin'))
     
-    daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa WHERE status_siswa='Aktif'").fetchall()
-    
-    riwayat_gabungan = conn.execute("""
-        SELECT tanggal, nisn, nama_siswa, kelas, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran
-        UNION ALL
-        SELECT tanggal, nisn, nama_siswa, kelas, jenis_prestasi as aktivitas, poin, 'Prestasi' as tipe FROM prestasi
-        ORDER BY tanggal DESC LIMIT 20
-    """).fetchall()
-    
-    master_pelanggaran = conn.execute("SELECT * FROM master_pelanggaran ORDER BY poin ASC").fetchall()
-    master_prestasi = conn.execute("SELECT * FROM master_prestasi ORDER BY poin ASC").fetchall()
-    conn.close()
+    try:
+        daftar_siswa = conn.execute("SELECT nisn, nama_siswa, kelas FROM siswa WHERE status_siswa='Aktif'").fetchall()
+        
+        # PERBAIKAN KRUSIAL: Kolom 'kelas' ditiadakan agar kompatibel dengan versi tabel pelanggaran lama milik Anda
+        riwayat_gabungan = conn.execute("""
+            SELECT tanggal, nisn, nama_siswa, jenis_pelanggaran as aktivitas, poin, 'Pelanggaran' as tipe FROM pelanggaran
+            UNION ALL
+            SELECT tanggal, nisn, nama_siswa, jenis_prestasi as aktivitas, poin, 'Prestasi' as tipe FROM prestasi
+            ORDER BY tanggal DESC LIMIT 20
+        """).fetchall()
+        
+        master_pelanggaran = conn.execute("SELECT * FROM master_pelanggaran ORDER BY poin ASC").fetchall()
+        master_prestasi = conn.execute("SELECT * FROM master_prestasi ORDER BY poin ASC").fetchall()
+    except Exception as e:
+        print("Error loading /poin:", e)
+        flash("Sedang memulihkan struktur database, harap coba lagi.", "error")
+        riwayat_gabungan, master_pelanggaran, master_prestasi, daftar_siswa = [], [], [], []
+    finally:
+        conn.close()
     
     siswa_dict = {s['nisn']: {'nama': s['nama_siswa'], 'kelas': s['kelas']} for s in daftar_siswa}
     return render_template('dashboard/poin.html', nama_user=session['nama'], siswa_map=siswa_dict, riwayat_list=riwayat_gabungan, master_pelanggaran=master_pelanggaran, master_prestasi=master_prestasi)
