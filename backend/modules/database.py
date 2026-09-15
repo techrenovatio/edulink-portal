@@ -45,6 +45,19 @@ def init_db():
             tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    # FITUR BARU: Tabel Pencatatan Prestasi
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS prestasi (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nisn TEXT NOT NULL,
+            nama_siswa TEXT NOT NULL,
+            kelas TEXT NOT NULL,
+            jenis_prestasi TEXT NOT NULL,
+            poin INTEGER NOT NULL,
+            tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS siswa (
@@ -58,7 +71,6 @@ def init_db():
         )
     ''')
 
-    # FITUR BARU: Status Akademik Siswa
     cursor.execute("PRAGMA table_info(siswa)")
     siswa_cols = [col['name'] for col in cursor.fetchall()]
     if 'status_siswa' not in siswa_cols:
@@ -68,6 +80,15 @@ def init_db():
         CREATE TABLE IF NOT EXISTS master_pelanggaran (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nama_pelanggaran TEXT UNIQUE NOT NULL,
+            poin INTEGER NOT NULL
+        )
+    ''')
+
+    # FITUR BARU: Tabel Master Opsi Prestasi
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS master_prestasi (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nama_prestasi TEXT UNIQUE NOT NULL,
             poin INTEGER NOT NULL
         )
     ''')
@@ -90,6 +111,7 @@ def init_db():
     if 'deskripsi' not in presensi_cols:
         cursor.execute("ALTER TABLE presensi_harian ADD COLUMN deskripsi TEXT DEFAULT ''")
 
+    # Insert Default Master Pelanggaran
     cursor.execute("SELECT COUNT(*) FROM master_pelanggaran")
     if cursor.fetchone()[0] == 0:
         default_data = [
@@ -99,6 +121,17 @@ def init_db():
             ('Rokok / VAPE di Lingkungan Sekolah', 75)
         ]
         cursor.executemany("INSERT INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", default_data)
+        
+    # Insert Default Master Prestasi
+    cursor.execute("SELECT COUNT(*) FROM master_prestasi")
+    if cursor.fetchone()[0] == 0:
+        default_prestasi = [
+            ('Mewakili Sekolah di Olimpiade', 30),
+            ('Juara 1 Lomba Tingkat Kota/Kabupaten', 50),
+            ('Juara 1 Lomba Tingkat Provinsi', 75),
+            ('Juara 1 Lomba Tingkat Nasional', 100)
+        ]
+        cursor.executemany("INSERT INTO master_prestasi (nama_prestasi, poin) VALUES (?, ?)", default_prestasi)
     
     cursor.execute("DELETE FROM users WHERE username = 'admin123'")
     hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
