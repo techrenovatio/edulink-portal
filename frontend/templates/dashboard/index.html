@@ -4,25 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Panel - SMA Syekh Yusuf Kota Tangerang</title>
-    
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' },
-                        syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' }
-                    }
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] },
+                    colors: { syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' }, syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' } }
                 }
             }
         }
@@ -71,13 +63,9 @@
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
                     <p class="text-[9px] font-mono text-syekhGold-400 uppercase">
-                        {% if session.get('role') == 'superadmin' %}
-                            Super Administrator
-                        {% elif session.get('role') == 'admin' %}
-                            Administrator
-                        {% else %}
-                            Guru / Staff
-                        {% endif %}
+                        {% if session.get('role') == 'superadmin' %} Super Administrator
+                        {% elif session.get('role') == 'admin' %} Administrator
+                        {% else %} Guru / Staff {% endif %}
                     </p>
                 </div>
             </div>
@@ -125,7 +113,8 @@
                 </div>
                 <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-emerald-600 print:shadow-none">
                     <span class="text-[10px] font-bold text-gray-400 uppercase">Kehadiran Rata-Rata</span>
-                    <h3 class="text-3xl font-serif font-bold text-emerald-700 mt-2">97.8%</h3>
+                    <!-- PERBAIKAN: KEHADIRAN RATA-RATA REAL TIME -->
+                    <h3 class="text-3xl font-serif font-bold text-emerald-700 mt-2">{{ kehadiran_rata }}%</h3>
                 </div>
                 <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-red-600 print:shadow-none">
                     <span class="text-[10px] font-bold text-gray-400 uppercase">SP Aktif Semester Ini</span>
@@ -134,10 +123,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 print:block">
-                <!-- Line Chart -->
                 <div class="lg:col-span-2 bg-white p-5 rounded-xl border shadow-sm print:mb-6 print:shadow-none">
-                    
-                    <!-- PERBAIKAN: Header Chart dan Dropdown Filter -->
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Tren Kedisiplinan vs Prestasi</h3>
                         <select id="chartFilter" onchange="updateChartData()" class="bg-gray-50 border border-gray-200 text-xs py-1.5 px-3 rounded focus:outline-none focus:border-syekhGreen-600 font-semibold text-syekhGreen-900 cursor-pointer print-hidden">
@@ -146,11 +132,9 @@
                             <option value="tahun">Per Tahun</option>
                         </select>
                     </div>
-
                     <div class="h-[280px]"><canvas id="disciplineTrendChart"></canvas></div>
                 </div>
                 
-                <!-- Doughnut Chart -->
                 <div class="bg-white p-5 rounded-xl border shadow-sm print:shadow-none print:page-break-before">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-6">Distribusi Kelas</h3>
                     <div class="h-[220px] flex justify-center items-center relative"><canvas id="classDistributionChart"></canvas>
@@ -210,7 +194,9 @@
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
-        // PERBAIKAN: Menambahkan Logika Update Interaktif Chart
+        // AMBIL DATA PELANGGARAN REAL DARI DATABASE (JUL - DES)
+        const realDataPelanggaran = {{ trend_pelanggaran | tojson }};
+        
         let trendChart;
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
         
@@ -219,8 +205,26 @@
             data: {
                 labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
                 datasets: [
-                    { label: 'Kasus Pelanggaran', data: [15, 20, 25, 18, 12, 10], borderColor: '#15803D', backgroundColor: 'rgba(21, 128, 61, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#15803D' },
-                    { label: 'Poin Prestasi', data: [30, 45, 60, 75, 80, 95], borderColor: '#EAB308', backgroundColor: 'rgba(234, 179, 8, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#EAB308' }
+                    { 
+                        label: 'Kasus Pelanggaran (Real)', 
+                        data: realDataPelanggaran, // DATA DATABASE!
+                        borderColor: '#15803D', 
+                        backgroundColor: 'rgba(21, 128, 61, 0.05)', 
+                        borderWidth: 3, 
+                        tension: 0.4, 
+                        fill: true, 
+                        pointBackgroundColor: '#15803D' 
+                    },
+                    { 
+                        label: 'Poin Prestasi (Mockup)', 
+                        data: [30, 45, 60, 75, 80, 95], // Karena belum ada di database
+                        borderColor: '#EAB308', 
+                        backgroundColor: 'rgba(234, 179, 8, 0.05)', 
+                        borderWidth: 3, 
+                        tension: 0.4, 
+                        fill: true, 
+                        pointBackgroundColor: '#EAB308' 
+                    }
                 ]
             },
             options: { 
@@ -236,21 +240,26 @@
             }
         });
 
-        // FUNGSI BARU: Mengubah Data Sesuai Filter
         function updateChartData() {
             const filter = document.getElementById('chartFilter').value;
+            
             if (filter === 'bulan') {
                 trendChart.data.labels = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                trendChart.data.datasets[0].data = [15, 20, 25, 18, 12, 10];
+                trendChart.data.datasets[0].data = realDataPelanggaran;
                 trendChart.data.datasets[1].data = [30, 45, 60, 75, 80, 95];
-            } else if (filter === 'semester') {
+            } 
+            else if (filter === 'semester') {
                 trendChart.data.labels = ['Semester 1 (Ganjil)', 'Semester 2 (Genap)'];
-                trendChart.data.datasets[0].data = [100, 85]; // Mockup data
-                trendChart.data.datasets[1].data = [320, 410]; // Mockup data
-            } else if (filter === 'tahun') {
-                trendChart.data.labels = ['TA 2023/2024', 'TA 2024/2025', 'TA 2025/2026'];
-                trendChart.data.datasets[0].data = [450, 310, 185]; // Mockup data
-                trendChart.data.datasets[1].data = [800, 950, 1200]; // Mockup data
+                // Kalkulasi otomatis (Sum array bulan 7 s/d 12)
+                const sem1Total = realDataPelanggaran.reduce((a, b) => a + b, 0);
+                trendChart.data.datasets[0].data = [sem1Total, 0]; // Semester 2 di set 0 karena belum ada
+                trendChart.data.datasets[1].data = [385, 0]; // Mockup Prestasi
+            } 
+            else if (filter === 'tahun') {
+                trendChart.data.labels = ['TA 2024/2025', 'TA 2025/2026'];
+                const yearTotal = realDataPelanggaran.reduce((a, b) => a + b, 0);
+                trendChart.data.datasets[0].data = [45, yearTotal]; // Tahun lalu statis 45, tahun ini Real
+                trendChart.data.datasets[1].data = [800, 950]; // Mockup Prestasi
             }
             trendChart.update();
         }

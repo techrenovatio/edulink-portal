@@ -1,7 +1,6 @@
 import os
 from datetime import timedelta
 import sqlite3
-# PERBAIKAN: menambahkan import flash
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -87,16 +86,47 @@ def logout():
 def dashboard_overview():
     if 'user_id' not in session: return redirect(url_for('login'))
     conn = get_db_connection()
+    
+    # DATA REAL 1: Jumlah Siswa
     total_siswa = conn.execute("SELECT COUNT(*) FROM siswa WHERE status_siswa='Aktif'").fetchone()[0]
     kelas_x = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'X %' AND status_siswa='Aktif'").fetchone()[0]
     kelas_xi = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XI %' AND status_siswa='Aktif'").fetchone()[0]
     kelas_xii = conn.execute("SELECT COUNT(*) FROM siswa WHERE kelas LIKE 'XII %' AND status_siswa='Aktif'").fetchone()[0]
     
+    # DATA REAL 2: Pelanggaran
     total_pelanggaran = conn.execute("SELECT COUNT(*) FROM pelanggaran").fetchone()[0]
     sp_aktif = len(conn.execute("SELECT nisn, SUM(poin) as total_poin FROM pelanggaran GROUP BY nisn HAVING total_poin >= 50").fetchall())
     recent_logs = conn.execute("SELECT * FROM pelanggaran ORDER BY tanggal DESC LIMIT 5").fetchall()
+
+    # DATA REAL 3: Kehadiran Rata-Rata (%)
+    hadir_count = conn.execute("SELECT COUNT(*) FROM presensi_harian WHERE status='HADIR'").fetchone()[0]
+    total_presensi = conn.execute("SELECT COUNT(*) FROM presensi_harian").fetchone()[0]
+    # Jika belum ada data sama sekali, tampilkan 100%
+    kehadiran_rata = round((hadir_count / total_presensi * 100), 1) if total_presensi > 0 else 100.0
+
+    # DATA REAL 4: Grafik Kasus Pelanggaran Per Bulan (Semester Ganjil: Jul - Des)
+    trend_pelanggaran = [0, 0, 0, 0, 0, 0] # Index: 0=Jul, 1=Agu, 2=Sep, 3=Okt, 4=Nov, 5=Des
+    bulan_counts = conn.execute("SELECT strftime('%m', tanggal) as bulan, COUNT(*) as total FROM pelanggaran GROUP BY bulan").fetchall()
+    
+    for row in bulan_counts:
+        if row['bulan']:
+            b = int(row['bulan'])
+            # Mapping bulan 7 (Juli) ke index 0, dst.
+            if 7 <= b <= 12:
+                trend_pelanggaran[b - 7] = row['total']
+
     conn.close()
-    return render_template('dashboard/index.html', nama_user=session['nama'], total_siswa=total_siswa, kelas_x=kelas_x, kelas_xi=kelas_xi, kelas_xii=kelas_xii, total_pelanggaran=total_pelanggaran, sp_aktif=sp_aktif, recent_logs=recent_logs)
+    return render_template('dashboard/index.html', 
+                           nama_user=session['nama'], 
+                           total_siswa=total_siswa, 
+                           kelas_x=kelas_x, 
+                           kelas_xi=kelas_xi, 
+                           kelas_xii=kelas_xii, 
+                           total_pelanggaran=total_pelanggaran, 
+                           sp_aktif=sp_aktif, 
+                           recent_logs=recent_logs,
+                           kehadiran_rata=kehadiran_rata,
+                           trend_pelanggaran=trend_pelanggaran)
 
 @app.route('/users')
 def manage_users():
