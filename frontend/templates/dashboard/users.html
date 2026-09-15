@@ -224,7 +224,8 @@
                                         
                                         <td class="px-3 py-3.5">
                                             {% if u.role|lower == 'guru' %}
-                                                <p class="font-bold text-gray-700 truncate max-w-[200px]" title="{{ u.mengajar_mapel }}">
+                                                <!-- PERBAIKAN: Menghapus class 'truncate' dan 'max-w-[200px]' agar text turun ke bawah (full) -->
+                                                <p class="font-bold text-gray-700 leading-relaxed" title="{{ u.mengajar_mapel }}">
                                                     {{ u.mengajar_mapel if u.mengajar_mapel and u.mengajar_mapel != 'Semua' else 'Semua Mata Pelajaran' }}
                                                 </p>
                                                 <p class="text-[9px] text-gray-400 font-mono mb-1">NIP: {{ u.nip }}</p>
@@ -261,7 +262,6 @@
                                             {% else %}
                                                 <button type="button" onclick="resetPassword('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-blue-600 transition" title="Reset Password ke 12345678"><i class="fa-solid fa-key"></i></button>
                                                 
-                                                <!-- Parameter disesuaikan, tidak memanggil bidang_pelajaran lagi -->
                                                 <button type="button" onclick="openEditUserModal('{{ u.id }}', '{{ u.nama }}', '{{ u.role }}', '{{ u.nip }}', '{{ u.status_walikelas }}', '{{ u.walikelas_kelas }}', '{{ u.mengajar_kelas }}', '{{ u.mengajar_mapel }}', '{{ u.can_print }}', '{{ u.status_akun }}')" class="p-1.5 text-gray-400 hover:text-syekhGreen-700 transition" title="Edit Akun"><i class="fa-solid fa-pen-to-square"></i></button>
                                                 
                                                 <button type="button" onclick="deleteSingleUser('{{ u.id }}', '{{ u.nama }}')" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Hapus Permanen"><i class="fa-solid fa-trash-can"></i></button>
@@ -283,7 +283,7 @@
 
     <!-- MODAL EDIT USER -->
     <div id="modalEditUser" class="fixed inset-0 bg-syekhDark-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center print-hidden">
-        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl border-t-4 border-syekhGold-50 mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl border-t-4 border-syekhGold-500 mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Ubah Data Pengguna</h3>
                 <button onclick="closeEditUserModal()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
