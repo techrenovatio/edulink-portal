@@ -3,6 +3,7 @@ import csv
 import io
 import datetime
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -106,7 +107,10 @@ def login():
 
             db_role = str(user['role']).strip().lower()
             if db_role == form_role or (form_role == 'admin' and db_role == 'superadmin'):
-                now_str = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
+                # FORMAT WAKTU WIB (Asia/Jakarta)
+                wib_tz = ZoneInfo('Asia/Jakarta')
+                now_str = datetime.datetime.now(wib_tz).strftime("%d %b %Y, %H:%M")
+                
                 conn.execute("UPDATE users SET last_login = ? WHERE id = ?", (now_str, user['id']))
                 conn.commit()
                 conn.close()
@@ -247,31 +251,43 @@ def delete_master_data():
 @app.route('/users/add', methods=['POST'])
 def add_user():
     if not is_admin_or_super(): return redirect(url_for('login'))
-    nama, username, password, role = request.form.get('nama', ''), request.form.get('username', '').lower(), request.form.get('password', ''), request.form.get('role', '').lower()
+    nama = request.form.get('nama', '').strip()
+    username = request.form.get('username', '').strip().lower()
+    password = request.form.get('password', '')
+    role = request.form.get('role', '').strip().lower()
     can_print = int(request.form.get('can_print', 0))
-    nip, status_walikelas = request.form.get('nip', '-'), request.form.get('status_walikelas', 'Bukan')
+    nip = request.form.get('nip', '-').strip()
+    status_walikelas = request.form.get('status_walikelas', 'Bukan')
     
     walikelas_kelas = request.form.get('walikelas_kelas', '-') if status_walikelas == 'Wali Kelas' else '-'
     m_kelas, m_mapel = request.form.getlist('mengajar_kelas'), request.form.getlist('mengajar_mapel')
     m_kelas_str = ", ".join(m_kelas) if m_kelas else "Semua"
     m_mapel_str = ", ".join(m_mapel) if m_mapel else "Semua"
     
-    if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
+    if role == 'superadmin' and not is_superadmin():
+        flash("Akses ditolak! Hanya Superadmin yang dapat membuat akun Superadmin.", "error")
+        return redirect(url_for('manage_users'))
+
     if nama and username and password:
         conn = get_db_connection()
         try:
             conn.execute("INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, walikelas_kelas, mengajar_kelas, mengajar_mapel, can_print, status_akun, last_login) VALUES (?, ?, ?, ?, ?, '-', ?, ?, ?, ?, ?, 'Aktif', '-')", (username, generate_password_hash(password, method='pbkdf2:sha256'), role, nama, nip, status_walikelas, walikelas_kelas, m_kelas_str, m_mapel_str, can_print))
             conn.commit()
-            flash("Akun dibuat!", "success")
-        except sqlite3.IntegrityError: flash("Username terpakai!", "error")
-        finally: conn.close()
+            flash("Akun pengguna berhasil dibuat!", "success")
+        except sqlite3.IntegrityError: 
+            flash("Username telah terpakai! Gunakan username lain.", "error")
+        finally: 
+            conn.close()
     return redirect(url_for('manage_users'))
 
 @app.route('/users/edit/<int:user_id>', methods=['POST'])
 def edit_user(user_id):
     if not is_admin_or_super(): return redirect(url_for('login'))
-    nama, role, password = request.form.get('edit_nama', ''), request.form.get('edit_role', '').lower(), request.form.get('edit_password', '')
-    can_print, nip = int(request.form.get('edit_can_print', 0)), request.form.get('edit_nip', '-')
+    nama = request.form.get('edit_nama', '').strip()
+    role = request.form.get('edit_role', '').strip().lower()
+    password = request.form.get('edit_password', '')
+    can_print = int(request.form.get('edit_can_print', 0))
+    nip = request.form.get('edit_nip', '-').strip()
     status_walikelas = request.form.get('edit_status_walikelas', 'Bukan')
     status_akun = request.form.get('edit_status_akun', 'Aktif')
     
@@ -279,7 +295,10 @@ def edit_user(user_id):
     m_kelas = ", ".join(request.form.getlist('edit_mengajar_kelas')) or "Semua"
     m_mapel = ", ".join(request.form.getlist('edit_mengajar_mapel')) or "Semua"
 
-    if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
+    if role == 'superadmin' and not is_superadmin():
+        flash("Akses ditolak! Hanya Superadmin yang dapat menetapkan peran Superadmin.", "error")
+        return redirect(url_for('manage_users'))
+
     conn = get_db_connection()
     try:
         if password: 
@@ -287,9 +306,11 @@ def edit_user(user_id):
         else: 
             conn.execute("UPDATE users SET nama=?, role=?, nip=?, bidang_pelajaran='-', status_walikelas=?, walikelas_kelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=?, status_akun=? WHERE id=?", (nama, role, nip, status_walikelas, walikelas_kelas, m_kelas, m_mapel, can_print, status_akun, user_id))
         conn.commit()
-        flash("Profil disimpan!", "success")
-    except Exception as e: flash("Gagal edit.", "error")
-    finally: conn.close()
+        flash("Profil pengguna berhasil disimpan!", "success")
+    except Exception as e: 
+        flash(f"Gagal memperbarui pengguna: {e}", "error")
+    finally: 
+        conn.close()
     return redirect(url_for('manage_users'))
 
 @app.route('/users/delete/<int:user_id>', methods=['POST'])
@@ -548,14 +569,6 @@ def presensi():
     list_kelas = [k['nama_kelas'] for k in m_kelas]
     
     return render_template('dashboard/presensi.html', nama_user=session['nama'], siswa_list=daftar_siswa, akumulasi=akumulasi, list_mapel=list_mapel, list_kelas=list_kelas, hak_kelas=session.get('mengajar_kelas', 'Semua'), hak_mapel=session.get('mengajar_mapel', 'Semua'), role=session.get('role', 'guru'))
-
-@app.route('/rapor')
-def rapor():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    conn = get_db_connection()
-    m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
-    conn.close()
-    return render_template('dashboard/rapor.html', nama_user=session.get('nama', ''), m_kelas=m_kelas)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
