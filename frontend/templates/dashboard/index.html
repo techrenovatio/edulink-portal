@@ -3,198 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Panel - SMA Syekh Yusuf Kota Tangerang</title>
+    <title>Dashboard Panel - SMA Syekh Yusuf</title>
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] },
-                    colors: { syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' }, syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' } }
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] }, colors: { syekhGreen: { 600: '#15803D', 700: '#166534', 800: '#14532D', 900: '#064E3B' }, syekhGold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' } } } } }
     </script>
-    <style>
-        @media print {
-            aside, header { display: none !important; }
-            main { margin: 0 !important; padding: 0 !important; }
-            .print-hidden { display: none !important; }
-            body { background-color: white !important; }
-            canvas { max-height: 250px !important; }
-        }
-    </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden selection:bg-syekhGreen-600 selection:text-white">
-
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
     <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden print-hidden"></div>
-
     <aside id="sidebar" class="fixed lg:static top-0 left-0 h-full w-64 bg-syekhGreen-900 text-gray-300 flex flex-col shadow-2xl z-40 shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 border-r-2 border-syekhGold-500/40 print-hidden">
         <div class="h-24 flex items-center justify-between px-6 border-b border-syekhGreen-800">
             <div class="flex items-center gap-3">
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-10 h-10 object-contain drop-shadow-md">
-                <div>
-                    <span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span>
-                    <span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span>
-                </div>
+                <div><span class="text-sm font-serif font-bold text-white leading-tight block">SMA SYEKH YUSUF</span><span class="text-[9px] font-bold text-syekhGold-400 uppercase tracking-widest block">Kota Tangerang</span></div>
             </div>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5">
             <p class="px-4 text-[10px] font-bold text-syekhGreen-200 uppercase tracking-widest mb-2">Menu Utama</p>
-            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white rounded-lg transition border-l-4 border-syekhGold-500"><i class="fa-solid fa-chart-line text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Overview</span></a>
+            <a href="/dashboard" class="flex items-center gap-4 px-4 py-3 bg-syekhGreen-800 text-white border-l-4 border-syekhGold-500 rounded-lg"><i class="fa-solid fa-chart-line text-sm w-5 text-center text-syekhGold-400"></i><span class="text-xs font-bold uppercase tracking-wider">Overview</span></a>
             <a href="/users" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-user-gear text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Kelola Pengguna</span></a>
             <a href="/siswa" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-users text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Data Siswa</span></a>
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
             <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
             <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Presensi Harian</span></a>
+            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-signature text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">E-Rapor & Ujian</span></a>
         </nav>
-
         <div class="p-5 border-t border-syekhGreen-800">
             <div class="flex items-center gap-3 mb-3">
                 <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
-                <div class="overflow-hidden">
-                    <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">
-                        {% if session.get('role') == 'superadmin' %} Super Administrator
-                        {% elif session.get('role') == 'admin' %} Administrator
-                        {% else %} Guru / Staff {% endif %}
-                    </p>
-                </div>
+                <div class="overflow-hidden"><p class="text-xs font-bold text-white truncate">{{ nama_user }}</p></div>
             </div>
             <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
         </div>
     </aside>
-
     <main class="flex-1 flex flex-col h-full relative z-10 min-w-0 print:m-0 print:h-auto overflow-y-auto">
-        <header class="h-24 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button>
-                <div>
-                    <h1 class="text-lg sm:text-2xl font-serif font-bold text-syekhGreen-900 leading-tight">Dashboard Overview</h1>
-                    <p class="text-[10px] sm:text-xs text-syekhGold-600 font-bold uppercase tracking-wider">SMA Syekh Yusuf Kota Tangerang</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
-                <button onclick="window.print()" class="bg-syekhGold-500 hover:bg-syekhGold-600 text-syekhGreen-900 px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-print"></i> Cetak
-                </button>
-                {% endif %}
-                <button class="bg-gray-100 border border-gray-200 text-syekhGreen-900 px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-day"></i> TA 2025/2026
-                </button>
-            </div>
+        <header class="h-24 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 print-hidden">
+            <div class="flex items-center gap-3"><button onclick="toggleSidebar()" class="lg:hidden p-2 text-syekhGreen-900 text-xl"><i class="fa-solid fa-bars"></i></button><div><h1 class="text-xl font-serif font-bold text-syekhGreen-900">Dashboard Overview</h1></div></div>
         </header>
-
         <div class="p-4 sm:p-8 space-y-6 sm:space-y-8 bg-gray-50/30 print:p-0 print:bg-white">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200 print-hidden">
-                <div>
-                    <h2 class="text-xl sm:text-3xl font-serif font-bold text-syekhGreen-900 mb-1">Selamat datang, {{ nama_user if nama_user else 'Administrator' }}.</h2>
-                    <p class="text-gray-500 text-xs sm:text-sm">Ringkasan statistik metrik akademik & kedisiplinan sekolah.</p>
-                </div>
-            </div>
-
+            <h2 class="text-xl sm:text-3xl font-serif font-bold text-syekhGreen-900 mb-1">Selamat datang, {{ nama_user if nama_user else 'Administrator' }}.</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 print:grid-cols-4">
-                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-syekhGreen-700 print:shadow-none">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Total Siswa Aktif</span>
-                    <h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">{{ total_siswa }}</h3>
-                </div>
-                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-syekhGold-500 print:shadow-none">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Total Pelanggaran</span>
-                    <h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">{{ total_pelanggaran }}</h3>
-                </div>
-                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-emerald-600 print:shadow-none">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Kehadiran Rata-Rata</span>
-                    <h3 class="text-3xl font-serif font-bold text-emerald-700 mt-2">{{ kehadiran_rata }}%</h3>
-                </div>
-                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-red-600 print:shadow-none">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">SP Aktif Semester Ini</span>
-                    <h3 class="text-3xl font-serif font-bold text-red-700 mt-2">{{ sp_aktif }}</h3>
-                </div>
+                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-syekhGreen-700 print:shadow-none"><span class="text-[10px] font-bold text-gray-400 uppercase">Total Siswa Aktif</span><h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">{{ total_siswa }}</h3></div>
+                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-syekhGold-500 print:shadow-none"><span class="text-[10px] font-bold text-gray-400 uppercase">Total Pelanggaran</span><h3 class="text-3xl font-serif font-bold text-syekhGreen-900 mt-2">{{ total_pelanggaran }}</h3></div>
+                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-emerald-600 print:shadow-none"><span class="text-[10px] font-bold text-gray-400 uppercase">Kehadiran Rata-Rata</span><h3 class="text-3xl font-serif font-bold text-emerald-700 mt-2">{{ kehadiran_rata }}%</h3></div>
+                <div class="bg-white p-5 rounded-xl border shadow-sm border-l-4 border-red-600 print:shadow-none"><span class="text-[10px] font-bold text-gray-400 uppercase">SP Aktif Semester Ini</span><h3 class="text-3xl font-serif font-bold text-red-700 mt-2">{{ sp_aktif }}</h3></div>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 print:block">
                 <div class="lg:col-span-2 bg-white p-5 rounded-xl border shadow-sm print:mb-6 print:shadow-none">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Tren Kedisiplinan vs Prestasi</h3>
-                        <select id="chartFilter" onchange="updateChartData()" class="bg-gray-50 border border-gray-200 text-xs py-1.5 px-3 rounded focus:outline-none focus:border-syekhGreen-600 font-semibold text-syekhGreen-900 cursor-pointer print-hidden">
-                            <option value="bulan">Per Bulan</option>
-                            <option value="semester">Per Semester</option>
-                            <option value="tahun">Per Tahun</option>
-                        </select>
-                    </div>
+                    <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-6">Tren Kedisiplinan vs Prestasi</h3>
                     <div class="h-[280px]"><canvas id="disciplineTrendChart"></canvas></div>
                 </div>
-                
-                <div class="bg-white p-5 rounded-xl border shadow-sm print:shadow-none print:page-break-before">
+                <div class="bg-white p-5 rounded-xl border shadow-sm print:shadow-none">
                     <h3 class="font-serif font-bold text-lg text-syekhGreen-900 mb-6">Distribusi Kelas</h3>
                     <div class="h-[220px] flex justify-center items-center relative"><canvas id="classDistributionChart"></canvas>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span class="text-2xl font-serif font-bold text-syekhGreen-900 mt-4">{{ total_siswa }}</span>
-                            <span class="text-[9px] text-gray-400 uppercase tracking-widest">Total Siswa</span>
-                        </div>
-                    </div>
-                    <div class="mt-6 flex flex-col gap-2">
-                        <div class="flex justify-between items-center text-xs">
-                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-syekhGreen-700"></span><span class="text-gray-600">Kelas X (Sepuluh)</span></div>
-                            <span class="font-bold text-syekhGreen-900">{{ kelas_x }}</span>
-                        </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-syekhGold-500"></span><span class="text-gray-600">Kelas XI (Sebelas)</span></div>
-                            <span class="font-bold text-syekhGreen-900">{{ kelas_xi }}</span>
-                        </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-300"></span><span class="text-gray-600">Kelas XII (Dua Belas)</span></div>
-                            <span class="font-bold text-syekhGreen-900">{{ kelas_xii }}</span>
-                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><span class="text-2xl font-serif font-bold text-syekhGreen-900 mt-4">{{ total_siswa }}</span></div>
                     </div>
                 </div>
             </div>
-            
             <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm overflow-hidden border-t-4 border-t-syekhGold-500 print:shadow-none">
-                <div class="p-5 border-b border-gray-100 bg-gray-50/50">
-                    <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Log Aktivitas Terbaru</h3>
-                </div>
+                <div class="p-5 border-b border-gray-100 bg-gray-50/50"><h3 class="font-serif font-bold text-lg text-syekhGreen-900">Log Aktivitas Terbaru</h3></div>
                 <table class="w-full text-left text-xs sm:text-sm text-gray-600">
-                    <thead class="bg-white border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400">
-                        <tr>
-                            <th class="pl-6 py-3.5">Waktu</th>
-                            <th class="px-4 py-3.5">Nama Siswa</th>
-                            <th class="px-4 py-3.5">Aktivitas / Laporan</th>
-                            <th class="pr-6 py-3.5 text-right">Status</th>
-                        </tr>
-                    </thead>
+                    <thead class="bg-white border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400"><tr><th class="pl-6 py-3.5">Waktu</th><th class="px-4 py-3.5">Nama Siswa</th><th class="px-4 py-3.5">Aktivitas</th><th class="pr-6 py-3.5 text-right">Status</th></tr></thead>
                     <tbody>
                         {% for log in recent_logs %}
                         <tr class="border-b border-gray-50">
                             <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">{{ log.tanggal[:10] }}</td>
-                            
-                            <!-- PERBAIKAN: Menambahkan link dinamis yang mengarah ke halaman Laporan berdasarkan NISN -->
-                            <td class="px-4 py-4 font-bold text-syekhGreen-900">
-                                <a href="/laporan?q={{ log.nisn }}" class="hover:text-syekhGold-600 hover:underline transition-colors cursor-pointer" title="Lihat Rekap Siswa">
-                                    {{ log.nama_siswa }}
-                                </a>
-                            </td>
-                            
-                            <td class="px-4 py-4">
-                                {% if log.tipe == 'Prestasi' %}
-                                <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Prestasi</span>
-                                {% else %}
-                                <span class="bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Pelanggaran</span>
-                                {% endif %}
-                                {{ log.aktivitas }}
-                            </td>
-                            <td class="pr-6 py-4 text-right {% if log.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %} font-bold">
-                                +{{ log.poin }} Poin
-                            </td>
+                            <td class="px-4 py-4 font-bold text-syekhGreen-900"><a href="/laporan?q={{ log.nisn }}" class="hover:text-syekhGold-600 hover:underline">{{ log.nama_siswa }}</a></td>
+                            <td class="px-4 py-4">{% if log.tipe == 'Prestasi' %}<span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Prestasi</span>{% else %}<span class="bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Pelanggaran</span>{% endif %}{{ log.aktivitas }}</td>
+                            <td class="pr-6 py-4 text-right {% if log.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %} font-bold">+{{ log.poin }} Poin</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -202,109 +83,22 @@
             </div>
         </div>
     </main>
-
     <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-            document.getElementById('sidebarBackdrop').classList.toggle('hidden');
-        }
-
-        const realDataPelanggaran = {{ trend_pelanggaran | tojson }};
-        const realDataPrestasi = {{ trend_prestasi | tojson }};
-        
-        let trendChart;
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('sidebarBackdrop').classList.toggle('hidden'); }
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
-        
-        trendChart = new Chart(ctxLine, {
+        new Chart(ctxLine, {
             type: 'line',
-            data: {
-                labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                datasets: [
-                    { 
-                        label: 'Kasus Pelanggaran', 
-                        data: realDataPelanggaran, 
-                        borderColor: '#15803D', 
-                        backgroundColor: 'rgba(21, 128, 61, 0.05)', 
-                        borderWidth: 3, 
-                        tension: 0.4, 
-                        fill: true, 
-                        pointBackgroundColor: '#15803D' 
-                    },
-                    { 
-                        label: 'Poin Prestasi', 
-                        data: realDataPrestasi, 
-                        borderColor: '#EAB308', 
-                        backgroundColor: 'rgba(234, 179, 8, 0.05)', 
-                        borderWidth: 3, 
-                        tension: 0.4, 
-                        fill: true, 
-                        pointBackgroundColor: '#EAB308' 
-                    }
-                ]
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: "'Inter', sans-serif", size: 11 } } }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { borderDash: [4, 4] } },
-                    x: { grid: { display: false } }
-                }
-            }
+            data: { labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], datasets: [
+                { label: 'Kasus Pelanggaran', data: {{ trend_pelanggaran | tojson }}, borderColor: '#15803D', backgroundColor: 'rgba(21, 128, 61, 0.05)', borderWidth: 3, tension: 0.4, fill: true },
+                { label: 'Poin Prestasi', data: {{ trend_prestasi | tojson }}, borderColor: '#EAB308', backgroundColor: 'rgba(234, 179, 8, 0.05)', borderWidth: 3, tension: 0.4, fill: true }
+            ]},
+            options: { responsive: true, maintainAspectRatio: false }
         });
-
-        function updateChartData() {
-            const filter = document.getElementById('chartFilter').value;
-            
-            if (filter === 'bulan') {
-                trendChart.data.labels = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                trendChart.data.datasets[0].data = realDataPelanggaran;
-                trendChart.data.datasets[1].data = realDataPrestasi;
-            } 
-            else if (filter === 'semester') {
-                trendChart.data.labels = ['Semester 1 (Ganjil)', 'Semester 2 (Genap)'];
-                const sem1Pelanggaran = realDataPelanggaran.reduce((a, b) => a + b, 0);
-                const sem1Prestasi = realDataPrestasi.reduce((a, b) => a + b, 0);
-                trendChart.data.datasets[0].data = [sem1Pelanggaran, 0];
-                trendChart.data.datasets[1].data = [sem1Prestasi, 0];
-            } 
-            else if (filter === 'tahun') {
-                trendChart.data.labels = ['TA 2024/2025', 'TA 2025/2026'];
-                const yearPelanggaran = realDataPelanggaran.reduce((a, b) => a + b, 0);
-                const yearPrestasi = realDataPrestasi.reduce((a, b) => a + b, 0);
-                trendChart.data.datasets[0].data = [25, yearPelanggaran]; 
-                trendChart.data.datasets[1].data = [120, yearPrestasi]; 
-            }
-            trendChart.update();
-        }
-
         const ctxDoughnut = document.getElementById('classDistributionChart').getContext('2d');
         new Chart(ctxDoughnut, {
             type: 'doughnut',
-            data: {
-                labels: ['Kelas X', 'Kelas XI', 'Kelas XII'],
-                datasets: [{
-                    data: [{{ kelas_x }}, {{ kelas_xi }}, {{ kelas_xii }}],
-                    backgroundColor: ['#15803D', '#EAB308', '#6EE7B7'],
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                cutout: '75%', 
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) { return ' ' + context.label + ': ' + context.raw + ' Siswa'; }
-                        }
-                    }
-                }
-            }
+            data: { labels: ['Kelas X', 'Kelas XI', 'Kelas XII'], datasets: [{ data: [{{ kelas_x }}, {{ kelas_xi }}, {{ kelas_xii }}], backgroundColor: ['#15803D', '#EAB308', '#6EE7B7'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
         });
     </script>
 </body>

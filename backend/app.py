@@ -43,12 +43,11 @@ def force_patch_database():
         add_col('presensi_harian', 'deskripsi', "TEXT DEFAULT ''")
         add_col('presensi_harian', 'jurnal_kelas', "TEXT DEFAULT ''")
         add_col('users', 'nip', "TEXT DEFAULT '-'")
-        add_col('users', 'bidang_pelajaran', "TEXT DEFAULT '-'") # Kolom ini tetap di DB agar tidak error, tapi diabaikan di UI
+        add_col('users', 'bidang_pelajaran', "TEXT DEFAULT '-'")
         add_col('users', 'status_walikelas', "TEXT DEFAULT 'Bukan'")
         add_col('users', 'mengajar_kelas', "TEXT DEFAULT 'Semua'")
         add_col('users', 'mengajar_mapel', "TEXT DEFAULT 'Semua'")
         add_col('users', 'can_print', "INTEGER DEFAULT 0")
-        
         add_col('users', 'status_akun', "TEXT DEFAULT 'Aktif'")
         add_col('users', 'walikelas_kelas', "TEXT DEFAULT '-'")
         add_col('users', 'last_login', "TEXT DEFAULT '-'")
@@ -196,7 +195,7 @@ def import_csv():
     try:
         stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
         csv_input = csv.reader(stream)
-        next(csv_input, None) # Skip Header row
+        next(csv_input, None)
         
         conn = get_db_connection()
         default_pwd = generate_password_hash('12345678', method='pbkdf2:sha256')
@@ -206,7 +205,6 @@ def import_csv():
                 nama, username, role = row[0].strip(), row[1].strip().lower(), row[2].strip().lower()
                 nip = row[3].strip() if len(row) > 3 else '-'
                 try:
-                    # 'bidang_pelajaran' dikunci menjadi '-', data master diandalkan dari 'mengajar_mapel'
                     conn.execute("INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_akun, status_walikelas, walikelas_kelas, mengajar_kelas, mengajar_mapel, can_print, last_login) VALUES (?, ?, ?, ?, ?, '-', 'Aktif', 'Bukan', '-', 'Semua', 'Semua', 0, '-')", (username, default_pwd, role, nama, nip))
                     count += 1
                 except sqlite3.IntegrityError: pass
@@ -262,7 +260,6 @@ def add_user():
     if nama and username and password:
         conn = get_db_connection()
         try:
-            # bidang_pelajaran diset ke '-'
             conn.execute("INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, walikelas_kelas, mengajar_kelas, mengajar_mapel, can_print, status_akun, last_login) VALUES (?, ?, ?, ?, ?, '-', ?, ?, ?, ?, ?, 'Aktif', '-')", (username, generate_password_hash(password, method='pbkdf2:sha256'), role, nama, nip, status_walikelas, walikelas_kelas, m_kelas_str, m_mapel_str, can_print))
             conn.commit()
             flash("Akun dibuat!", "success")
@@ -285,7 +282,6 @@ def edit_user(user_id):
     if role in ['admin', 'superadmin'] and not is_superadmin(): return redirect(url_for('manage_users'))
     conn = get_db_connection()
     try:
-        # bidang_pelajaran diset ke '-'
         if password: 
             conn.execute("UPDATE users SET nama=?, role=?, password=?, nip=?, bidang_pelajaran='-', status_walikelas=?, walikelas_kelas=?, mengajar_kelas=?, mengajar_mapel=?, can_print=?, status_akun=? WHERE id=?", (nama, role, generate_password_hash(password, method='pbkdf2:sha256'), nip, status_walikelas, walikelas_kelas, m_kelas, m_mapel, can_print, status_akun, user_id))
         else: 
@@ -332,8 +328,9 @@ def siswa():
         return redirect(url_for('siswa'))
     
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY CASE WHEN status_siswa='Aktif' THEN 1 ELSE 2 END, kelas ASC, nama_siswa ASC").fetchall()
+    m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
     conn.close()
-    return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa)
+    return render_template('dashboard/siswa.html', nama_user=session['nama'], siswa_list=daftar_siswa, m_kelas=m_kelas)
 
 @app.route('/siswa/edit/<nisn>', methods=['POST'])
 def edit_siswa(nisn):
@@ -535,7 +532,6 @@ def presensi():
 
     daftar_siswa = conn.execute("SELECT * FROM siswa ORDER BY CASE WHEN status_siswa='Aktif' THEN 1 ELSE 2 END, kelas ASC, nama_siswa ASC").fetchall()
     akumulasi_raw = conn.execute("SELECT nisn, status, COUNT(*) as count FROM presensi_harian GROUP BY nisn, status").fetchall()
-    
     m_kelas = conn.execute("SELECT nama_kelas FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
     m_mapel = conn.execute("SELECT nama_mapel FROM master_mapel ORDER BY nama_mapel ASC").fetchall()
     
@@ -552,6 +548,14 @@ def presensi():
     list_kelas = [k['nama_kelas'] for k in m_kelas]
     
     return render_template('dashboard/presensi.html', nama_user=session['nama'], siswa_list=daftar_siswa, akumulasi=akumulasi, list_mapel=list_mapel, list_kelas=list_kelas, hak_kelas=session.get('mengajar_kelas', 'Semua'), hak_mapel=session.get('mengajar_mapel', 'Semua'), role=session.get('role', 'guru'))
+
+@app.route('/rapor')
+def rapor():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    conn = get_db_connection()
+    m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
+    conn.close()
+    return render_template('dashboard/rapor.html', nama_user=session.get('nama', ''), m_kelas=m_kelas)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
