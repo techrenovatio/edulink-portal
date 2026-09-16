@@ -96,9 +96,9 @@
                         <input type="text" name="nama_siswa" required placeholder="Nama Lengkap" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                         <select name="jenis_kelamin" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
                         <select name="kelas" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
-                            <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
-                            <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
-                            <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                            {% for k in m_kelas %}
+                            <option value="{{ k.nama_kelas }}">{{ k.nama_kelas }}</option>
+                            {% endfor %}
                         </select>
                         <input type="text" name="nama_wali" placeholder="Nama Wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                         <input type="text" name="no_hp_wali" placeholder="No WA Wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
@@ -123,9 +123,9 @@
                             <input type="text" id="searchSiswa" onkeyup="filterTable()" placeholder="Cari..." class="w-full sm:w-auto bg-gray-50 border py-2 px-3 text-xs rounded">
                             <select id="selectKelasFilter" onchange="filterTable()" class="bg-gray-50 border py-2 px-2 text-xs rounded">
                                 <option value="">Semua Kelas</option>
-                                <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
-                                <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
-                                <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                                {% for k in m_kelas %}
+                                <option value="{{ k.nama_kelas }}">{{ k.nama_kelas }}</option>
+                                {% endfor %}
                             </select>
                             {% if session.get('can_print') == 1 or session.get('role') == 'superadmin' %}
                             <button onclick="window.print()" class="bg-syekhGold-500 text-syekhGreen-900 text-xs font-bold px-4 py-2 flex items-center gap-2 rounded shadow-sm"><i class="fa-solid fa-print"></i> Cetak</button>
@@ -146,7 +146,12 @@
                             <tbody id="studentTableBody">
                                 {% for s in siswa_list %}
                                 <tr class="border-b border-gray-50 hover:bg-emerald-50/50 transition student-row" data-kelas="{{ s.kelas }}">
-                                    <td class="pl-6 py-3"><p class="font-bold text-syekhGreen-900 student-name">{{ s.nama_siswa }}</p><p class="text-[10px] text-gray-400 student-nisn">{{ s.nisn }}</p></td>
+                                    <td class="pl-6 py-3">
+                                        <a href="/laporan?q={{ s.nisn }}" class="font-bold text-syekhGreen-900 hover:text-syekhGold-600 hover:underline transition-colors student-name" title="Lihat Rekap Siswa">
+                                            {{ s.nama_siswa }}
+                                        </a>
+                                        <p class="text-[10px] text-gray-400 student-nisn">{{ s.nisn }}</p>
+                                    </td>
                                     <td class="px-3 py-3 font-mono">{{ s.kelas }}</td>
                                     <td class="px-3 py-3"><p>{{ s.nama_wali }}</p><p class="text-[10px] text-gray-400 font-mono">{{ s.no_hp_wali }}</p></td>
                                     
@@ -187,9 +192,9 @@
                 <input type="text" id="edit_nama_siswa" name="edit_nama_siswa" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                 <select id="edit_jenis_kelamin" name="edit_jenis_kelamin" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
                 <select id="edit_kelas" name="edit_kelas" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
-                    <option value="X IPA 1">X IPA 1</option><option value="X IPS 1">X IPS 1</option>
-                    <option value="XI IPA 1">XI IPA 1</option><option value="XI IPA 2">XI IPA 2</option><option value="XI IPS 1">XI IPS 1</option>
-                    <option value="XII IPA 1">XII IPA 1</option><option value="XII IPA 2">XII IPA 2</option><option value="XII IPS 1">XII IPS 1</option>
+                    {% for k in m_kelas %}
+                    <option value="{{ k.nama_kelas }}">{{ k.nama_kelas }}</option>
+                    {% endfor %}
                 </select>
                 <input type="text" id="edit_nama_wali" name="edit_nama_wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
                 <input type="text" id="edit_no_hp_wali" name="edit_no_hp_wali" class="w-full bg-gray-50 border py-2 px-3 text-xs rounded">
