@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Akademik - SMA Syekh Yusuf Kota Tangerang</title>
-
     <link rel="icon" type="image/webp" href="{{ url_for('static', filename='images/smaunis.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <script>
         tailwind.config = {
             theme: {
@@ -30,7 +28,7 @@
 </head>
 <body class="bg-syekhPaper text-gray-800 font-sans min-h-screen flex flex-col selection:bg-syekhGreen-600 selection:text-white">
 
-    <!-- Header Bersih (Tanpa Tombol Login Ganda) -->
+    <!-- Header / Navbar Bersih -->
     <nav class="absolute top-0 w-full z-50 py-6 px-6 sm:px-12">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -40,25 +38,23 @@
                     <span class="text-[9px] font-bold text-syekhGold-600 uppercase tracking-widest block">Kota Tangerang</span>
                 </div>
             </div>
-            <!-- Bagian Kanan Navbar Dibiarkan Kosong / Minimalis -->
+            <!-- Bagian Kanan Dikosongkan agar Fokus ke 1 Tombol Saja -->
             <div class="hidden sm:block text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                 Portal Manajemen Internal
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section (Split Layout Modern) -->
+    <!-- Hero Section Split Layout (Kiri: Teks, Kanan: Logo) -->
     <main class="flex-1 flex items-center justify-center relative overflow-hidden pt-24 pb-12 px-6 sm:px-12">
-        
-        <!-- Ornamen Background Gradient Halus -->
+        <!-- Ornamen Cahaya Background -->
         <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-syekhGreen-800/10 rounded-full blur-[80px] pointer-events-none"></div>
         <div class="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-syekhGold-400/10 rounded-full blur-[80px] pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center z-10 mt-8 lg:mt-0">
             
-            <!-- Kolom Kiri: Teks & Aksi -->
+            <!-- Kolom Kiri: Teks & Tombol -->
             <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
-                
                 <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-widest mb-6 shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     Portal Resmi Terintegrasi
@@ -70,17 +66,15 @@
                 </h1>
                 
                 <p class="text-gray-500 text-sm sm:text-base leading-relaxed mb-10 max-w-lg">
-                    Platform manajemen pendidikan yang memudahkan pemantauan kehadiran harian secara *real-time*, evaluasi kedisiplinan, hingga rekapitulasi data siswa dengan aman dan terpadu.
+                    Platform manajemen pendidikan yang memudahkan pemantauan kehadiran harian secara <i>real-time</i>, evaluasi kedisiplinan, hingga rekapitulasi data siswa dengan aman dan terpadu.
                 </p>
                 
-                <!-- Grup Tombol Login & Metrik -->
+                <!-- SATU-SATUNYA TOMBOL LOGIN DI SINI -->
                 <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10 w-full sm:w-auto">
-                    <!-- SATU-SATUNYA TOMBOL LOGIN -->
                     <a href="/login" class="w-full sm:w-auto bg-syekhGreen-800 hover:bg-syekhGreen-900 text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-3 text-xs sm:text-sm border border-syekhGreen-700">
                         <i class="fa-solid fa-lock text-syekhGold-400"></i> Masuk / Login
                     </a>
                     
-                    <!-- Kartu Informasi Siswa Menyatu -->
                     <div class="hidden sm:flex items-center gap-4 px-6 py-3.5 bg-white rounded-xl shadow-sm border border-gray-100">
                         <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
                             <i class="fa-solid fa-users"></i>
@@ -92,21 +86,17 @@
                     </div>
                 </div>
 
-                <!-- Blok Alamat Rapi di Bawah -->
                 <div class="flex items-start lg:items-center gap-3 text-xs text-gray-500 border-t border-gray-200/80 pt-6 w-full max-w-lg">
                     <div class="mt-0.5 lg:mt-0 text-syekhGold-500 text-base"><i class="fa-solid fa-location-dot"></i></div>
                     <p class="leading-relaxed font-medium">Jl. Syekh Yusuf Makassar No.20, Sukasari, Kec. Tangerang, Kota Tangerang, Banten 15118</p>
                 </div>
             </div>
 
-            <!-- Kolom Kanan: Logo Super Besar & Elegan -->
+            <!-- Kolom Kanan: Logo Extra Besar & Elegan -->
             <div class="relative flex justify-center lg:justify-end items-center mt-8 lg:mt-0">
                 <div class="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
-                    <!-- Ornamen Cincin Belakang Logo -->
                     <div class="absolute inset-0 border-[24px] border-white/60 rounded-full shadow-2xl backdrop-blur-md"></div>
                     <div class="absolute inset-4 border-2 border-syekhGold-200/50 rounded-full"></div>
-                    
-                    <!-- Logo Ekstra Besar dengan Hover Effect -->
                     <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo SMA Syekh Yusuf" class="relative z-10 w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 object-contain drop-shadow-[0_20px_35px_rgba(21,128,61,0.35)] hover:scale-105 transition-transform duration-700">
                 </div>
             </div>
