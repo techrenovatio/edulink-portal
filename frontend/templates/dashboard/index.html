@@ -56,7 +56,6 @@
             <a href="/poin" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-scale-balanced text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Poin Pelanggaran</span></a>
             <a href="/laporan" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-invoice text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Laporan & Rekap</span></a>
             <a href="/presensi" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-user text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">Presensi Harian</span></a>
-            <a href="/rapor" class="flex items-center gap-4 px-4 py-3 hover:bg-syekhGreen-800 hover:text-white rounded-lg transition"><i class="fa-solid fa-file-signature text-sm w-5 text-center"></i><span class="text-xs font-semibold uppercase tracking-wider">E-Rapor & Ujian</span></a>
         </nav>
 
         <div class="p-5 border-t border-syekhGreen-800">
@@ -64,7 +63,11 @@
                 <div class="w-9 h-9 rounded-full bg-syekhGreen-800 border border-syekhGold-500 flex items-center justify-center text-syekhGold-400 font-bold font-serif text-xs">SY</div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-bold text-white truncate">{{ nama_user }}</p>
-                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">Administrator</p>
+                    <p class="text-[9px] font-mono text-syekhGold-400 uppercase">
+                        {% if session.get('role') == 'superadmin' %} Super Administrator
+                        {% elif session.get('role') == 'admin' %} Administrator
+                        {% else %} Guru / Staff {% endif %}
+                    </p>
                 </div>
             </div>
             <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2.5 border border-syekhGreen-700 rounded-lg text-[10px] font-bold text-syekhGreen-100 hover:text-white hover:bg-red-700 transition uppercase tracking-widest"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
@@ -142,10 +145,9 @@
                 <div class="lg:col-span-2 bg-white p-5 sm:p-8 rounded-xl border border-gray-200/80 shadow-sm">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-serif font-bold text-lg text-syekhGreen-900">Tren Kedisiplinan vs Prestasi</h3>
-                        <select id="chartFilter" onchange="updateChartData()" class="bg-syekhPaper border border-gray-200 text-xs py-1.5 px-2 rounded focus:outline-none font-bold text-syekhGreen-900">
-                            <option value="bulan">Per Bulan</option>
-                            <option value="semester">Per Semester</option>
-                            <option value="tahun">Per Tahun</option>
+                        <select class="bg-syekhPaper border border-gray-200 text-xs py-1.5 px-2 rounded focus:outline-none">
+                            <option>Per Bulan</option>
+                            <option>Per Semester</option>
                         </select>
                     </div>
                     <div class="h-[280px]">
@@ -200,20 +202,10 @@
                             {% for log in recent_logs %}
                             <tr class="hover:bg-emerald-50/30 transition">
                                 <td class="pl-6 py-4 font-mono text-[11px] text-gray-500">{{ log.tanggal[:10] }}</td>
-                                <td class="px-4 py-4 font-bold text-syekhGreen-900">
-                                    <a href="/laporan?q={{ log.nisn }}" class="hover:text-syekhGold-600 hover:underline">{{ log.nama_siswa }}</a> 
-                                    <span class="text-[10px] font-normal text-gray-400 font-mono block">{{ log.nisn }}</span>
-                                </td>
-                                <td class="px-4 py-4">
-                                    {% if log.tipe == 'Prestasi' %}
-                                    <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Prestasi</span>
-                                    {% else %}
-                                    <span class="bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1">Pelanggaran</span>
-                                    {% endif %}
-                                    {{ log.aktivitas }}
-                                </td>
+                                <td class="px-4 py-4 font-bold text-syekhGreen-900">{{ log.nama_siswa }} <span class="text-[10px] font-normal text-gray-400 font-mono block">{{ log.nisn }}</span></td>
+                                <td class="px-4 py-4">{{ log.jenis_pelanggaran }}</td>
                                 <td class="pr-6 py-4 text-right">
-                                    <span class="{% if log.tipe == 'Prestasi' %}bg-emerald-50 text-emerald-600 border-emerald-200{% else %}bg-red-50 text-red-600 border-red-200{% endif %} px-2 py-0.5 text-[9px] font-bold uppercase rounded border">+{{ log.poin }} Poin</span>
+                                    <span class="bg-red-50 text-red-600 px-2 py-0.5 text-[9px] font-bold uppercase rounded border border-red-200">+{{ log.poin }} Poin</span>
                                 </td>
                             </tr>
                             {% else %}
@@ -235,56 +227,54 @@
             document.getElementById('sidebarBackdrop').classList.toggle('hidden');
         }
 
-        const realDataPelanggaran = {{ trend_pelanggaran | tojson }};
-        const realDataPrestasi = {{ trend_prestasi | tojson }};
-        
-        let trendChart;
         const ctxLine = document.getElementById('disciplineTrendChart').getContext('2d');
-        trendChart = new Chart(ctxLine, {
+        new Chart(ctxLine, {
             type: 'line',
             data: {
                 labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
                 datasets: [
-                    { label: 'Kasus Pelanggaran', data: realDataPelanggaran, borderColor: '#15803D', backgroundColor: 'rgba(21, 128, 61, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#15803D' },
-                    { label: 'Poin Prestasi', data: realDataPrestasi, borderColor: '#EAB308', backgroundColor: 'rgba(234, 179, 8, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#EAB308' }
+                    { label: 'Kasus Pelanggaran', data: {{ trend_pelanggaran|tojson }}, borderColor: '#15803D', backgroundColor: 'rgba(21, 128, 61, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#15803D' },
+                    { label: 'Poin Prestasi', data: {{ trend_prestasi|tojson }}, borderColor: '#EAB308', backgroundColor: 'rgba(234, 179, 8, 0.05)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#EAB308' }
                 ]
             },
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: "'Inter', sans-serif", size: 11 } } } },
-                scales: { y: { beginAtZero: true, grid: { borderDash: [4, 4] } }, x: { grid: { display: false } } }
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: "'Inter', sans-serif", size: 11 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [4, 4] } },
+                    x: { grid: { display: false } }
+                }
             }
         });
 
-        function updateChartData() {
-            const filter = document.getElementById('chartFilter').value;
-            if (filter === 'bulan') {
-                trendChart.data.labels = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                trendChart.data.datasets[0].data = realDataPelanggaran;
-                trendChart.data.datasets[1].data = realDataPrestasi;
-            } else if (filter === 'semester') {
-                trendChart.data.labels = ['Semester 1 (Ganjil)', 'Semester 2 (Genap)'];
-                trendChart.data.datasets[0].data = [realDataPelanggaran.reduce((a, b) => a + b, 0), 0];
-                trendChart.data.datasets[1].data = [realDataPrestasi.reduce((a, b) => a + b, 0), 0];
-            } else if (filter === 'tahun') {
-                trendChart.data.labels = ['TA 2024/2025', 'TA 2025/2026'];
-                trendChart.data.datasets[0].data = [25, realDataPelanggaran.reduce((a, b) => a + b, 0)]; 
-                trendChart.data.datasets[1].data = [120, realDataPrestasi.reduce((a, b) => a + b, 0)]; 
-            }
-            trendChart.update();
-        }
-
+        // Diagram Distribusi Dinamis
         const ctxDoughnut = document.getElementById('classDistributionChart').getContext('2d');
         new Chart(ctxDoughnut, {
             type: 'doughnut',
             data: {
                 labels: ['Kelas X', 'Kelas XI', 'Kelas XII'],
-                datasets: [{ data: [{{ kelas_x }}, {{ kelas_xi }}, {{ kelas_xii }}], backgroundColor: ['#15803D', '#EAB308', '#6EE7B7'], borderWidth: 0, hoverOffset: 4 }]
+                datasets: [{
+                    data: [{{ kelas_x }}, {{ kelas_xi }}, {{ kelas_xii }}],
+                    backgroundColor: ['#15803D', '#EAB308', '#6EE7B7'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
             },
-            options: { 
-                responsive: true, maintainAspectRatio: false, cutout: '75%', 
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.raw + ' Siswa'; } } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return ' ' + context.label + ': ' + context.raw + ' Siswa'; }
+                        }
+                    }
+                }
             }
         });
     </script>
