@@ -318,7 +318,6 @@ def delete_multiple_users():
         conn.close()
     return redirect(url_for('manage_users'))
 
-# ... [Rute /siswa, /poin, /laporan, /presensi sama seperti sebelumnya] ...
 @app.route('/siswa', methods=['GET', 'POST'])
 def siswa():
     if 'user_id' not in session: return redirect(url_for('login'))
