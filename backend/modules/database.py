@@ -46,7 +46,6 @@ def init_db():
         )
     ''')
 
-    # FITUR BARU: Tabel Pencatatan Prestasi
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS prestasi (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,7 +83,6 @@ def init_db():
         )
     ''')
 
-    # FITUR BARU: Tabel Master Opsi Prestasi
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS master_prestasi (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,7 +109,6 @@ def init_db():
     if 'deskripsi' not in presensi_cols:
         cursor.execute("ALTER TABLE presensi_harian ADD COLUMN deskripsi TEXT DEFAULT ''")
 
-    # Insert Default Master Pelanggaran (Aman dari duplicate)
     cursor.execute("SELECT COUNT(*) FROM master_pelanggaran")
     if cursor.fetchone()[0] == 0:
         default_data = [
@@ -122,7 +119,6 @@ def init_db():
         ]
         cursor.executemany("INSERT OR IGNORE INTO master_pelanggaran (nama_pelanggaran, poin) VALUES (?, ?)", default_data)
         
-    # Insert Default Master Prestasi (Aman dari duplicate)
     cursor.execute("SELECT COUNT(*) FROM master_prestasi")
     if cursor.fetchone()[0] == 0:
         default_prestasi = [
@@ -133,12 +129,14 @@ def init_db():
         ]
         cursor.executemany("INSERT OR IGNORE INTO master_prestasi (nama_prestasi, poin) VALUES (?, ?)", default_prestasi)
     
-    # Insert Akun Superadmin (Aman dari reset password otomatis)
-    hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
-    cursor.execute(
-        "INSERT OR IGNORE INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        ('admin123', hashed_pwd, 'superadmin', 'Administrator Utama', '-', '-', 'Bukan', 'Semua', 'Semua', 1)
-    )
+    # Perbaikan: Hanya membuat admin jika belum ada (tidak pernah menghapus)
+    cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'admin123'")
+    if cursor.fetchone()[0] == 0:
+        hashed_pwd = generate_password_hash('rahasia2026', method='pbkdf2:sha256')
+        cursor.execute(
+            "INSERT INTO users (username, password, role, nama, nip, bidang_pelajaran, status_walikelas, mengajar_kelas, mengajar_mapel, can_print) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ('admin123', hashed_pwd, 'superadmin', 'Administrator Utama', '-', '-', 'Bukan', 'Semua', 'Semua', 1)
+        )
 
     conn.commit()
     conn.close()
