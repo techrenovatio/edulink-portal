@@ -47,13 +47,17 @@
 
     <!-- Sisi Kanan Form Login -->
     <div class="w-full lg:w-1/2 bg-white min-h-screen flex flex-col justify-between px-6 sm:px-16 lg:px-20 xl:px-28 py-10 relative shadow-2xl z-10">
-        <div>
-            <a href="/" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-syekhGreen-700 transition">
+        <!-- PERBAIKAN BUG AUTO-SUBMIT: Memisahkan tegas link navigasi dengan area form -->
+        <nav class="absolute top-10 left-6 sm:left-16 lg:left-20 xl:left-28 z-20">
+            <a href="/" tabindex="-1" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-syekhGreen-700 transition cursor-pointer">
                 <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
             </a>
-        </div>
+        </nav>
 
-        <div class="my-auto py-8">
+        <!-- Spacer untuk memberi ruang pada navigasi absolute -->
+        <div class="mt-8"></div>
+
+        <div class="my-auto py-8 w-full max-w-md mx-auto lg:max-w-full">
             <div class="flex lg:hidden items-center gap-3 sm:gap-4 mb-8">
                 <!-- LOGO TRANSPARAN MOBILE -->
                 <img src="{{ url_for('static', filename='images/smaunis.webp') }}" alt="Logo" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md">
@@ -79,7 +83,7 @@
             </div>
             {% endif %}
 
-            <form action="{{ url_for('login') }}" method="POST" class="flex flex-col gap-5">
+            <form action="{{ url_for('login') }}" method="POST" class="flex flex-col gap-5 w-full relative">
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pilih Peran Akses *</label>
                     <div class="grid grid-cols-2 gap-3">
@@ -98,7 +102,7 @@
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Username / NIP</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" name="username" required placeholder="Masukkan Username Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
+                        <input type="text" name="username" required autocomplete="username" placeholder="Masukkan Username Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
                     </div>
                 </div>
 
@@ -106,7 +110,7 @@
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Password</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="password" name="password" required placeholder="Masukkan Password Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
+                        <input type="password" name="password" required autocomplete="current-password" placeholder="Masukkan Password Anda" class="w-full bg-gray-50 border border-gray-200 text-sm py-3.5 pl-12 pr-4 focus:outline-none focus:border-syekhGreen-700 focus:bg-white transition rounded-lg">
                     </div>
                 </div>
 
@@ -116,7 +120,7 @@
             </form>
         </div>
 
-        <div class="border-t border-gray-100 pt-4 text-center">
+        <div class="border-t border-gray-100 pt-4 text-center mt-auto">
             <span class="text-[10px] text-gray-400 uppercase tracking-widest">© 2026 SMA Syekh Yusuf Kota Tangerang.</span>
         </div>
     </div>
