@@ -161,7 +161,6 @@
                                     <th class="px-3 py-3">Siswa</th>
                                     <th class="px-3 py-3">Catatan / Aktivitas</th>
                                     <th class="px-3 py-3 text-center">Poin</th>
-                                    <!-- FITUR BARU: Kolom Aksi Edit/Delete -->
                                     <th class="pr-6 py-3 text-right print-hidden">Aksi</th>
                                 </tr>
                             </thead>
@@ -181,7 +180,6 @@
                                     </td>
                                     <td class="px-3 py-3 text-center text-sm font-bold {% if p.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %}">+{{ p.poin }}</td>
                                     
-                                    <!-- FITUR BARU: Tombol Edit dan Hapus -->
                                     <td class="pr-6 py-3 text-right print-hidden">
                                         <button type="button" onclick="openEditRiwayatModal('{{ p.id }}', '{{ p.tipe }}', '{{ p.tanggal[:10] }}', '{{ p.nisn }}', '{{ p.nama_siswa }}', '{{ p.aktivitas }}', '{{ p.poin }}')" class="p-1.5 text-gray-400 hover:text-syekhGold-600 transition" title="Edit Riwayat">
                                             <i class="fa-solid fa-pen-to-square"></i>
@@ -233,7 +231,6 @@
                 
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1" id="edit_label_catatan">Jenis Aktivitas</label>
-                    <!-- Mengunci Opsi Hanya Pada Master yg Bersangkutan -->
                     <select name="edit_jenis_catatan" id="edit_jenis_catatan" onchange="autoFillEditPoin(this)" required class="w-full bg-gray-50 border py-2 px-3 text-xs rounded focus:outline-none focus:border-syekhGreen-600">
                     </select>
                 </div>
@@ -281,15 +278,16 @@
     <script>
         const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
         
+        // MENGGUNAKAN TOJSON & SAFE FILTER UNTUK MENCEGAH HTML ENTITY ESCAPING (&gt;)
         const mPelanggaran = [
             {% for mp in master_pelanggaran %}
-            { nama_pelanggaran: "{{ mp.nama_pelanggaran }}", poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
+            { nama_pelanggaran: {{ mp.nama_pelanggaran | tojson | safe }}, poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
             {% endfor %}
         ];
         
         const mPrestasi = [
             {% for mp in master_prestasi %}
-            { nama_prestasi: "{{ mp.nama_prestasi }}", poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
+            { nama_prestasi: {{ mp.nama_prestasi | tojson | safe }}, poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
             {% endfor %}
         ];
         
@@ -308,7 +306,6 @@
         function openModal() { document.getElementById('modalMaster').classList.remove('hidden'); }
         function closeModal() { document.getElementById('modalMaster').classList.add('hidden'); }
 
-        // MENGAKTIFKAN MODAL EDIT RIWAYAT
         function openEditRiwayatModal(id, tipe, tanggal, nisn, nama, aktivitas, poin) {
             document.getElementById('edit_id').value = id;
             document.getElementById('edit_tipe').value = tipe;
