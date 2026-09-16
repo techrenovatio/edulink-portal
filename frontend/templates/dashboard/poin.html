@@ -176,12 +176,13 @@
                                         <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border {% if p.tipe == 'Prestasi' %}bg-emerald-50 text-emerald-600 border-emerald-200{% else %}bg-red-50 text-red-600 border-red-200{% endif %}">
                                             {{ p.tipe }}
                                         </span>
-                                        <br><span class="mt-1 block">{{ p.aktivitas }}</span>
+                                        <!-- MENAMBAHKAN | safe AGAR KODE &gt; DI-RENDER JADI SIMBOL > -->
+                                        <br><span class="mt-1 block">{{ p.aktivitas | safe }}</span>
                                     </td>
                                     <td class="px-3 py-3 text-center text-sm font-bold {% if p.tipe == 'Prestasi' %}text-emerald-600{% else %}text-red-600{% endif %}">+{{ p.poin }}</td>
                                     
                                     <td class="pr-6 py-3 text-right print-hidden">
-                                        <button type="button" onclick="openEditRiwayatModal('{{ p.id }}', '{{ p.tipe }}', '{{ p.tanggal[:10] }}', '{{ p.nisn }}', '{{ p.nama_siswa }}', '{{ p.aktivitas }}', '{{ p.poin }}')" class="p-1.5 text-gray-400 hover:text-syekhGold-600 transition" title="Edit Riwayat">
+                                        <button type="button" onclick="openEditRiwayatModal('{{ p.id }}', '{{ p.tipe }}', '{{ p.tanggal[:10] }}', '{{ p.nisn }}', '{{ p.nama_siswa }}', `{{ p.aktivitas | safe }}`, '{{ p.poin }}')" class="p-1.5 text-gray-400 hover:text-syekhGold-600 transition" title="Edit Riwayat">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
                                         <form action="/poin/delete_riwayat" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus riwayat aktivitas ini secara permanen?');">
@@ -278,7 +279,12 @@
     <script>
         const siswaMap = {{ siswa_map | tojson | safe if siswa_map else '{}' }};
         
-        // MENGGUNAKAN TOJSON & SAFE FILTER UNTUK MENCEGAH HTML ENTITY ESCAPING (&gt;)
+        function decodeHTMLEntities(text) {
+            const textArea = document.createElement('textarea');
+            textArea.innerHTML = text;
+            return textArea.value;
+        }
+
         const mPelanggaran = [
             {% for mp in master_pelanggaran %}
             { nama_pelanggaran: {{ mp.nama_pelanggaran | tojson | safe }}, poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
@@ -307,6 +313,8 @@
         function closeModal() { document.getElementById('modalMaster').classList.add('hidden'); }
 
         function openEditRiwayatModal(id, tipe, tanggal, nisn, nama, aktivitas, poin) {
+            const cleanAktivitas = decodeHTMLEntities(aktivitas);
+
             document.getElementById('edit_id').value = id;
             document.getElementById('edit_tipe').value = tipe;
             document.getElementById('edit_tipe_display').value = tipe;
@@ -327,7 +335,7 @@
                     opt.value = p.nama_pelanggaran;
                     opt.setAttribute('data-poin', p.poin);
                     opt.textContent = `${p.nama_pelanggaran} (+${p.poin})`;
-                    if(p.nama_pelanggaran === aktivitas) opt.selected = true;
+                    if(p.nama_pelanggaran === cleanAktivitas) opt.selected = true;
                     selectEl.appendChild(opt);
                 });
             } else {
@@ -338,7 +346,7 @@
                     opt.value = p.nama_prestasi;
                     opt.setAttribute('data-poin', p.poin);
                     opt.textContent = `${p.nama_prestasi} (+${p.poin})`;
-                    if(p.nama_prestasi === aktivitas) opt.selected = true;
+                    if(p.nama_prestasi === cleanAktivitas) opt.selected = true;
                     selectEl.appendChild(opt);
                 });
             }
