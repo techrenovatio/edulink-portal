@@ -107,7 +107,6 @@ def login():
 
             db_role = str(user['role']).strip().lower()
             if db_role == form_role or (form_role == 'admin' and db_role == 'superadmin'):
-                # FORMAT WAKTU WIB (Asia/Jakarta)
                 wib_tz = ZoneInfo('Asia/Jakarta')
                 now_str = datetime.datetime.now(wib_tz).strftime("%d %b %Y, %H:%M")
                 
@@ -404,6 +403,8 @@ def poin():
 def edit_riwayat():
     if 'user_id' not in session: return redirect(url_for('login'))
     r_id, tipe, tanggal, jenis, poin_val = request.form.get('edit_id'), request.form.get('edit_tipe'), request.form.get('edit_tanggal'), request.form.get('edit_jenis_catatan'), request.form.get('edit_poin', 0)
+    redirect_nisn = request.form.get('redirect_nisn', '').strip()
+    
     if r_id and tipe and jenis and tanggal:
         conn = get_db_connection()
         try:
@@ -414,12 +415,17 @@ def edit_riwayat():
             flash("Catatan riwayat diperbarui!", "success")
         except Exception as e: flash(f"Gagal memperbarui: {e}", "error")
         finally: conn.close()
+        
+    if redirect_nisn:
+        return redirect(url_for('laporan', q=redirect_nisn))
     return redirect(url_for('poin'))
 
 @app.route('/poin/delete_riwayat', methods=['POST'])
 def delete_riwayat():
     if 'user_id' not in session: return redirect(url_for('login'))
     r_id, tipe = request.form.get('id'), request.form.get('tipe')
+    redirect_nisn = request.form.get('redirect_nisn', '').strip()
+    
     if r_id and tipe:
         conn = get_db_connection()
         try:
@@ -429,6 +435,9 @@ def delete_riwayat():
             flash("Catatan riwayat dihapus!", "success")
         except Exception as e: flash("Gagal menghapus.", "error")
         finally: conn.close()
+        
+    if redirect_nisn:
+        return redirect(url_for('laporan', q=redirect_nisn))
     return redirect(url_for('poin'))
 
 @app.route('/poin/tambah-master', methods=['POST'])
@@ -453,8 +462,12 @@ def laporan():
     search_query, kelas_query, start_date, end_date = request.args.get('q', '').strip(), request.args.get('kelas', '').strip(), request.args.get('start_date', '').strip(), request.args.get('end_date', '').strip()
     
     conn = get_db_connection()
-    try: m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
-    except: m_kelas = []
+    try: 
+        m_kelas = conn.execute("SELECT * FROM master_kelas ORDER BY nama_kelas ASC").fetchall()
+        master_pelanggaran = conn.execute("SELECT * FROM master_pelanggaran ORDER BY poin ASC").fetchall()
+        master_prestasi = conn.execute("SELECT * FROM master_prestasi ORDER BY poin ASC").fetchall()
+    except: 
+        m_kelas, master_pelanggaran, master_prestasi = [], [], []
 
     view_mode = 'default'
     siswa_data, class_data, pelanggaran_data, prestasi_data = None, [], [], []
@@ -516,7 +529,7 @@ def laporan():
         except Exception as e: print("Widget Data Error:", e)
             
     conn.close()
-    return render_template('dashboard/laporan.html', nama_user=session['nama'], m_kelas=m_kelas, view_mode=view_mode, siswa=siswa_data, pelanggaran=pelanggaran_data, prestasi=prestasi_data, total_poin_pelanggaran=total_poin_pelanggaran, total_poin_prestasi=total_poin_prestasi, kehadiran=kehadiran, class_data=class_data, default_data=default_data, search_query=search_query, kelas_query=kelas_query, start_date=start_date, end_date=end_date)
+    return render_template('dashboard/laporan.html', nama_user=session['nama'], m_kelas=m_kelas, master_pelanggaran=master_pelanggaran, master_prestasi=master_prestasi, view_mode=view_mode, siswa=siswa_data, pelanggaran=pelanggaran_data, prestasi=prestasi_data, total_poin_pelanggaran=total_poin_pelanggaran, total_poin_prestasi=total_poin_prestasi, kehadiran=kehadiran, class_data=class_data, default_data=default_data, search_query=search_query, kelas_query=kelas_query, start_date=start_date, end_date=end_date)
 
 @app.route('/api/get_presensi', methods=['POST'])
 def get_presensi():

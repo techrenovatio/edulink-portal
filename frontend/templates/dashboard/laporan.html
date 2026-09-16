@@ -199,7 +199,6 @@
                         <button onclick="switchTab('prestasi')" id="btn-prestasi" class="flex-1 py-2 rounded font-bold text-gray-500 hover:bg-gray-100 text-xs transition">Riwayat Prestasi ({{ prestasi|length }})</button>
                     </div>
 
-                    <!-- TABEL PELANGGARAN DENGAN AKSIN EDIT & HAPUS -->
                     <div id="tab-pelanggaran" class="block">
                         <div class="p-4 border-b border-gray-100 bg-red-50/50 hidden print:block"><h3 class="font-bold text-sm text-red-800">Riwayat Pelanggaran</h3></div>
                         <table class="w-full text-left text-xs text-gray-600">
@@ -238,7 +237,6 @@
                         </table>
                     </div>
 
-                    <!-- TABEL PRESTASI DENGAN AKSI EDIT & HAPUS -->
                     <div id="tab-prestasi" class="hidden print:block print:mt-8">
                         <div class="p-4 border-b border-gray-100 bg-emerald-50/50 hidden print:block"><h3 class="font-bold text-sm text-emerald-800">Riwayat Prestasi</h3></div>
                         <table class="w-full text-left text-xs text-gray-600">
@@ -586,16 +584,21 @@
             return textArea.value;
         }
 
+        // AMBIL MASTER DENGAN FALLBACK JIKA VARIABEL BELUM DI-PASS OLEH FLASK
         const mPelanggaran = [
-            {% for mp in master_pelanggaran %}
-            { nama_pelanggaran: {{ mp.nama_pelanggaran | tojson | safe }}, poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
-            {% endfor %}
+            {% if master_pelanggaran %}
+                {% for mp in master_pelanggaran %}
+                { nama_pelanggaran: {{ mp.nama_pelanggaran | tojson | safe }}, poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            {% endif %}
         ];
         
         const mPrestasi = [
-            {% for mp in master_prestasi %}
-            { nama_prestasi: {{ mp.nama_prestasi | tojson | safe }}, poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
-            {% endfor %}
+            {% if master_prestasi %}
+                {% for mp in master_prestasi %}
+                { nama_prestasi: {{ mp.nama_prestasi | tojson | safe }}, poin: {{ mp.poin }} }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            {% endif %}
         ];
 
         function toggleSidebar() {
@@ -633,29 +636,46 @@
             const inputPoin = document.getElementById('report_edit_poin');
             
             selectEl.innerHTML = '';
-            
+            let itemFound = false;
+
             if(tipe === 'Pelanggaran') {
                 labelEl.textContent = 'Jenis Pelanggaran';
                 inputPoin.className = 'w-full bg-gray-100 border py-2 px-3 text-xs font-bold text-red-600 rounded cursor-not-allowed';
-                mPelanggaran.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.nama_pelanggaran;
-                    opt.setAttribute('data-poin', p.poin);
-                    opt.textContent = `${p.nama_pelanggaran} (+${p.poin})`;
-                    if(p.nama_pelanggaran === cleanAktivitas) opt.selected = true;
-                    selectEl.appendChild(opt);
-                });
+                
+                if (mPelanggaran.length > 0) {
+                    mPelanggaran.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.nama_pelanggaran;
+                        opt.setAttribute('data-poin', p.poin);
+                        opt.textContent = `${p.nama_pelanggaran} (+${p.poin})`;
+                        if(p.nama_pelanggaran === cleanAktivitas) { opt.selected = true; itemFound = true; }
+                        selectEl.appendChild(opt);
+                    });
+                }
             } else {
                 labelEl.textContent = 'Jenis Prestasi';
                 inputPoin.className = 'w-full bg-gray-100 border py-2 px-3 text-xs font-bold text-emerald-600 rounded cursor-not-allowed';
-                mPrestasi.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.nama_prestasi;
-                    opt.setAttribute('data-poin', p.poin);
-                    opt.textContent = `${p.nama_prestasi} (+${p.poin})`;
-                    if(p.nama_prestasi === cleanAktivitas) opt.selected = true;
-                    selectEl.appendChild(opt);
-                });
+                
+                if (mPrestasi.length > 0) {
+                    mPrestasi.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.nama_prestasi;
+                        opt.setAttribute('data-poin', p.poin);
+                        opt.textContent = `${p.nama_prestasi} (+${p.poin})`;
+                        if(p.nama_prestasi === cleanAktivitas) { opt.selected = true; itemFound = true; }
+                        selectEl.appendChild(opt);
+                    });
+                }
+            }
+            
+            // IF FALLBACK: Jika master data belum terkirim dari Flask, sisipkan item aktif sekarang
+            if (!itemFound) {
+                const opt = document.createElement('option');
+                opt.value = cleanAktivitas;
+                opt.setAttribute('data-poin', poin);
+                opt.textContent = `${cleanAktivitas} (+${poin})`;
+                opt.selected = true;
+                selectEl.appendChild(opt);
             }
             
             inputPoin.value = poin;
